@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="quiz-version" content="72698db8a7fe" />
+<title>JLPT 语法小测</title>
+<style>
+  :root {
+    --bg: #fff7f9;
+    --card: #ffffff;
+    --ink: #3d3550;
+    --muted: #9b8fb0;
+    --accent: #ff6f9c;
+    --accent2: #a18cff;
+    --accent-soft: #ffe8f0;
+    --ok: #3fc47d;
+    --ok-soft: #e6fbee;
+    --bad: #ff7d6e;
+    --bad-soft: #fff0ec;
+    --line: #f4e8f0;
+    --radius: 22px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Segoe UI", "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+    background:
+      radial-gradient(circle at 12% 8%, #ffe4ef 0%, transparent 34%),
+      radial-gradient(circle at 92% 16%, #e6e1ff 0%, transparent 36%),
+      radial-gradient(circle at 50% 100%, #ffe9c7 0%, transparent 40%),
+      var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 32px 18px 88px; }
+
+  /* header */
+  .head { text-align: center; margin-bottom: 20px; }
+  .mascot { font-size: 46px; display: inline-block; animation: bob 2.6s ease-in-out infinite; }
+  @keyframes bob { 0%,100%{transform:translateY(0) rotate(-3deg)} 50%{transform:translateY(-8px) rotate(3deg)} }
+  /* breadcrumb (level + lesson) */
+  .crumbs { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+  .crumbs .crumb {
+    display: inline-flex; align-items: center;
+    font-size: 15px; font-weight: 900; letter-spacing: .04em;
+    color: #fff; background: linear-gradient(120deg, var(--accent), var(--accent2));
+    padding: 6px 16px; border-radius: 999px;
+    box-shadow: 0 4px 12px rgba(255,111,156,.30);
+  }
+  .crumbs .crumb.plain {
+    background: #fff; color: var(--accent2);
+    border: 2px solid var(--accent2); box-shadow: none;
+  }
+  .crumbs .sep { color: var(--muted); font-weight: 900; font-size: 18px; }
+  h1 { font-size: 27px; font-weight: 900; letter-spacing: .01em; margin-top: 10px; }
+  .sub { color: var(--muted); font-size: 14px; margin-top: 4px; }
+
+  /* progress */
+  .progress { display: flex; align-items: center; gap: 12px; margin: 24px 0; }
+  .bar { flex: 1; height: 14px; border-radius: 999px; background: #ffeef5; overflow: hidden; box-shadow: inset 0 2px 4px rgba(255,111,156,.15); }
+  .fill { height: 100%; width: 0%; border-radius: 999px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width .4s cubic-bezier(.22,1,.36,1); }
+  .count { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 700; }
+
+  /* summary */
+  .summary {
+    background: var(--card); border: 2px solid var(--line); border-radius: var(--radius);
+    padding: 20px 22px; margin-bottom: 22px; box-shadow: 0 8px 24px rgba(161,140,255,.10);
+  }
+  .summary h2 { font-size: 14px; color: var(--accent2); font-weight: 900; letter-spacing: .05em; margin-bottom: 10px; }
+  .summary li { margin: 8px 0 8px 22px; font-size: 15px; }
+  .summary li::marker { color: var(--accent); }
+  .summary b { color: var(--accent); }
+
+  /* question card */
+  .card {
+    background: var(--card); border: 2px solid var(--line); border-radius: var(--radius);
+    padding: 24px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(255,111,156,.10);
+    animation: pop .45s cubic-bezier(.34,1.56,.64,1) both;
+  }
+  @keyframes pop { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
+  .qnum { font-size: 13px; font-weight: 900; color: var(--accent); letter-spacing: .08em; margin-bottom: 8px; }
+  .stem { font-size: 18px; font-weight: 700; margin-bottom: 18px; }
+  .stem .blank { display: inline-block; min-width: 72px; border-bottom: 3px dotted var(--accent); text-align: center; padding: 0 4px; color: var(--accent); }
+
+  .opts { display: grid; gap: 10px; }
+  .opt {
+    display: flex; align-items: center; gap: 12px; text-align: left;
+    border: 2px solid var(--line); background: #fff; border-radius: 16px;
+    padding: 12px 14px; font-size: 16px; cursor: pointer; font-family: inherit;
+    transition: transform .16s cubic-bezier(.34,1.56,.64,1), border-color .16s ease, background .16s ease, box-shadow .16s ease;
+  }
+  .opt:hover:not(:disabled) { border-color: var(--accent2); transform: translateY(-2px) scale(1.01); box-shadow: 0 8px 18px rgba(161,140,255,.18); }
+  .opt .key {
+    flex: none; width: 28px; height: 28px; border-radius: 50%; font-size: 14px; font-weight: 900;
+    display: grid; place-items: center; background: #fdf1f6; color: var(--accent);
+  }
+  .opt.correct { border-color: var(--ok); background: var(--ok-soft); }
+  .opt.correct .key { background: var(--ok); color: #fff; }
+  .opt.wrong { border-color: var(--bad); background: var(--bad-soft); animation: shake .35s ease; }
+  .opt.wrong .key { background: var(--bad); color: #fff; }
+  @keyframes shake { 0%,100%{transform:none} 20%{transform:translateX(-5px)} 40%{transform:translateX(5px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+  .opt:disabled { cursor: default; }
+
+  /* explanation */
+  .explain { display: none; margin-top: 16px; padding: 15px 17px; border-radius: 16px; font-size: 14.5px; }
+  .explain.show { display: block; animation: pop .3s cubic-bezier(.34,1.56,.64,1) both; }
+  .explain .headline { font-weight: 900; margin-bottom: 4px; }
+  .explain .trans {
+    display: flex; align-items: center; gap: 10px;
+    margin: 8px 0 6px; padding: 9px 13px;
+    border-radius: 11px; background: rgba(255,255,255,.72);
+    border: 1.5px dashed var(--accent);
+    font-weight: 700; font-size: 15px; color: var(--ink);
+  }
+  .explain .trans .tlbl {
+    flex: none; font-size: 12px; font-weight: 900; letter-spacing: .04em;
+    color: #fff; background: linear-gradient(120deg, var(--accent), var(--accent2));
+    padding: 3px 9px; border-radius: 999px;
+  }
+  .explain.ok { background: var(--ok-soft); } .explain.ok .headline { color: var(--ok); }
+  .explain.no { background: var(--bad-soft); } .explain.no .headline { color: var(--bad); }
+  .explain .tip { color: var(--muted); font-size: 13px; margin-top: 6px; }
+  .next { margin-top: 16px; width: 100%; padding: 13px; border: none; border-radius: 16px;
+    background: linear-gradient(120deg, var(--accent), var(--accent2)); color: #fff; font-size: 15px; font-weight: 900; cursor: pointer; font-family: inherit;
+    box-shadow: 0 6px 16px rgba(255,111,156,.35); transition: transform .16s cubic-bezier(.34,1.56,.64,1), filter .16s; }
+  .next:disabled { opacity: .4; cursor: default; box-shadow: none; }
+  .next:not(:disabled):hover { transform: translateY(-2px); filter: brightness(1.05); }
+
+  /* result */
+  .result { text-align: center; padding: 40px 24px; animation: pop .5s cubic-bezier(.34,1.56,.64,1) both; }
+  .result .mascot { font-size: 60px; margin-bottom: 6px; }
+  .ring { width: 136px; height: 136px; margin: 4px auto 18px; }
+  .ring .bg { fill: none; stroke: #ffeef5; stroke-width: 12; }
+  .ring .val { fill: none; stroke: var(--accent); stroke-width: 12; stroke-linecap: round; transition: stroke-dashoffset 1s cubic-bezier(.22,1,.36,1); }
+  .ring text { font-size: 30px; font-weight: 900; fill: var(--ink); }
+  .result h2 { font-size: 22px; margin-bottom: 6px; }
+  .result p { color: var(--muted); font-size: 14px; margin-bottom: 18px; }
+  .again { padding: 12px 30px; border: none; border-radius: 16px; background: linear-gradient(120deg, var(--accent), var(--accent2)); color: #fff; font-size: 15px; font-weight: 900; cursor: pointer; font-family: inherit; box-shadow: 0 6px 16px rgba(255,111,156,.35); transition: transform .16s cubic-bezier(.34,1.56,.64,1); }
+  .again:hover { transform: translateY(-2px) scale(1.03); }
+
+  /* version marker */
+  .ver { text-align: center; color: var(--muted); font-size: 12px; margin-top: 30px; opacity: .75; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="head">
+    <span class="mascot">🌸</span>
+    <br />
+    <nav class="crumbs" id="crumbs"></nav>
+    <h1 id="title"></h1>
+    <div class="sub" id="sub"></div>
+  </header>
+
+  <div class="progress">
+    <span class="count" id="count"></span>
+    <div class="bar"><div class="fill" id="fill"></div></div>
+  </div>
+
+  <section class="summary">
+    <h2>知识点速览</h2>
+    <ul id="summary"></ul>
+  </section>
+
+  <div id="quiz"></div>
+  <div id="result" class="result" style="display:none"></div>
+  <div class="ver" id="ver"></div>
+</div>
+
+<script>
+const QUIZ = {"title":"格助词「を」","level":"N5","no":"13","subtitle":"基于笔记 notes/raw/n5/13.格助词を.md","summary":["「を」表示动作的宾语，一般不翻译。","宾语放在他动词之前，如「ご飯を食べる」「本を読む」。","「を」表示移动经过的场所，如「空を飛ぶ」。","「を」表示离开的场所（出发点），如「家を出る」。"],"questions":[{"stem":"ご飯＿＿＿食べます。","options":["を","が","に","で"],"answer":0,"explain":"「を」放在他动词前，表示动作的宾语，一般不翻译。","translation":"吃饭。","tip":"先判断动词是否为带宾语的他动词，再选「を」。"},{"stem":"本＿＿＿読みます。","options":["が","へ","を","で"],"answer":2,"explain":"「を」表示动作的对象，「本」是「読む」的宾语。","translation":"读书。","tip":"把「を」后面的动词找出来，确认它能否带宾语。"},{"stem":"空＿＿＿飛びます。","options":["に","を","へ","で"],"answer":1,"explain":"「を」表示移动经过的场所，「空を飛ぶ」意为在空中飞。","translation":"在空中飞。","tip":"“飞过/穿行某空间”这种经过的场所要用「を」，不用「で」。"},{"stem":"家＿＿＿出ます。","options":["に","で","へ","を"],"answer":3,"explain":"「を」表示离开的场所（出发点），「家を出る」意为离开家。","translation":"离开家。","tip":"区分“进入”与“离开”：进入用「に」，离开用「を」。"}],"version":"72698db8a7fe"};
+
+const els = {
+  crumbs: document.getElementById('crumbs'),
+  title: document.getElementById('title'),
+  sub: document.getElementById('sub'),
+  count: document.getElementById('count'),
+  fill: document.getElementById('fill'),
+  summary: document.getElementById('summary'),
+  quiz: document.getElementById('quiz'),
+  result: document.getElementById('result'),
+  ver: document.getElementById('ver'),
+};
+
+function renderSummary() {
+  const level = QUIZ.level || '';
+  const no = QUIZ.no || '';
+  const parts = [];
+  if (level) parts.push(`<span class="crumb">${level}</span>`);
+  if (no) parts.push(`<span class="crumb plain">第${no}课</span>`);
+  els.crumbs.innerHTML = parts.join('<span class="sep">›</span>');
+  els.title.textContent = QUIZ.title || '';
+  els.sub.textContent = QUIZ.subtitle || '';
+  els.ver.textContent = 'quiz · v' + (QUIZ.version || '?');
+  els.summary.innerHTML = (QUIZ.summary || []).map(s => `<li>${s}</li>`).join('');
+}
+
+let state = { i: 0, score: 0, total: QUIZ.questions.length };
+
+function renderQuestion() {
+  const q = QUIZ.questions[state.i];
+  els.count.textContent = `${state.i + 1} / ${state.total}`;
+  els.fill.style.width = `${(state.i / state.total) * 100}%`;
+
+  const opts = q.options.map((o, idx) => {
+    const key = String.fromCharCode(65 + idx);
+    return `<button class="opt" data-idx="${idx}">
+      <span class="key">${key}</span><span>${o}</span>
+    </button>`;
+  }).join('');
+
+  els.quiz.innerHTML = `
+    <div class="card" id="card">
+      <div class="qnum">第 ${state.i + 1} 题</div>
+      <div class="stem">${q.stem}</div>
+      <div class="opts">${opts}</div>
+      <div class="explain" id="explain"></div>
+      <button class="next" id="next" disabled>${state.i + 1 === state.total ? '查看成绩' : '下一题 →'}</button>
+    </div>`;
+
+  els.quiz.querySelectorAll('.opt').forEach(btn => {
+    btn.addEventListener('click', () => answer(Number(btn.dataset.idx)));
+  });
+  els.quiz.querySelector('#next').addEventListener('click', next);
+}
+
+function answer(pick) {
+  const q = QUIZ.questions[state.i];
+  const btns = els.quiz.querySelectorAll('.opt');
+  const expl = els.quiz.querySelector('#explain');
+  const nextBtn = els.quiz.querySelector('#next');
+
+  btns.forEach((b, idx) => {
+    b.disabled = true;
+    if (idx === q.answer) b.classList.add('correct');
+    else if (idx === pick) b.classList.add('wrong');
+  });
+
+  const right = pick === q.answer;
+  if (right) state.score++;
+
+  expl.className = 'explain show ' + (right ? 'ok' : 'no');
+  expl.innerHTML = `
+    <div class="headline">${right ? '✓ 正确' : '✗ 正确答案是 ' + String.fromCharCode(65 + q.answer)}</div>
+    <div class="trans"><span class="tlbl">译文</span><span>${q.translation || ''}</span></div>
+    <div>${q.explain}</div>
+    <div class="tip">${q.tip || ''}</div>`;
+  nextBtn.disabled = false;
+}
+
+function next() {
+  state.i++;
+  if (state.i < state.total) renderQuestion();
+  else renderResult();
+}
+
+function renderResult() {
+  els.quiz.style.display = 'none';
+  document.querySelector('.summary').style.display = 'none';
+  els.fill.style.width = '100%';
+  els.count.textContent = `${state.total} / ${state.total}`;
+
+  const pct = Math.round((state.score / state.total) * 100);
+  const R = 56, C = 2 * Math.PI * R;
+  els.result.style.display = 'block';
+  els.result.innerHTML = `
+    <span class="mascot">${pct >= 80 ? '🎉' : pct >= 60 ? '💪' : '🌱'}</span>
+    <svg class="ring" viewBox="0 0 132 132">
+      <defs>
+        <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#ff6f9c"></stop>
+          <stop offset="100%" stop-color="#a18cff"></stop>
+        </linearGradient>
+      </defs>
+      <circle class="bg" cx="66" cy="66" r="${R}"></circle>
+      <circle class="val" cx="66" cy="66" r="${R}" stroke-dasharray="${C}" stroke-dashoffset="${C}"></circle>
+      <text x="50%" y="58%" text-anchor="middle">${pct}%</text>
+    </svg>
+    <h2>${state.score} / ${state.total} 题答对</h2>
+    <p>${pct >= 80 ? '掌握得很好，保持这个状态。' : pct >= 60 ? '不错，再回顾一下错题的知识点。' : '先回笔记过一遍知识点，再来刷一轮。'}</p>
+    <button class="again" onclick="location.reload()">再来一轮</button>`;
+
+  requestAnimationFrame(() => {
+    const circle = els.result.querySelector('.val');
+    circle.style.strokeDashoffset = String(C * (1 - pct / 100));
+  });
+}
+
+renderSummary();
+renderQuestion();
+</script>
+</body>
+</html>
