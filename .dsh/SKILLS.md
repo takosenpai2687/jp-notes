@@ -75,3 +75,4 @@ request matches. If you want it always on, it belongs in `AGENTS.md`.
 | Skill | Purpose |
 |---|---|
 | `commit` | Write a dated English commit with the current model credited as co-author. |
+| `quiz` | Generate an interactive, animated JLPT-style grammar quiz (HTML) from a note or grammar point under `notes/`. |
