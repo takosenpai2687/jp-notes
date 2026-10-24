@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="quiz-version" content="97ef5e4ec21c" />
+<meta name="quiz-version" content="8d52fa3ddb3d" />
 <title>JLPT 语法小测</title>
 <style>
   :root {
@@ -81,6 +81,12 @@
   }
   @keyframes pop { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
   .qnum { font-size: 13px; font-weight: 900; color: var(--accent); letter-spacing: .08em; margin-bottom: 8px; }
+  .qhead { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .qhead .qnum { margin-bottom: 0; }
+  .src {
+    font-size: 12px; font-weight: 700; color: var(--accent2);
+    background: var(--accent-soft); padding: 3px 10px; border-radius: 999px;
+  }
   .stem { font-size: 18px; font-weight: 700; margin-bottom: 18px; }
   .stem .blank { display: inline-block; min-width: 72px; border-bottom: 3px dotted var(--accent); text-align: center; padding: 0 4px; color: var(--accent); }
 
@@ -170,7 +176,7 @@
 </div>
 
 <script>
-const QUIZ = {"title":"动词原形","level":"N5","no":"6","subtitle":"基于笔记 notes/raw/n5/6.动词原形.md","summary":["动词原形是词典里的原始形态，又叫辞书形、字典形、普通形、基本形。","前に：原形＋前に，表示“在…之前”；反义“在…之后”用た形＋後で。","ことです：原形＋ことです，把动词名词化，表示“是…（事情）”。","ことがある：原形＋ことがある，表示“有时”；た形＋ことがある，表示“曾经有过”。","ことができる：原形＋ことができる，表示“能力”或“可能性”。"],"questions":[{"stem":"ご飯を＿＿＿前に、手を洗ってください。","options":["食べる","食べた","食べて","食べます"],"answer":0,"explain":"「前に」前必须接动词原形（辞书形），所以是「食べる前に」。","translation":"吃饭之前，请洗手。","tip":"看到「前に」就想到前面接原形；相反的「後で」前接た形。"},{"stem":"時々、日本へ＿＿＿ことがあります。","options":["行きます","行って","行った","行く"],"answer":3,"explain":"「原形＋ことがある」表示“有时做某事”，所以用「行く」。","translation":"我有时去日本。","tip":"「原形＋ことがある」是“有时”，「た形＋ことがある」是“曾经”。"},{"stem":"日本へ＿＿＿ことがありますか。","options":["行く","行った","行って","行きます"],"answer":1,"explain":"「た形＋ことがある」表示“曾经有过…的经历”，所以用「行った」。","translation":"你去过日本吗？","tip":"表示“曾经做过”用た形，表示“有时”才用原形。"},{"stem":"私の趣味は音楽を＿＿＿ことです。","options":["聴いた","聴く","聴きます","聴いて"],"answer":1,"explain":"「ことです」前接原形，把动词名词化，表示“是…这件事”。","translation":"我的爱好是听音乐。","tip":"「ことです」前接动词原形，构成名词化的说明。"},{"stem":"李さんは日本語を＿＿＿ことができます。","options":["話した","話して","話します","話す"],"answer":3,"explain":"「ことができる」前接原形，表示能力，所以是「話すことができる」。","translation":"小李会说日语。","tip":"「ことができる」前一定接动词原形。"},{"stem":"この店は、カードで＿＿＿ことができます。","options":["払う","払った","払います","払って"],"answer":0,"explain":"「ことができる」前接原形，这里表示可能性（可以…）。","translation":"这家店可以刷卡支付。","tip":"「ことができる」前接原形，这里指“可以支付”的可能性。"}],"version":"97ef5e4ec21c"};
+const QUIZ = {"title":"动词原形","level":"N5","no":"6","subtitle":"基于笔记 notes/raw/n5/6.动词原形.md","summary":["动词原形即辞书形、字典形、普通形、基本形，是词典中可查到的原始形态。","原形＋前に：表示“在……之前”；反义“た形＋後で”表示“在……之后”。","原形＋ことです：表示“是……（这件事）”，用于说明事情的内容。","原形＋ことがある：表示“有时、偶尔”；た形＋ことがある：表示“曾经、有……经验”。","原形＋ことができる：表示能力或可能性，即“能……、会……”。","以上句型均前接动词原形（た形＋ことがある除外）。"],"questions":[{"stem":"ご飯を食べる＿＿＿、手を洗ってください。","source":"相关句型①·例句1","options":["前に","後で","から","まで"],"answer":0,"explain":"原形＋前に表示“在……之前”，即“吃饭之前”。","translation":"吃饭之前，请洗手。","tip":"“前に”前接动词原形，与其相对的“た形＋後で”表示“在……之后”。"},{"stem":"寝る＿＿＿、音楽を聴きます。","source":"相关句型①·例句2","options":["後で","前に","ながら","まで"],"answer":1,"explain":"原形＋前に表示“在……之前”，即“睡觉之前”。","translation":"睡觉之前听音乐。","tip":"“ながら”接ます形（如“寝ながら”），“寝るながら”是错误接续。"},{"stem":"私の趣味（しゅみ）は音楽（おんがく）を聴く＿＿＿。","source":"相关句型②·例句","options":["ことです","ことがある","ことができる","ものです"],"answer":0,"explain":"原形＋ことです表示“是……（这件事）”，用来说明爱好、梦想等内容。","translation":"我的爱好是听音乐。","tip":"说明“爱好是做什么”用“ことです”；具体事物用“もの”，行为、事情用“こと”。"},{"stem":"日本へ行く＿＿＿。","source":"相关句型③·例句1","options":["ことができる","ことです","ことがある","ことにします"],"answer":2,"explain":"原形＋ことがある表示“有时、偶尔”，即“我有时去日本”。","translation":"我有时去日本。","tip":"原形＋ことがある＝“有时”；た形＋ことがある＝“曾经”，注意区分。"},{"stem":"日本へ行った＿＿＿。","source":"相关句型③·例句2·辨析","options":["ことがある","ことです","ことができる","ことにします"],"answer":0,"explain":"た形＋ことがある表示“曾经、有……经验”，即“我去过日本”。","translation":"我去过日本。","tip":"“行った”是た形，搭配ことがある表“去过/经历过”，与“行くことがある（有时）”不同。"},{"stem":"李さんは日本語を話す＿＿＿。【能力】","source":"相关句型④·例句1·能力","options":["ことです","ことがある","ことができる","ことにします"],"answer":2,"explain":"原形＋ことができる表示能力，即“会、能说日语”。","translation":"小李会说日语。","tip":"【能力】提示此处“ことができる”表“会/能”，与“可能性”义并列。"},{"stem":"この店（みせ）は、カードで払（はら）う＿＿＿。【可能性】","source":"相关句型④·例句2·可能性","options":["ことがある","ことができる","ことです","ことにします"],"answer":1,"explain":"原形＋ことができる表示可能性，即“可以刷卡”。","translation":"这家店可以刷卡支付。","tip":"【可能性】提示此处“ことができる”表“可以/可能”。"}],"version":"8d52fa3ddb3d"};
 
 const els = {
   crumbs: document.getElementById('crumbs'),
@@ -213,7 +219,10 @@ function renderQuestion() {
 
   els.quiz.innerHTML = `
     <div class="card" id="card">
-      <div class="qnum">第 ${state.i + 1} 题</div>
+      <div class="qhead">
+        <span class="qnum">第 ${state.i + 1} 题</span>
+        <span class="src">📖 ${q.source || ''}</span>
+      </div>
       <div class="stem">${q.stem}</div>
       <div class="opts">${opts}</div>
       <div class="explain" id="explain"></div>

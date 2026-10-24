@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="quiz-version" content="be01c4c9d118" />
+<meta name="quiz-version" content="27b22c4c4256" />
 <title>JLPT 语法小测</title>
 <style>
   :root {
@@ -81,6 +81,12 @@
   }
   @keyframes pop { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
   .qnum { font-size: 13px; font-weight: 900; color: var(--accent); letter-spacing: .08em; margin-bottom: 8px; }
+  .qhead { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .qhead .qnum { margin-bottom: 0; }
+  .src {
+    font-size: 12px; font-weight: 700; color: var(--accent2);
+    background: var(--accent-soft); padding: 3px 10px; border-radius: 999px;
+  }
   .stem { font-size: 18px; font-weight: 700; margin-bottom: 18px; }
   .stem .blank { display: inline-block; min-width: 72px; border-bottom: 3px dotted var(--accent); text-align: center; padding: 0 4px; color: var(--accent); }
 
@@ -170,7 +176,7 @@
 </div>
 
 <script>
-const QUIZ = {"title":"表示变化","level":"N5","no":"35","subtitle":"基于笔记 notes/raw/n5/35.表示变化.md","summary":["「なる」表示变化的结果，即“变成……”。","「する」表示人为改变，即“把……弄成……”。","イ形容词接「なる／する」时，词尾「い」变成「く」。","形容动词接「なる／する」时用「に」。","名词接「なる／する」时用「に」。","「なる」用于自然变化，「する」用于人为改变，注意区分。"],"questions":[{"stem":"春になって、天気はだんだん暖かく＿＿＿。","options":["します","なります","にします","になります"],"answer":1,"explain":"「なる」表示自然变化的结果，イ形容词词尾「い」变「く」后接「なる」。","translation":"春天到了，天气渐渐变暖了。","tip":"天气变暖是自然变化，注意用「なる」而不是「する」。"},{"stem":"この町は前より賑やか＿＿＿。","options":["くします","にします","くなります","になります"],"answer":3,"explain":"形容动词接「なる」要用「に」，表示变成某种状态。","translation":"这个城市比以前更热闹了。","tip":"「賑やか」是形容动词，接「なる」要用「に」而不是「く」。"},{"stem":"弟は将来、医者＿＿＿なりたいです。","options":["を","に","で","く"],"answer":1,"explain":"名词接「なる」要用助词「に」，表示变成某种身份。","translation":"弟弟将来想当医生。","tip":"名词变成某种身份要用「に＋なる」，不用「を」。"},{"stem":"部屋を明るく＿＿＿。","options":["なります","にします","します","になります"],"answer":2,"explain":"「する」表示人为改变，イ形容词「明るい」变「明るく」后接「する」。","translation":"把房间弄亮。","tip":"「を」提示了宾语，说明是人为改变，应选「する」而不是「なる」。"},{"stem":"教室を静か＿＿＿してください。","options":["な","く","で","に"],"answer":3,"explain":"形容动词接「する」要用「に」，「静かにする」表示使……保持安静。","translation":"请保持教室安静。","tip":"形容动词接「する」用「に」，不要误用イ形容词的「く」。"},{"stem":"息子を医者＿＿＿。","options":["になります","にします","くします","がします"],"answer":1,"explain":"名词接「する」要用「に」，「医者にする」表示让某人成为医生。","translation":"让儿子当医生。","tip":"「息子を」带「を」，说明是人为改变，应选「にします」。"}],"version":"be01c4c9d118"};
+const QUIZ = {"title":"表示变化","level":"N5","no":"35","subtitle":"基于笔记 notes/raw/n5/35.表示变化.md","summary":["「なる」表示自然变化的结果，意为「变成～」。","「する」表示人为改变，意为「把～怎么样」。","い形容词接「なる／する」时，词尾「い」要变成「く」。","形容动词接「なる／する」时，词干后要加「に」。","名词接「なる／する」时，名词后要加「に」。","「なる」用于自然变化，「する」用于人为改变，注意区分语境。"],"questions":[{"stem":"天気は＿＿＿なる。","source":"なる例句①","options":["暖かく","暖かい","暖かいに","暖かくて"],"answer":0,"explain":"い形容词接「なる」表示自然变化时，词尾「い」要变成「く」。","translation":"天气会变暖和。","tip":"记住「い→く＋なる」这个固定接续。"},{"stem":"ここは＿＿＿なる。","source":"なる例句②","options":["賑やかに","賑やか","賑やかく","賑やかで"],"answer":0,"explain":"形容动词接「なる」时，要在词干后加「に」。","translation":"这里会变得热闹。","tip":"形容动词加「に」，不是「く」。"},{"stem":"将来私は＿＿＿なる。","source":"なる例句③","options":["医者に","医者","医者く","医者を"],"answer":0,"explain":"名词接「なる」表示变成某种身份时，名词后要加「に」。","translation":"将来我会成为医生。","tip":"名词后必须加「に」再接「なる」。"},{"stem":"髪の毛（かみのけ）を＿＿＿する。","source":"する例句①","options":["短（みじか）く","短（みじか）い","短（みじか）に","短くて"],"answer":0,"explain":"い形容词接「する」表示人为改变时，词尾「い」要变成「く」。","translation":"把头发剪短。","tip":"「短い」变「短く」再加「する」。"},{"stem":"（教室を）＿＿＿してください。","source":"する例句②","options":["静かに","静か","静かく","静かで"],"answer":0,"explain":"形容动词接「する」时，词干后要加「に」。","translation":"请保持教室安静。","tip":"「静か」后加「に」再接「してください」。"},{"stem":"息子（むすこ）を＿＿＿する。","source":"する例句③","options":["医者（いしゃ）に","医者（いしゃ）","医者（いしゃ）く","医者（いしゃ）を"],"answer":0,"explain":"名词接「する」表示把某人变成某状态时，名词后要加「に」。","translation":"让儿子当医生。","tip":"名词加「に」再接「する」。"}],"version":"27b22c4c4256"};
 
 const els = {
   crumbs: document.getElementById('crumbs'),
@@ -213,7 +219,10 @@ function renderQuestion() {
 
   els.quiz.innerHTML = `
     <div class="card" id="card">
-      <div class="qnum">第 ${state.i + 1} 题</div>
+      <div class="qhead">
+        <span class="qnum">第 ${state.i + 1} 题</span>
+        <span class="src">📖 ${q.source || ''}</span>
+      </div>
       <div class="stem">${q.stem}</div>
       <div class="opts">${opts}</div>
       <div class="explain" id="explain"></div>

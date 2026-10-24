@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="quiz-version" content="beb120f9ef0f" />
+<meta name="quiz-version" content="a8879d732df7" />
 <title>JLPT 语法小测</title>
 <style>
   :root {
@@ -81,6 +81,12 @@
   }
   @keyframes pop { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
   .qnum { font-size: 13px; font-weight: 900; color: var(--accent); letter-spacing: .08em; margin-bottom: 8px; }
+  .qhead { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .qhead .qnum { margin-bottom: 0; }
+  .src {
+    font-size: 12px; font-weight: 700; color: var(--accent2);
+    background: var(--accent-soft); padding: 3px 10px; border-radius: 999px;
+  }
   .stem { font-size: 18px; font-weight: 700; margin-bottom: 18px; }
   .stem .blank { display: inline-block; min-width: 72px; border-bottom: 3px dotted var(--accent); text-align: center; padding: 0 4px; color: var(--accent); }
 
@@ -170,7 +176,7 @@
 </div>
 
 <script>
-const QUIZ = {"title":"てある","level":"N4","no":"9","subtitle":"基于笔记 notes/raw/n4/9.てある.md","summary":["てある 表示人为动作造成的结果状态。","接续: 他动词＋てある。","自动词＋ている 表示自然而然的结果状态, 与他动词＋てある(人为)相对。","常见: 開けてある/つけてある/掛けてある 与 開いている/ついている 对比。"],"questions":[{"stem":"教室の壁に地図が＿＿＿。","options":["掛けてある","掛かってある","掛けている","掛けて"],"answer":0,"explain":"「てある」前接他动词, 表示人为动作造成的结果状态。","translation":"教室的墙上挂着地图。","tip":"「てある」前只能接他动词, 掛ける(挂)是他动词。"},{"stem":"ドアが＿＿＿ので、そのまま入ってください。","options":["開けてある","開いてある","開けている","開いて"],"answer":0,"explain":"「てある」只能接他动词, 開ける是他动词, 表示门被人打开后的状态。","translation":"门开着, 请直接进来。","tip":"開く是自动词、開ける是他动词, 「てある」前用他动词「開ける」。"},{"stem":"電気が＿＿＿。さっき弟がつけた。","options":["つけてある","ついてある","つけている","ついて"],"answer":0,"explain":"「てある」前接他动词「つける」, 表示人为打开灯之后的状态。","translation":"灯亮着, 刚才是弟弟打开的。","tip":"つく是自动词、つける是他动词, 「てある」前接他动词。"},{"stem":"風が吹いて、窓が自然に＿＿＿。","options":["開けている","開いてある","開けてある","開いている"],"answer":3,"explain":"「自動詞＋ている」表示自然而然的结果状态, 与「自然に」相符, 而他动词「開けてある」表示人为。","translation":"风吹过, 窗户自然地开着。","tip":"看到「自然に」提示自然而然, 选「自動詞＋ている」。"}],"version":"beb120f9ef0f"};
+const QUIZ = {"title":"てある","level":"N4","no":"9","subtitle":"基于笔记 notes/raw/n4/9.てある.md","summary":["てある 接在他动词て形后，表示人为动作造成的结果状态。","自动词＋ている 表示自然而然的结果状态，与てある形成对比。","辨析核心：自然结果（自动词＋ている）与人为结果（他动词＋てある）。","他动词 掛ける・開ける・つける 表示人为动作，故接 てある。","自动词 開く・つく 表示自然状态，接 ている，不可接 てある。","做题先判断动词是自动词还是他动词，再选 ている 或 てある。"],"questions":[{"stem":"壁は絵が掛（か）け＿＿＿。","source":"例句①掛ける","options":["てある","ている","ておく","てみる"],"answer":0,"explain":"他动词 掛ける 接 てある，表示「挂好」这一人为造成的结果状态。","translation":"墙上挂着画（是有人特意挂上去的）。","tip":"先判断自他：他动词（掛ける）后用 てある。"},{"stem":"ドアが開（あ）け＿＿＿。","source":"例句②開ける","options":["ている","てある","ておく","てみる"],"answer":1,"explain":"他动词 開ける 接 てある，表示「打开」这一人为造成的结果状态。","translation":"门开着（是有人特意打开的）。","tip":"他动词 開ける 用 てある，切勿与自动词 開く＋ている 混淆。"},{"stem":"窓が開い（開く）＿＿＿。","source":"辨析①開く","options":["てある","ている","ておく","てみる"],"answer":1,"explain":"自动词 開く 接 ている，表示「开着」这一自然而然的结果状态。","translation":"窗户开着（自然而然的状态）。","tip":"自动词 開く 只能接 ている 表自然状态，接 てある 是错的。"},{"stem":"窓が開け＿＿＿。","source":"辨析②開ける","options":["ておく","てある","ている","てみる"],"answer":1,"explain":"他动词 開ける 接 てある，表示「被打开」这一人为造成的结果状态。","translation":"窗户开着（是有人特意打开的）。","tip":"人为打开用 開けてある，自然开着用 開いている。"},{"stem":"電気がつい＿＿＿。","source":"辨析③つく","options":["てみる","ている","てある","ておく"],"answer":1,"explain":"自动词 つく 接 ている，表示「亮着」这一自然而然的结果状态。","translation":"灯亮着（自然而然的状态）。","tip":"自动词 つく 接 ている 表自然状态，不要误用 てある。"},{"stem":"電気がつけ＿＿＿。","source":"辨析④つける","options":["てある","ておく","てみる","ている"],"answer":0,"explain":"他动词 つける 接 てある，表示「打开灯」这一人为造成的结果状态。","translation":"灯开着（是有人特意打开的）。","tip":"人为开灯用 つけてある，自然亮着用 ついている。"}],"version":"a8879d732df7"};
 
 const els = {
   crumbs: document.getElementById('crumbs'),
@@ -213,7 +219,10 @@ function renderQuestion() {
 
   els.quiz.innerHTML = `
     <div class="card" id="card">
-      <div class="qnum">第 ${state.i + 1} 题</div>
+      <div class="qhead">
+        <span class="qnum">第 ${state.i + 1} 题</span>
+        <span class="src">📖 ${q.source || ''}</span>
+      </div>
       <div class="stem">${q.stem}</div>
       <div class="opts">${opts}</div>
       <div class="explain" id="explain"></div>

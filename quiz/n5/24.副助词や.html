@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="quiz-version" content="fbf840f793c7" />
+<meta name="quiz-version" content="d8ba3bf6f199" />
 <title>JLPT 语法小测</title>
 <style>
   :root {
@@ -81,6 +81,12 @@
   }
   @keyframes pop { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
   .qnum { font-size: 13px; font-weight: 900; color: var(--accent); letter-spacing: .08em; margin-bottom: 8px; }
+  .qhead { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .qhead .qnum { margin-bottom: 0; }
+  .src {
+    font-size: 12px; font-weight: 700; color: var(--accent2);
+    background: var(--accent-soft); padding: 3px 10px; border-radius: 999px;
+  }
   .stem { font-size: 18px; font-weight: 700; margin-bottom: 18px; }
   .stem .blank { display: inline-block; min-width: 72px; border-bottom: 3px dotted var(--accent); text-align: center; padding: 0 4px; color: var(--accent); }
 
@@ -170,7 +176,7 @@
 </div>
 
 <script>
-const QUIZ = {"title":"副助词だけ","level":"N5","no":"24","subtitle":"基于笔记 notes/raw/n5/24.副助词や.md","summary":["「だけ」是副助词，表示限定，意为「只、仅仅」。","「だけ」直接接在名词后面，如「水だけ」「私だけ」。","「だけ」接在数量词后，表示「只有这个数量」。","「だけ」接在动词辞书形后，表示「只做某个动作」。"],"questions":[{"stem":"クラスで、男の子は私＿＿＿です。","options":["だけ","を","で","へ"],"answer":0,"explain":"「だけ」接在名词后表示限定，意为「只有、仅仅」。","translation":"班级里，男生只有我一个人。","tip":"「だけ」表示「只、仅」，直接跟在名词后面。"},{"stem":"りんごを一つ＿＿＿食べました。","options":["だけ","が","に","も"],"answer":0,"explain":"数量词后加「だけ」表示「只有这个数量」。","translation":"我只吃了一个苹果。","tip":"「数量词＋だけ」强调数量少。"},{"stem":"わたしはコーヒー＿＿＿飲みました。","options":["だけ","で","に","から"],"answer":0,"explain":"「だけ」接在名词后表示「只做某事」，这里代替了助词「を」。","translation":"我只喝了咖啡。","tip":"「だけ」可直接替换「を」，表示「只……」。"},{"stem":"田中さんは、食べる＿＿＿で、料理をしません。","options":["だけ","が","を","に"],"answer":0,"explain":"「だけ」接在动词辞书形后，表示「只做……（别的都不做）」。","translation":"田中先生只会吃，不做饭。","tip":"动词原形（辞书形）后直接加「だけ」。"}],"version":"fbf840f793c7"};
+const QUIZ = {"title":"副助词「や」","level":"N5","no":"24","subtitle":"基于笔记 notes/raw/n5/24.副助词や.md","summary":["「や」表示列举（不完全列举），「…啦…啦」「…和…等」","「や」列举时暗含还有其他同类事物，与「と」的完全列举不同"],"questions":[{"stem":"机の上に本＿＿＿ノートがあります。","source":"补充（笔记无例句）","options":["や","と","も","は"],"answer":0,"explain":"「や」表示不完全列举，暗含还有其他东西，故用「や」。","translation":"桌上放着书和笔记本等。","tip":"「や」列举时暗示还有其他同类，翻译常带「等」。"},{"stem":"スーパーで野菜＿＿＿果物を買いました。","source":"补充（笔记无例句）","options":["や","を","で","が"],"answer":0,"explain":"「や」连接并列的名词，表示「蔬菜啦水果啦」的不完全列举。","translation":"在超市买了蔬菜和水果等。","tip":"「AやB」＝「A、B等」，是 N5 的列举表达。"}],"version":"d8ba3bf6f199"};
 
 const els = {
   crumbs: document.getElementById('crumbs'),
@@ -213,7 +219,10 @@ function renderQuestion() {
 
   els.quiz.innerHTML = `
     <div class="card" id="card">
-      <div class="qnum">第 ${state.i + 1} 题</div>
+      <div class="qhead">
+        <span class="qnum">第 ${state.i + 1} 题</span>
+        <span class="src">📖 ${q.source || ''}</span>
+      </div>
       <div class="stem">${q.stem}</div>
       <div class="opts">${opts}</div>
       <div class="explain" id="explain"></div>

@@ -29,6 +29,7 @@ Quiz JSON schema (see SKILL.md for the full spec):
       "questions": [
         {
           "stem": "题干，用 ＿＿＿ 表示挖空处",
+          "source": "来源标签（如 意义①例句 / 变形表·言う）",
           "options": ["A", "B", "C", "D"],
           "answer": 0,
           "explain": "一句话讲解：核心知识点",
@@ -78,7 +79,7 @@ def validate(quiz):
     if not quiz["questions"]:
         fail("quiz JSON has no questions")
     for i, q in enumerate(quiz["questions"]):
-        for field in ("stem", "options", "answer", "explain", "translation"):
+        for field in ("stem", "source", "options", "answer", "explain", "translation"):
             if field not in q:
                 fail(f"question {i} is missing required field: {field}")
         if len(q["options"]) != 4:

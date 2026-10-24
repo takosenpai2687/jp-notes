@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="quiz-version" content="9eaa0f8dba6e" />
+<meta name="quiz-version" content="4ca264ad2d2e" />
 <title>JLPT 语法小测</title>
 <style>
   :root {
@@ -81,6 +81,12 @@
   }
   @keyframes pop { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
   .qnum { font-size: 13px; font-weight: 900; color: var(--accent); letter-spacing: .08em; margin-bottom: 8px; }
+  .qhead { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .qhead .qnum { margin-bottom: 0; }
+  .src {
+    font-size: 12px; font-weight: 700; color: var(--accent2);
+    background: var(--accent-soft); padding: 3px 10px; border-radius: 999px;
+  }
   .stem { font-size: 18px; font-weight: 700; margin-bottom: 18px; }
   .stem .blank { display: inline-block; min-width: 72px; border-bottom: 3px dotted var(--accent); text-align: center; padding: 0 4px; color: var(--accent); }
 
@@ -170,7 +176,7 @@
 </div>
 
 <script>
-const QUIZ = {"title":"比较句","level":"N5","no":"32","subtitle":"基于笔记 notes/raw/n5/32.比较句.md","summary":["比较句分肯定比较和否定比较两种。","肯定比较用「より」，句型「AはBより〜です」表示A比B更〜。","肯定比较也可用「ほう」，句型「BよりAのほうが〜です」强调A这一方。","否定比较用「ほど〜ない」，句型「AはBほど〜ないです」表示A不如B〜。","「より」搭配肯定形，「ほど」搭配否定形。"],"questions":[{"stem":"中国は日本＿＿＿広いです。","options":["より","ほど","ほう","が"],"answer":0,"explain":"肯定比较用「より」表示“比”，句型「AはBより〜です」意为A比B更〜。","translation":"中国比日本大。","tip":"「より」接在比较对象后，形容词用肯定形。"},{"stem":"日本より中国の＿＿＿が広いです。","options":["ほう","より","ほど","に"],"answer":0,"explain":"「BよりAのほうが〜」用「ほう（方）」强调A这一方，意为A比起B更〜。","translation":"比起日本，中国这一方更大。","tip":"「ほう」前常接「の」，构成「Aのほう」。"},{"stem":"日本は中国＿＿＿広くないです。","options":["ほど","より","ほう","が"],"answer":0,"explain":"否定比较用「ほど〜ない」，句型「AはBほど〜ない」意为A不如B〜。","translation":"日本不如中国大。","tip":"句尾有「ない」的否定句，通常选「ほど」。"},{"stem":"このかばんはあのかばんほど軽＿＿＿です。","options":["くない","い","く","かった"],"answer":0,"explain":"否定比较「ほど」必须搭配否定形，い形容词「軽い」去「い」加「くない」。","translation":"这个包不如那个包轻。","tip":"「ほど」后必须是否定形「くない」或「ではない」。"}],"version":"9eaa0f8dba6e"};
+const QUIZ = {"title":"比较句","level":"N5","no":"32","subtitle":"基于笔记 notes/raw/n5/32.比较句.md","summary":["比较句分肯定比较和否定比较两大类。","肯定比较用「より」，结构为「XはYより〜」，表示“比”。","肯定比较还可用「ほう」，结构为「XよりYのほうが〜」，表示“比起X，Y更…”。","否定比较用「ほど〜ない」，结构为「XはYほど〜ない」，表示“没有/不如…”。","「より」用于肯定比较，「ほど」必须与「ない」搭配用于否定比较，两者不可混用。","「ほう」前要加「の」，构成「のほうが」。"],"questions":[{"stem":"中国は日本＿＿＿広いです。","source":"例句·より（肯定比较）","options":["より","ほう","ほど","のほうが"],"answer":0,"explain":"肯定比较用「より」表示“比”，句式「XはYより〜」。","translation":"中国比日本大。","tip":"肯定句见“比”先想「より」。"},{"stem":"日本より中国の＿＿＿が広いです。","source":"例句·ほう（肯定比较）","options":["より","ほう","ほど","ない"],"answer":1,"explain":"「〜より〜のほうが〜」表示“比起…，…更…”，「ほう」前要加「の」。","translation":"比起日本，中国更大。","tip":"见「より〜のほうが」句式，空在「の」后填「ほう」。"},{"stem":"日本は中国＿＿＿広くないです。","source":"例句·ほど～ない（否定比较）","options":["より","ほう","ほど","のほうが"],"answer":2,"explain":"否定比较用「ほど〜ない」表示“没有/不如…”，不可用「より」。","translation":"日本没有中国大。","tip":"见句尾「ない」的比较句先想「ほど」。"}],"version":"4ca264ad2d2e"};
 
 const els = {
   crumbs: document.getElementById('crumbs'),
@@ -213,7 +219,10 @@ function renderQuestion() {
 
   els.quiz.innerHTML = `
     <div class="card" id="card">
-      <div class="qnum">第 ${state.i + 1} 题</div>
+      <div class="qhead">
+        <span class="qnum">第 ${state.i + 1} 题</span>
+        <span class="src">📖 ${q.source || ''}</span>
+      </div>
       <div class="stem">${q.stem}</div>
       <div class="opts">${opts}</div>
       <div class="explain" id="explain"></div>

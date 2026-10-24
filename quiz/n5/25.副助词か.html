@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="quiz-version" content="127fd559f66c" />
+<meta name="quiz-version" content="44b6dfb94414" />
 <title>JLPT 语法小测</title>
 <style>
   :root {
@@ -81,6 +81,12 @@
   }
   @keyframes pop { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
   .qnum { font-size: 13px; font-weight: 900; color: var(--accent); letter-spacing: .08em; margin-bottom: 8px; }
+  .qhead { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .qhead .qnum { margin-bottom: 0; }
+  .src {
+    font-size: 12px; font-weight: 700; color: var(--accent2);
+    background: var(--accent-soft); padding: 3px 10px; border-radius: 999px;
+  }
   .stem { font-size: 18px; font-weight: 700; margin-bottom: 18px; }
   .stem .blank { display: inline-block; min-width: 72px; border-bottom: 3px dotted var(--accent); text-align: center; padding: 0 4px; color: var(--accent); }
 
@@ -170,7 +176,7 @@
 </div>
 
 <script>
-const QUIZ = {"title":"副助词か","level":"N5","no":"25","subtitle":"基于笔记 notes/raw/n5/25.副助词か.md","summary":["「か」连接两个名词表示选择，翻译成“或者”。","疑问词（どこ・いつ・誰）＋「か」表示不确定，翻译成“某~”（某处、某时、某人）。","「～かどうか」表示“是否”，用于“只疑不问”。","「～のか」也表示“是否”，接名词时先加「な」。","「か」直接接在名词后，无需其他助词。"],"questions":[{"stem":"電車＿＿＿バスで行きます。","options":["か","と","で","に"],"answer":0,"explain":"副助词「か」连接两个名词表示选择，意思是“或者”。","translation":"坐电车或者公交车去。","tip":"「か」连接对等选项表示“或者”，「と」则表示“和”。"},{"stem":"朝ご飯はパン＿＿＿ご飯です。","options":["と","か","を","が"],"answer":1,"explain":"「か」放在两个名词中间表示“或者”，是二者选一。","translation":"早饭吃面包或者米饭。","tip":"面包和米饭是二选一的关系，用「か」表示选择。"},{"stem":"どこ＿＿＿行きたいです。","options":["を","も","か","が"],"answer":2,"explain":"疑问词「どこ」后加「か」表示不确定，意思是“某处”。","translation":"我想去某个地方。","tip":"疑问词＋「か」不再表疑问，而是表“某~”。"},{"stem":"いつ＿＿＿日本へ行きます。","options":["が","か","に","で"],"answer":1,"explain":"疑问词「いつ」后加「か」表示不确定的时间，意思是“有一天”。","translation":"总有一天我会去日本。","tip":"「いつか」是固定说法，表示“有一天、改天”。"},{"stem":"できる＿＿＿どうか分からないけど、やってみます。","options":["が","は","を","か"],"answer":3,"explain":"「～かどうか」表示“是否”，把问句嵌入句中作“只疑不问”。","translation":"虽然不知道能不能做到，但我试着做做看。","tip":"「かどうか」是固定搭配，表示“是否”。"},{"stem":"その人は学生な＿＿＿、知りたいです。","options":["か","のか","のが","は"],"answer":1,"explain":"「～のか」也表示“是否”，名词「学生」后要先加「な」再接「のか」。","translation":"我想知道那个人是不是学生。","tip":"名词接「のか」需先加「な」：学生＋な＋のか。"}],"version":"127fd559f66c"};
+const QUIZ = {"title":"副助词か","level":"N5","no":"25","subtitle":"基于笔记 notes/raw/n5/25.副助词か.md","summary":["か放在两个名词之间表示选择，意为“或者”。","疑问词（どこ/いつ/誰等）+か表示不确定，意为“某~”（某处、某时、某人）。","“～かどうか”表示“是否”，意为“能否/是不是”。","名词句用“～なのか”表示“是不是”。","か用于句中表示“只疑不问”，疑问从句作句子成分。"],"questions":[{"stem":"電車＿＿＿バスでいきます。","source":"意义①例1·选择","options":["か","が","と","や"],"answer":0,"explain":"か放在两个名词之间表示选择，意为“或者”。","translation":"坐电车或者坐公交车去。","tip":"看到两个并列名词中间表“或者”，选か。"},{"stem":"朝ご飯はパン＿＿＿ご飯です。","source":"意义①例2·选择","options":["か","が","も","と"],"answer":0,"explain":"两个名词之间的か表示选择，意为“或者”。","translation":"早饭吃面包或者米饭。","tip":"パン和ご飯之间是二选一，用か。"},{"stem":"どこ＿＿＿行きたいです。","source":"意义②例1·疑问词+か","options":["が","か","を","に"],"answer":1,"explain":"疑问词どこ+か表示不确定，“どこか”意为“某处、某个地方”。","translation":"我想去某个地方。","tip":"句末没有疑问句标志却含疑问词，是“某~”的不确定用法。"},{"stem":"いつ＿＿＿日本へいきます。","source":"意义②例2·疑问词+か","options":["が","を","か","に"],"answer":2,"explain":"疑问词いつ+か表示不确定，“いつか”意为“某时、总有一天”。","translation":"我总有一天要去日本。","tip":"いつか＝“总有一天”，不是疑问。"},{"stem":"誰＿＿＿手伝えてください。","source":"意义②例3·疑问词+か","options":["が","を","は","か"],"answer":3,"explain":"疑问词誰+か表示不确定，“誰か”意为“某人”。","translation":"请谁来帮一下忙。","tip":"誰か＝“某人”，用于请人帮忙。"},{"stem":"できる＿＿＿どうか分からないけど、やってみます。","source":"意义③例1·かどうか","options":["が","か","と","や"],"answer":1,"explain":"“～かどうか”表示“是否”，“できるかどうか”意为“能否做到”。","translation":"虽然不知道能不能做到，但我试着做做看。","tip":"固定搭配“～かどうか”，记住“是否”即可。"},{"stem":"その人は学生なの＿＿＿、知りたいです。","source":"意义③例2·なのか","options":["が","を","に","か"],"answer":3,"explain":"名词句用“～なのか”表示“是不是、是否”。","translation":"我想知道那个人是不是学生。","tip":"名词后用“なのか”，表示“是不是”。"}],"version":"44b6dfb94414"};
 
 const els = {
   crumbs: document.getElementById('crumbs'),
@@ -213,7 +219,10 @@ function renderQuestion() {
 
   els.quiz.innerHTML = `
     <div class="card" id="card">
-      <div class="qnum">第 ${state.i + 1} 题</div>
+      <div class="qhead">
+        <span class="qnum">第 ${state.i + 1} 题</span>
+        <span class="src">📖 ${q.source || ''}</span>
+      </div>
       <div class="stem">${q.stem}</div>
       <div class="opts">${opts}</div>
       <div class="explain" id="explain"></div>

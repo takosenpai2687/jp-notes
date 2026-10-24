@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="quiz-version" content="6e7c917ebcda" />
+<meta name="quiz-version" content="0aa5e8b32800" />
 <title>JLPT 语法小测</title>
 <style>
   :root {
@@ -81,6 +81,12 @@
   }
   @keyframes pop { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
   .qnum { font-size: 13px; font-weight: 900; color: var(--accent); letter-spacing: .08em; margin-bottom: 8px; }
+  .qhead { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .qhead .qnum { margin-bottom: 0; }
+  .src {
+    font-size: 12px; font-weight: 700; color: var(--accent2);
+    background: var(--accent-soft); padding: 3px 10px; border-radius: 999px;
+  }
   .stem { font-size: 18px; font-weight: 700; margin-bottom: 18px; }
   .stem .blank { display: inline-block; min-width: 72px; border-bottom: 3px dotted var(--accent); text-align: center; padding: 0 4px; color: var(--accent); }
 
@@ -170,7 +176,7 @@
 </div>
 
 <script>
-const QUIZ = {"title":"格助词「で」","level":"N5","no":"16","subtitle":"基于笔记 notes/raw/n5/16.格助词で.md","summary":["「で」表示动作发生的场所，翻译成“在”。","「で」表示范围，翻译成“在……之中”，常与「一番」连用。","「で」表示方法、手段、工具、语言、材料，翻译成“用”。","「で」表示动作的状态，如「一人で」「みんなで」。","「で」表示原因，翻译成“因为”。","「で」表示基准，翻译成“以”“凭”。","「で」表示所需时间，翻译成“需要”。"],"questions":[{"stem":"図書館＿＿＿本を読みます。","options":["に","で","を","へ"],"answer":1,"explain":"「で」表示动作发生的场所，翻译成“在”。","translation":"在图书馆读书。","tip":"有具体动作发生的场所用「で」，表示存在场所才用「に」。"},{"stem":"バス＿＿＿家に帰ります。","options":["を","に","で","と"],"answer":2,"explain":"「で」表示方法、手段、工具，翻译成“用”“坐”。","translation":"坐公交车回家。","tip":"表示交通工具、语言、工具等“用……”时都用「で」。"},{"stem":"雨＿＿＿学校へ行きませんでした。","options":["で","に","を","が"],"answer":0,"explain":"「で」表示原因，翻译成“因为”。","translation":"因为下雨，没去学校。","tip":"表示原因时不要误用「に」，「に」多表示时间点或对象。"},{"stem":"ロシアは世界＿＿＿一番広いです。","options":["に","の","と","で"],"answer":3,"explain":"「で」表示范围，翻译成“在……之中”。","translation":"俄罗斯在世界上是最大的。","tip":"表示“在某个范围内最……”用「で」，常与「一番」连用。"},{"stem":"昨日、一人＿＿＿病院へ行きました。","options":["で","に","と","を"],"answer":0,"explain":"「で」表示动作的状态，如“一个人”“大家一起”。","translation":"昨天一个人去了医院。","tip":"「一人で」「みんなで」是表示状态的固定搭配。"},{"stem":"この仕事は二、三日＿＿＿できるでしょう。","options":["に","で","を","が"],"answer":1,"explain":"「で」表示所需时间，翻译成“需要……完成”。","translation":"这份工作两三天就能完成吧。","tip":"表示“多长时间内完成”用「で」，表示时间点才用「に」。"}],"version":"6e7c917ebcda"};
+const QUIZ = {"title":"格助词「で」","level":"N5","no":"16","subtitle":"基于笔记 notes/raw/n5/16.格助词で.md","summary":["「で」表示动作发生的场所，译为“在”。","「で」表示范围，译为“在……中”。","「で」表示方法、手段、工具、语言、材料，译为“用”。","「で」表示动作的状态，灵活翻译（如“一个人”“大家一起”）。","「で」表示原因，译为“因为”。","「で」表示动作的基准，译为“以”“凭”。","「で」表示所需时间，译为“需要”。"],"questions":[{"stem":"北京＿＿＿彼に会った。","source":"意义①场·例1","options":["で","に","を","へ"],"answer":0,"explain":"「で」表示动作发生的场所，译为“在”。","translation":"在北京遇见了他。","tip":"场所后接动作动词用「で」，而表示存在的地点才用「に」。"},{"stem":"図書館＿＿＿本を読みます。","source":"意义①场·例2","options":["に","で","を","が"],"answer":1,"explain":"「で」表示动作发生的场所，译为“在”。","translation":"在图书馆读书。","tip":"「読む」是动作动词，前面的场所用「で」而不用「に」。"},{"stem":"ロシアは世界＿＿＿一番広いです。","source":"意义②范·例1","options":["で","に","と","が"],"answer":0,"explain":"「で」表示范围，译为“在……中”。","translation":"俄罗斯是世界上最大的。","tip":"「世界で一番」是固定搭配，表示“在全世界范围内最……”。"},{"stem":"四季（しき）の中＿＿＿、夏が一番好きです。","source":"意义②范·例2","options":["に","と","で","が"],"answer":2,"explain":"「で」表示范围，译为“在……中”。","translation":"在四季之中，最喜欢夏天。","tip":"「～の中で」圈定比较的范围，表示“在……之中”。"},{"stem":"バス＿＿＿家に帰ります。","source":"意义③方·例1","options":["で","に","を","へ"],"answer":0,"explain":"「で」表示交通手段，译为“用/乘”。","translation":"坐公交车回家。","tip":"交通工具后接「で」，表示目的地才用「に/へ」。"},{"stem":"このお寺（てら）は木（き）＿＿＿できている。","source":"意义③方·例2","options":["に","を","で","が"],"answer":2,"explain":"「で」表示材料，「木でできている」意为“用木头做成的”，这里的「できる」指“建成、做成”。","translation":"这座寺庙是木头建造的。","tip":"「～でできている」是固定句型，表示“由……做成”。"},{"stem":"日本語＿＿＿論文を書きます。","source":"意义③方·例3","options":["で","に","が","と"],"answer":0,"explain":"「で」表示使用的语言，译为“用”。","translation":"用日语写论文。","tip":"表示“用某种语言”时用「で」，如「日本語で話す」。"},{"stem":"箸＿＿＿ご飯を食べます。","source":"意义③方·例4","options":["に","を","が","で"],"answer":3,"explain":"「で」表示使用的工具，译为“用”。","translation":"用筷子吃饭。","tip":"工具后用「で」，宾语仍用「を」标记。"},{"stem":"昨日、一人＿＿＿病院へいきました。","source":"意义④状·例1","options":["と","に","で","を"],"answer":2,"explain":"「で」表示动作的状态，「一人で」译为“一个人（独自）”。","translation":"昨天一个人去了医院。","tip":"「一人で」表示“独自一人”，与表示对象的「一人と」区分。"},{"stem":"みんな＿＿＿日本語の歌を歌った。","source":"意义④状·例2","options":["に","と","を","で"],"answer":3,"explain":"「で」表示动作的状态，「みんなで」译为“大家一起”。","translation":"大家一起唱了日语歌。","tip":"「みんなで」强调全员一起参与的状态，而非对象。"},{"stem":"この家は地震＿＿＿倒れた。","source":"意义⑤原·例1","options":["で","に","を","が"],"answer":0,"explain":"「で」表示原因，译为“因为”。","translation":"这栋房子因为地震倒塌了。","tip":"自然现象、事件导致的结果用「で」表示原因。"},{"stem":"毎日受験（じゅけん）準備＿＿＿忙（いそが）しい。","source":"意义⑤原·例2","options":["に","で","を","と"],"answer":1,"explain":"「で」表示原因，译为“因为”。","translation":"每天因为备考而很忙。","tip":"「～で忙しい」表示“因为……而忙”。"},{"stem":"見かけ＿＿＿人を判断（はんだん）してはいけません。","source":"意义⑥基·例1","options":["で","に","と","が"],"answer":0,"explain":"「で」表示判断的基准，译为“凭、以”。","translation":"不可以凭外表判断一个人。","tip":"「～で判断する」表示“以……为基准来判断”。"},{"stem":"私は1ヶ月三万円＿＿＿暮（く）らしている。","source":"意义⑥基·例2","options":["を","に","で","と"],"answer":2,"explain":"「で」表示生活的基准，译为“以、靠”。","translation":"我每个月靠三万日元生活。","tip":"「～で暮らす」表示“靠……（钱）生活”。"},{"stem":"この仕事はに二、三日（にさんにち）＿＿＿できるでしょう。","source":"意义⑦时·例1","options":["に","を","が","で"],"answer":3,"explain":"「で」表示所需时间，译为“需要”。","translation":"这份工作两三天就能完成吧。","tip":"时间段后接「で」表示“在……时间内完成”。"}],"version":"0aa5e8b32800"};
 
 const els = {
   crumbs: document.getElementById('crumbs'),
@@ -213,7 +219,10 @@ function renderQuestion() {
 
   els.quiz.innerHTML = `
     <div class="card" id="card">
-      <div class="qnum">第 ${state.i + 1} 题</div>
+      <div class="qhead">
+        <span class="qnum">第 ${state.i + 1} 题</span>
+        <span class="src">📖 ${q.source || ''}</span>
+      </div>
       <div class="stem">${q.stem}</div>
       <div class="opts">${opts}</div>
       <div class="explain" id="explain"></div>

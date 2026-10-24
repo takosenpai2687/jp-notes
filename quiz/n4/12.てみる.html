@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="quiz-version" content="559bd9709820" />
+<meta name="quiz-version" content="63dd230460c9" />
 <title>JLPT 语法小测</title>
 <style>
   :root {
@@ -81,6 +81,12 @@
   }
   @keyframes pop { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
   .qnum { font-size: 13px; font-weight: 900; color: var(--accent); letter-spacing: .08em; margin-bottom: 8px; }
+  .qhead { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .qhead .qnum { margin-bottom: 0; }
+  .src {
+    font-size: 12px; font-weight: 700; color: var(--accent2);
+    background: var(--accent-soft); padding: 3px 10px; border-radius: 999px;
+  }
   .stem { font-size: 18px; font-weight: 700; margin-bottom: 18px; }
   .stem .blank { display: inline-block; min-width: 72px; border-bottom: 3px dotted var(--accent); text-align: center; padding: 0 4px; color: var(--accent); }
 
@@ -170,7 +176,7 @@
 </div>
 
 <script>
-const QUIZ = {"title":"てみる","level":"N4","no":"12","subtitle":"基于笔记 notes/raw/n4/12.てみる.md","summary":["「てみる」表示“试着做某事”。","接续：动词「て形」＋「みる」。","「～てみます」＝“试着做做看”（礼貌形，如「やってみます」）。","「～てみてください」＝“请试着做做看”（如「食べてみてください」）。"],"questions":[{"stem":"この料理を食べ＿＿＿みてください。","options":["た","て","る","ない"],"answer":1,"explain":"「てみる」的接续是「动词て形＋みる」，所以「食べる」要先变成「食べて」，再接「みてください」。","translation":"请尝尝这道菜。","tip":"看到「みて／みる」时，前面的动词一定要用「て形」。"},{"stem":"この新しいゲームをやって＿＿＿ください。","options":["みた","みます","みて","みたい"],"answer":2,"explain":"「～てみてください」表示“请试着做做看”，「ください」前要用「みる」的て形「みて」。","translation":"请试着玩一玩这个新游戏。","tip":"「ください」前面永远是「て形」，所以这里填「みて」。"},{"stem":"昨日、新しいゲームをやって＿＿＿ました。","options":["みた","みたい","み","みます"],"answer":2,"explain":"「～てみました」是「てみる」的过去礼貌形，表示“试着做了做”。","translation":"昨天我试玩了一下这个新游戏。","tip":"时间词「昨日」提示过去式，所以要选「みました」。"},{"stem":"日本語で話して＿＿＿ませんか。","options":["みたい","みて","みた","み"],"answer":3,"explain":"「～てみませんか」是「てみる」的委婉邀请，表示“试着做……怎么样”。","translation":"用日语说说看怎么样？","tip":"「ませんか」前要用「て形＋み」，构成委婉邀请「～てみませんか」。"}],"version":"559bd9709820"};
+const QUIZ = {"title":"てみる","level":"N4","no":"12","subtitle":"基于笔记 notes/raw/n4/12.てみる.md","summary":["「てみる」表示“试着做某事、尝试做”。","接续：动词て形＋「みる」。","「みる」在这里是辅助动词，一般只写假名。","礼貌体为「～てみます」。","请求对方尝试时用「～てみてください」。","「やる」的て形是「やって」，构成「やってみる」。"],"questions":[{"stem":"やって＿＿＿","source":"例句1·やってみます","options":["います","みます","おきます","しまいます"],"answer":1,"explain":"「て形＋みる」表示“试着做某事”，「やってみます」意为“试着做做看”。","translation":"我试着做做看。","tip":"「みる」是表示“尝试”的补助动词，接在动词て形之后。"},{"stem":"やって＿＿＿ください","source":"例句2·やってみてください","options":["みて","いて","おいて","しまって"],"answer":0,"explain":"「てみてください」是请求对方尝试做某事，「やってみてください」意为“请试着做做看”。","translation":"请试着做做看。","tip":"接「ください」时「みる」要用て形「みて」。"},{"stem":"食べて＿＿＿ください","source":"例句3·食べてみてください","options":["いて","おいて","みて","しまって"],"answer":2,"explain":"「食べる」的て形接「みる」表示“试着吃”，「食べてみてください」意为“请尝尝看”。","translation":"请尝尝看。","tip":"「食べる」的て形是「食べて」，注意「て」不要漏掉。"}],"version":"63dd230460c9"};
 
 const els = {
   crumbs: document.getElementById('crumbs'),
@@ -213,7 +219,10 @@ function renderQuestion() {
 
   els.quiz.innerHTML = `
     <div class="card" id="card">
-      <div class="qnum">第 ${state.i + 1} 题</div>
+      <div class="qhead">
+        <span class="qnum">第 ${state.i + 1} 题</span>
+        <span class="src">📖 ${q.source || ''}</span>
+      </div>
       <div class="stem">${q.stem}</div>
       <div class="opts">${opts}</div>
       <div class="explain" id="explain"></div>

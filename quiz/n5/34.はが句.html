@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="quiz-version" content="facda38a7227" />
+<meta name="quiz-version" content="48b150529ef5" />
 <title>JLPT 语法小测</title>
 <style>
   :root {
@@ -81,6 +81,12 @@
   }
   @keyframes pop { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
   .qnum { font-size: 13px; font-weight: 900; color: var(--accent); letter-spacing: .08em; margin-bottom: 8px; }
+  .qhead { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .qhead .qnum { margin-bottom: 0; }
+  .src {
+    font-size: 12px; font-weight: 700; color: var(--accent2);
+    background: var(--accent-soft); padding: 3px 10px; border-radius: 999px;
+  }
   .stem { font-size: 18px; font-weight: 700; margin-bottom: 18px; }
   .stem .blank { display: inline-block; min-width: 72px; border-bottom: 3px dotted var(--accent); text-align: center; padding: 0 4px; color: var(--accent); }
 
@@ -170,7 +176,7 @@
 </div>
 
 <script>
-const QUIZ = {"title":"はが句","level":"N5","no":"34","subtitle":"基于笔记 notes/raw/n5/34.はが句.md","summary":["はが句的基本结构是「～は～が～」，は提示主题（大主语），が提示焦点（小主语）。","用法一「情感」：好き・嫌い等好恶的对象用「が」。","用法二「能力」：できます・わかります・下手等能力的对象用「が」。","用法三「整体和部分」：整体（大主语）用「は」，部分（小主语）用「が」。"],"questions":[{"stem":"私は桜＿＿＿好きです。","options":["を","が","は","に"],"answer":1,"explain":"情感类用法中，好恶「好き」的对象用「が」表示。","translation":"我喜欢樱花。","tip":"情感词（好き・嫌い）的对象助词固定用「が」。"},{"stem":"李さんは英語＿＿＿嫌いです。","options":["に","を","が","で"],"answer":2,"explain":"「嫌い」表示好恶，其对象同样用「が」。","translation":"小李讨厌英语。","tip":"「嫌い」与「好き」一样，对象用「が」，不用「を」。"},{"stem":"私は日本語＿＿＿できます。","options":["が","を","に","は"],"answer":0,"explain":"「できます」表示能力时，能力的对象用「が」。","translation":"我会日语。","tip":"「できます」的对象用「が」，不能用「を」。"},{"stem":"李さんはコンピュータ＿＿＿わかります。","options":["を","に","で","が"],"answer":3,"explain":"「わかります」表示懂得，其对象用「が」表示。","translation":"小李懂电脑。","tip":"「わかります」的对象助词是「が」，不是「を」。"},{"stem":"王さんは料理＿＿＿下手です。","options":["に","が","を","で"],"answer":1,"explain":"能力评价形容词「下手」的对象用「が」。","translation":"小王不擅长做饭。","tip":"「下手・上手」的对象用「が」，不用「を」。"},{"stem":"象は鼻＿＿＿長いです。","options":["は","を","が","に"],"answer":2,"explain":"整体和部分结构中，整体用「は」，部分（小主语）用「が」。","translation":"大象的鼻子长。","tip":"大主语用「は」、小主语（部分）用「が」，不要都用「は」。"}],"version":"facda38a7227"};
+const QUIZ = {"title":"はが句","level":"N5","no":"34","subtitle":"基于笔记 notes/raw/n5/34.はが句.md","summary":["はが句由「主题は＋对象が＋谓语」构成，は提示主题，が提示对象。","情感类：好き・嫌い等表示好恶，对象用が。","能力类：できます・わかります・下手等表示能力或水平，对象用が。","整体和部分：整体用は，部分用が。","表示情感、能力、性质的对象用が，不能用を。"],"questions":[{"stem":"私は桜＿＿＿好きです。","source":"情感·例句1","options":["が","を","に","は"],"answer":0,"explain":"好き表示喜欢的情感，喜欢的对象要用が，不能用を。","translation":"我喜欢樱花。","tip":"喜欢/讨厌的对象前用が，不是を。"},{"stem":"李さんは英語＿＿＿嫌いです。","source":"情感·例句2","options":["を","が","に","は"],"answer":1,"explain":"嫌い与好き一样表示好恶的情感，对象要用が。","translation":"小李讨厌英语。","tip":"嫌い是形容词，对象用が。"},{"stem":"私は日本語＿＿＿できます。","source":"能力·例句1","options":["を","に","が","は"],"answer":2,"explain":"できる表示能力，能力的对象要用が，不能用を。","translation":"我会日语。","tip":"可能动词的对象用が，不用を。"},{"stem":"李さんはコンピュータ＿＿＿わかります。","source":"能力·例句2","options":["は","を","が","に"],"answer":2,"explain":"わかる表示懂得，对象要用が，不能用を。","translation":"小李懂电脑。","tip":"わかる的对象用が，不用を。"},{"stem":"王さんは料理＿＿＿下手です。","source":"能力·例句3","options":["を","に","は","が"],"answer":3,"explain":"下手表示不擅长，不擅长的对象要用が。","translation":"小王不擅长做菜。","tip":"下手/上手表示水平，对象用が。"},{"stem":"象は鼻＿＿＿長いです。","source":"整体和部分·例句1","options":["が","は","を","に"],"answer":0,"explain":"整体用は提示主题，部分用が提示其性质。","translation":"大象鼻子长。","tip":"记住「象は鼻が長い」：整体は、部分が。"},{"stem":"中国は人口＿＿＿多いです。","source":"整体和部分·例句2","options":["に","が","を","は"],"answer":1,"explain":"整体用は，部分（人口）用が表示其数量多。","translation":"中国人口多。","tip":"整体は、部分が，与「象は鼻が長い」同构。"}],"version":"48b150529ef5"};
 
 const els = {
   crumbs: document.getElementById('crumbs'),
@@ -213,7 +219,10 @@ function renderQuestion() {
 
   els.quiz.innerHTML = `
     <div class="card" id="card">
-      <div class="qnum">第 ${state.i + 1} 题</div>
+      <div class="qhead">
+        <span class="qnum">第 ${state.i + 1} 题</span>
+        <span class="src">📖 ${q.source || ''}</span>
+      </div>
       <div class="stem">${q.stem}</div>
       <div class="opts">${opts}</div>
       <div class="explain" id="explain"></div>

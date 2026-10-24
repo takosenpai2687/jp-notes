@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="quiz-version" content="1158c6d0cc31" />
+<meta name="quiz-version" content="bb830e30220d" />
 <title>JLPT 语法小测</title>
 <style>
   :root {
@@ -81,6 +81,12 @@
   }
   @keyframes pop { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
   .qnum { font-size: 13px; font-weight: 900; color: var(--accent); letter-spacing: .08em; margin-bottom: 8px; }
+  .qhead { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .qhead .qnum { margin-bottom: 0; }
+  .src {
+    font-size: 12px; font-weight: 700; color: var(--accent2);
+    background: var(--accent-soft); padding: 3px 10px; border-radius: 999px;
+  }
   .stem { font-size: 18px; font-weight: 700; margin-bottom: 18px; }
   .stem .blank { display: inline-block; min-width: 72px; border-bottom: 3px dotted var(--accent); text-align: center; padding: 0 4px; color: var(--accent); }
 
@@ -170,7 +176,7 @@
 </div>
 
 <script>
-const QUIZ = {"title":"授受动词","level":"N4","no":"15","subtitle":"基于笔记 notes/raw/n4/15.授受动词.md","summary":["授受动词表示“给”和“收”，分为あげる（我给别人）、もらう（我收到）、くれる（别人给我）三类。","给出去：やる（上对下）、あげる（平级）、さしあげる（下对上），公式「私は～に～をあげる」。","收到：もらう（平级）、いただく（敬语），公式「私は～に～をもらう」。","别人给我：くれる（平级）、くださる（敬语），公式「～は私に～をくれる」。","「私」常被省略，做题靠助词判断：给出去看「～に～を」，别人给我看「私に」。","我方成员（如うちの子）视为离我近的一方，别人给我方成员用「くれる」。"],"questions":[{"stem":"私は猫に餌を＿＿＿。","options":["やる","あげる","さしあげる","もらう"],"answer":0,"explain":"给动物或晚辈（上对下）用「やる」，构成「私は～に～をやる」。","translation":"我给猫喂食。","tip":"三个「给」按对象地位区分：やる（下）、あげる（平）、さしあげる（上）。"},{"stem":"私は先生に本を＿＿＿。","options":["さしあげる","やる","もらう","くれる"],"answer":0,"explain":"给老师、长辈（下对上）用敬语「さしあげる」。","translation":"我把书送给老师。","tip":"对象是「先生」时给出去用「さしあげる」，绝不用「やる」。"},{"stem":"私は李さんに本を＿＿＿。","options":["もらう","あげる","くれる","やる"],"answer":0,"explain":"「私は～に～をもらう」表示我从别人那里收到。","translation":"我从小李那里得到书。","tip":"主语是「私」时，「もらう」是收到、「あげる」是给出去，方向相反。"},{"stem":"私は先生に本を＿＿＿。","options":["いただく","さしあげる","くださる","くれる"],"answer":0,"explain":"从老师、长辈那里收到用谦语「いただく」（もらう的敬语）。","translation":"我从老师那里得到书。","tip":"主语是「私」、对象是「先生」时，收到用「いただく」，给出去才是「さしあげる」。"},{"stem":"李さんは私に本を＿＿＿。","options":["くれる","あげる","もらう","くださる"],"answer":0,"explain":"别人（平级）给我用「くれる」，公式「～は私に～をくれる」。","translation":"小李给我书。","tip":"平级之间用「くれる」；「くださる」用于长辈、上级给我。"},{"stem":"この前、うちの子にお菓子を＿＿＿よね。ありがとう！","options":["くれた","いただいた","あげた","やった"],"answer":0,"explain":"「うちの子」属于我方成员，别人给我方的人等于给我，用「くれる」（过去式「くれた」）。","translation":"前些日子，（你）给我家孩子点心了对吧。谢谢！","tip":"看到「我方成员」作接受对象时，视同「给我」，选「くれる」。"}],"version":"1158c6d0cc31"};
+const QUIZ = {"title":"授受动词","level":"N4","no":"15","subtitle":"基于笔记 notes/raw/n4/15.授受动词.md","summary":["授受动词表示\"给\"与\"收\"，是表示授予和接受的动词。","やる（上对下）、あげる（平级）、さしあげる（下对上）都表示\"我给别人\"。","もらう表示\"我从别人那里收到\"，いただく是もらう的敬语。","くれる表示\"别人给我\"，くださる是くれる的敬语。","做题时看主语与助词即可：私は…に…を（我给/我收）、…は私に…を（别人给我）。"],"questions":[{"stem":"私は猫に餌を＿＿＿。（我给猫喂食。）","source":"①例句·やる","options":["やる","もらう","くれる","いただく"],"answer":0,"explain":"やる表示上对下（给动物/晚辈）的给予，主语\"我\"给猫喂食。","translation":"我给猫喂食。","tip":"主语\"我\"给动物或下位者时用\"やる\"。"},{"stem":"私は李さんに本を＿＿＿。（我给小李书。）","source":"①例句·あげる","options":["あげる","さしあげる","もらう","くれる"],"answer":0,"explain":"あげる表示平级之间的给予，我给小李书。","translation":"我给小李书。","tip":"平级之间\"我给别人\"用\"あげる\"，对象是上位者才用\"さしあげる\"。"},{"stem":"私は先生に本を＿＿＿。（我把书送给老师。）","source":"①例句·さしあげる","options":["さしあげる","あげる","もらう","くれる"],"answer":0,"explain":"さしあげる表示下对上，我把书送给老师（上位者）。","translation":"我把书送给老师。","tip":"对象是老师等上位者时用\"さしあげる\"。"},{"stem":"私は李さんに本を＿＿＿。（我从小李那里得到书。）","source":"②例句·もらう","options":["もらう","いただく","あげる","くれる"],"answer":0,"explain":"もらう表示我从别人那里收到，从小李（平级）那里得到书。","translation":"我从小李那里得到书。","tip":"主语\"我\"从平级那里收到用\"もらう\"。"},{"stem":"私は先生に本を＿＿＿。（我从老师那里得到书。）","source":"②例句·いただく","options":["いただく","もらう","くれる","あげる"],"answer":0,"explain":"いただく是もらう的敬语，我从老师（上位者）那里得到书。","translation":"我从老师那里得到书。","tip":"从老师等上位者那里收到时用敬语\"いただく\"。"},{"stem":"李さんは私に本を＿＿＿。（小李给我书。）","source":"③例句·くれる","options":["くれる","くださる","あげる","もらう"],"answer":0,"explain":"くれる表示别人给我，小李给我书。","translation":"小李给我书。","tip":"别人（平级的小李）给我用\"くれる\"。"},{"stem":"先生は私に本を＿＿＿。（老师给我书。）","source":"③例句·くださる","options":["くださる","くれる","あげる","もらう"],"answer":0,"explain":"くださる是くれる的敬语，老师（上位者）给我书。","translation":"老师给我书。","tip":"上位者（老师）给我时用敬语\"くださる\"。"},{"stem":"この前、うちの子にお菓子を＿＿＿よね。ありがとう！","source":"真题再现","options":["いただいた","くれた","あげた","やった"],"answer":1,"explain":"うちの子（我家孩子）属我方成员，别人给我方成员用\"くれる\"（过去式くれた）。","translation":"前些日子，（你）给我家孩子点心了对吧。谢谢！","tip":"うちの子属我方成员，别人给我方用\"くれる\"；いただいた是自谦、あげた是我方给、やった只给动物/晚辈。"}],"version":"bb830e30220d"};
 
 const els = {
   crumbs: document.getElementById('crumbs'),
@@ -213,7 +219,10 @@ function renderQuestion() {
 
   els.quiz.innerHTML = `
     <div class="card" id="card">
-      <div class="qnum">第 ${state.i + 1} 题</div>
+      <div class="qhead">
+        <span class="qnum">第 ${state.i + 1} 题</span>
+        <span class="src">📖 ${q.source || ''}</span>
+      </div>
       <div class="stem">${q.stem}</div>
       <div class="opts">${opts}</div>
       <div class="explain" id="explain"></div>

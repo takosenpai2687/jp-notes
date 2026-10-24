@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="quiz-version" content="eea056be039d" />
+<meta name="quiz-version" content="7bde2cd81019" />
 <title>JLPT 语法小测</title>
 <style>
   :root {
@@ -81,6 +81,12 @@
   }
   @keyframes pop { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
   .qnum { font-size: 13px; font-weight: 900; color: var(--accent); letter-spacing: .08em; margin-bottom: 8px; }
+  .qhead { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .qhead .qnum { margin-bottom: 0; }
+  .src {
+    font-size: 12px; font-weight: 700; color: var(--accent2);
+    background: var(--accent-soft); padding: 3px 10px; border-radius: 999px;
+  }
   .stem { font-size: 18px; font-weight: 700; margin-bottom: 18px; }
   .stem .blank { display: inline-block; min-width: 72px; border-bottom: 3px dotted var(--accent); text-align: center; padding: 0 4px; color: var(--accent); }
 
@@ -170,7 +176,7 @@
 </div>
 
 <script>
-const QUIZ = {"title":"接续助词が","level":"N5","no":"27","subtitle":"基于笔记 notes/raw/n5/27.接续助词が.md","summary":["が 表示顺接时只起缓和语气的作用，一般不译出。","が 表示逆接时，连接前后句构成转折，译为“虽然…但是…”。","口语中 が 常说成 けど，意思和用法相同。","けど＝けれど＝けれども，都相当于口语中的 が。"],"questions":[{"stem":"すみません＿＿＿、これはいくらですか。","options":["を","が","に","は"],"answer":1,"explain":"が 在此表示顺接，起缓和语气的作用，一般不译出。","translation":"不好意思，这个多少钱？","tip":"客套语「すみませんが」中的 が 是顺接，不译成“但是”。"},{"stem":"旅行に行きたい＿＿＿、時間がありません。","options":["が","から","ので","と"],"answer":0,"explain":"が 连接前后句表示逆接，前后构成转折关系，译为“虽然…但是…”。","translation":"虽然想去旅行，但是没有时间。","tip":"前后句意思相反时，が 表示转折，相当于“但是”。"},{"stem":"日本料理はおいしい＿＿＿、高いです。","options":["が","から","ので","と"],"answer":0,"explain":"が 接在形容词谓语句后表示逆接，译为“虽然…但是…”。","translation":"日本料理虽然好吃，但是贵。","tip":"看到前后褒贬相反，就要想到 が 的逆接用法。"},{"stem":"この店の料理はおいしい＿＿＿、高いです。","options":["から","けど","ので","と"],"answer":1,"explain":"口语中 が 可以说成 けど（＝けれど＝けれども），同样表示逆接。","translation":"这家店的菜虽然好吃，但是贵。","tip":"けど、けれど、けれども 都等于 が，口语更常用 けど。"}],"version":"eea056be039d"};
+const QUIZ = {"title":"接续助词が","level":"N5","no":"27","subtitle":"基于笔记 notes/raw/n5/27.接续助词が.md","summary":["「が」作接续助词可表示顺接，通常不翻译，起缓和语气、引出下文的作用。","「すみませんが」是搭话的固定表达，表示“不好意思、请问……”。","「が」也可表示逆接，译为“虽然……但是……”，连接意思相反的句子。","口语中「が」常替换为「けど」，意思相同。","「けど＝けれど＝けれども」，都是「が」的口语说法。"],"questions":[{"stem":"すみません＿＿＿、これはいくらですか。","source":"意义①顺接例句","options":["が","は","も","と"],"answer":0,"explain":"「すみませんが」是固定用法，「が」表示顺接、起缓和语气的作用，一般不必翻译。","translation":"不好意思，请问这个多少钱？","tip":"「すみませんが」是搭话时的固定表达，见到「すみません…」直接选「が」。"},{"stem":"旅行に行きたい＿＿＿、時間がない。","source":"意义②逆接例句·旅行","options":["が","は","も","と"],"answer":0,"explain":"「が」在此表示逆接（但是），连接意思相反的两个句子，译为“虽然…但是…”。","translation":"我想去旅行，但是没有时间。","tip":"前后语义相反（想去旅行 vs 没时间），选表逆接的「が」。"},{"stem":"日本料理は美味しい＿＿＿、高い。","source":"意义②逆接例句·日本料理","options":["が","は","も","と"],"answer":0,"explain":"「が」表示逆接（但是），前半“好吃”与后半“贵”形成转折。","translation":"日本料理很好吃，但是很贵。","tip":"“好吃”与“贵”构成转折，选表逆接的「が」。"},{"stem":"旅行に行きたい＿＿＿、時間がない。","source":"意义③口语例句·旅行","options":["けど","は","も","と"],"answer":0,"explain":"口语中「が」常替换为「けど」，同样表示逆接。","translation":"我想去旅行，但是没有时间。","tip":"「けど」是「が」的口语说法，口语例句里优先选「けど」。"},{"stem":"日本料理は美味しい＿＿＿、高い。","source":"意义③口语例句·日本料理","options":["けど","は","も","と"],"answer":0,"explain":"口语中「が」常替换为「けど」，同样表示逆接（但是）。","translation":"日本料理很好吃，但是很贵。","tip":"「けど」是口语化的「が」，口语例句里优先选「けど」。"}],"version":"7bde2cd81019"};
 
 const els = {
   crumbs: document.getElementById('crumbs'),
@@ -213,7 +219,10 @@ function renderQuestion() {
 
   els.quiz.innerHTML = `
     <div class="card" id="card">
-      <div class="qnum">第 ${state.i + 1} 题</div>
+      <div class="qhead">
+        <span class="qnum">第 ${state.i + 1} 题</span>
+        <span class="src">📖 ${q.source || ''}</span>
+      </div>
       <div class="stem">${q.stem}</div>
       <div class="opts">${opts}</div>
       <div class="explain" id="explain"></div>

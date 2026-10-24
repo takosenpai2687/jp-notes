@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="quiz-version" content="c1a58b9eefb7" />
+<meta name="quiz-version" content="99fdb0f18967" />
 <title>JLPT 语法小测</title>
 <style>
   :root {
@@ -81,6 +81,12 @@
   }
   @keyframes pop { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
   .qnum { font-size: 13px; font-weight: 900; color: var(--accent); letter-spacing: .08em; margin-bottom: 8px; }
+  .qhead { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .qhead .qnum { margin-bottom: 0; }
+  .src {
+    font-size: 12px; font-weight: 700; color: var(--accent2);
+    background: var(--accent-soft); padding: 3px 10px; border-radius: 999px;
+  }
   .stem { font-size: 18px; font-weight: 700; margin-bottom: 18px; }
   .stem .blank { display: inline-block; min-width: 72px; border-bottom: 3px dotted var(--accent); text-align: center; padding: 0 4px; color: var(--accent); }
 
@@ -170,7 +176,7 @@
 </div>
 
 <script>
-const QUIZ = {"title":"接续助词ても","level":"N5","no":"29","subtitle":"基于笔记 notes/raw/n5/29.接续助词ても.md","summary":["ても表示让步，意思是「即使……也……」","动词接ても时用て形加も，如「降っても」","い形容词接ても时い变くて再加も，如「高くても」","动词ない形变なくて再加も，如「来なくても」","名词后表示「即使/就连」用でも，如「子供でも」","どんなに……ても表示「无论多么……也……」"],"questions":[{"stem":"雨が降っ＿＿＿、学校へ行きます。","options":["ても","たら","から","ば"],"answer":0,"explain":"ても表示让步，意思是「即使……也……」","translation":"即使下雨，我也去学校。","tip":"表示让步「即使」选ても，不选たら或ば"},{"stem":"どんなに高＿＿＿、買います。","options":["くても","いでも","くて","ても"],"answer":0,"explain":"い形容词接ても时，先把い变成くて再加も，构成「くても」","translation":"无论多贵都要买。","tip":"い形容词变くて再加も，别漏掉中间的く"},{"stem":"子供＿＿＿、知っています。","options":["でも","ても","から","ので"],"answer":0,"explain":"名词后表示「即使/就连」时用でも，不用ても","translation":"即使是小孩子也知道。","tip":"名词接でも，动词和い形容词接ても"},{"stem":"明日、来＿＿＿てもいいです。","options":["なく","ない","ないで","なかった"],"answer":0,"explain":"动词ない形的て形是「なくて」，再加も构成「なくても」","translation":"明天不来也没关系。","tip":"ない形→なくて→なくても"}],"version":"c1a58b9eefb7"};
+const QUIZ = {"title":"接续助词ても","level":"N5","no":"29","subtitle":"基于笔记 notes/raw/n5/29.接续助词ても.md","summary":["ても是接续助词，表示让步，翻译成“即使”","どんなに～ても：无论多么……也……","～てもいい：……也可以、……也没关系","ても前接动词、形容词、形容动词的连用形","名词后面要用「でも」，不能用「ても」"],"questions":[{"stem":"どんなに高く＿＿＿買います。（无论多贵都要买。）","source":"例1·让步","options":["でも","では","ても","には"],"answer":2,"explain":"「ても」接在形容词连用形「高く」后表示让步，意为“即使”。","translation":"无论多贵都要买。","tip":"「でも」只接名词，前面是形容词连用形「高く」要用「ても」。"},{"stem":"明日、来なく＿＿＿いいです。（明天不来也没关系。）","source":"例2·てもいい","options":["でも","ては","には","ても"],"answer":3,"explain":"「～なくてもいい」表示许可，意为“不做……也可以”。","translation":"明天不来也没关系。","tip":"记固定搭配「～なくてもいい」，表示“不……也没关系”。"}],"version":"99fdb0f18967"};
 
 const els = {
   crumbs: document.getElementById('crumbs'),
@@ -213,7 +219,10 @@ function renderQuestion() {
 
   els.quiz.innerHTML = `
     <div class="card" id="card">
-      <div class="qnum">第 ${state.i + 1} 题</div>
+      <div class="qhead">
+        <span class="qnum">第 ${state.i + 1} 题</span>
+        <span class="src">📖 ${q.source || ''}</span>
+      </div>
       <div class="stem">${q.stem}</div>
       <div class="opts">${opts}</div>
       <div class="explain" id="explain"></div>

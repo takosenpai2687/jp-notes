@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="quiz-version" content="9dfec3211031" />
+<meta name="quiz-version" content="6d0a698312b5" />
 <title>JLPT 语法小测</title>
 <style>
   :root {
@@ -81,6 +81,12 @@
   }
   @keyframes pop { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
   .qnum { font-size: 13px; font-weight: 900; color: var(--accent); letter-spacing: .08em; margin-bottom: 8px; }
+  .qhead { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .qhead .qnum { margin-bottom: 0; }
+  .src {
+    font-size: 12px; font-weight: 700; color: var(--accent2);
+    background: var(--accent-soft); padding: 3px 10px; border-radius: 999px;
+  }
   .stem { font-size: 18px; font-weight: 700; margin-bottom: 18px; }
   .stem .blank { display: inline-block; min-width: 72px; border-bottom: 3px dotted var(--accent); text-align: center; padding: 0 4px; color: var(--accent); }
 
@@ -170,7 +176,7 @@
 </div>
 
 <script>
-const QUIZ = {"title":"终助词ね","level":"N5","no":"30","subtitle":"基于笔记 notes/raw/n5/30.终助词ね.md","summary":["「ね」读降调表示感叹，相当于「真……啊」。","「ね」读升调表示确认或寻求认同，相当于「对吧」。","「ね」接在「〜て」等后面柔化语气，使表达更亲切。","男性用语用「な」，女性用语用「ね」。"],"questions":[{"stem":"わあ、空がきれいです＿＿＿。","options":["ね","か","よ","の"],"answer":0,"explain":"「ね」读降调时表示感叹，表达「真……啊」的语气。","translation":"哇，天空好美啊！","tip":"看到「わあ」等感叹词，直接选表示感叹的「ね」。"},{"stem":"明日は月曜日です＿＿＿。","options":["ね","よ","か","の"],"answer":0,"explain":"「ね」读升调时表示确认或寻求对方认同，相当于「对吧」。","translation":"明天是星期一，对吧？","tip":"句尾是「对吧」的确认语气时选「ね」。"},{"stem":"テスト、頑張って＿＿＿。","options":["ね","を","に","で"],"answer":0,"explain":"「ね」接在「〜て」后柔化语气，表示亲切的鼓励。","translation":"考试，加油哦。","tip":"「頑張ってね」的「ね」让语气更柔和亲切。"},{"stem":"（女性が友達に）この写真、きれいだ＿＿＿。","options":["ね","な","よ","か"],"answer":0,"explain":"女性用语用「ね」，男性用语用「な」，此处说话人是女性，故用「ね」。","translation":"（女性对朋友说）这张照片真漂亮啊。","tip":"先看说话人性别：女性用「ね」，男性用「な」。"}],"version":"9dfec3211031"};
+const QUIZ = {"title":"终助词ね","level":"N5","no":"30","subtitle":"基于笔记 notes/raw/n5/30.终助词ね.md","summary":["ね 接在句末表示感叹，读降调，如「綺麗ですね」。","ね 表示确认或寻求认同，读升调，如「このケーキは美味しいですね」。","ね 用于柔和语气，使劝勉、嘱咐更亲切，如「頑張ってね」。","ね 是女性用语，男性用「な」。","ね 常接在「です／ます」形或「～て」形之后。"],"questions":[{"stem":"綺麗です＿＿＿。","source":"意义①例句·感叹","options":["ね","な","よ","か"],"answer":0,"explain":"「ね」接在句末表示感叹（读降调），「綺麗ですね」意为“真漂亮啊”。","translation":"真漂亮啊。","tip":"表感叹、赞美且读降调时，句末用「ね」。"},{"stem":"可愛いです＿＿＿。","source":"意义①例句·感叹","options":["ね","な","よ","か"],"answer":0,"explain":"「ね」接在句末表示感叹（读降调），「可愛いですね」意为“真可爱啊”。","translation":"真可爱啊。","tip":"「です」后接表感叹的「ね」，表示由衷的赞美。"},{"stem":"このケーキは美味しいです＿＿＿。","source":"意义②例句·确认","options":["ね","な","よ","か"],"answer":0,"explain":"「ね」表示确认或寻求认同（读升调），「このケーキは美味しいですね」是请对方同意“很好吃”。","translation":"这个蛋糕很好吃吧。","tip":"寻求对方认同时用升调的「ね」，与表感叹的降调「ね」区分。"},{"stem":"面白い本です＿＿＿。","source":"意义②例句·确认","options":["ね","な","よ","か"],"answer":0,"explain":"「ね」表示确认或寻求认同（读升调），「面白い本ですね」是希望对方也认同“书很有趣”。","translation":"这本书很有趣吧。","tip":"读升调、征询对方同感时，句末用「ね」而非表疑问的「か」。"},{"stem":"頑張って＿＿＿。","source":"意义③例句·柔和语气","options":["ね","な","よ","か"],"answer":0,"explain":"「ね」用于柔和语气，使劝勉、嘱咐更亲切，「頑張ってね」即“加油哦”。","translation":"加油哦。","tip":"「～て」后加「ね」表柔和的鼓励或嘱咐，常译作“哦、啊”。"}],"version":"6d0a698312b5"};
 
 const els = {
   crumbs: document.getElementById('crumbs'),
@@ -213,7 +219,10 @@ function renderQuestion() {
 
   els.quiz.innerHTML = `
     <div class="card" id="card">
-      <div class="qnum">第 ${state.i + 1} 题</div>
+      <div class="qhead">
+        <span class="qnum">第 ${state.i + 1} 题</span>
+        <span class="src">📖 ${q.source || ''}</span>
+      </div>
       <div class="stem">${q.stem}</div>
       <div class="opts">${opts}</div>
       <div class="explain" id="explain"></div>

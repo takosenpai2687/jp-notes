@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="quiz-version" content="72698db8a7fe" />
+<meta name="quiz-version" content="b7efd4e82027" />
 <title>JLPT 语法小测</title>
 <style>
   :root {
@@ -81,6 +81,12 @@
   }
   @keyframes pop { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
   .qnum { font-size: 13px; font-weight: 900; color: var(--accent); letter-spacing: .08em; margin-bottom: 8px; }
+  .qhead { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .qhead .qnum { margin-bottom: 0; }
+  .src {
+    font-size: 12px; font-weight: 700; color: var(--accent2);
+    background: var(--accent-soft); padding: 3px 10px; border-radius: 999px;
+  }
   .stem { font-size: 18px; font-weight: 700; margin-bottom: 18px; }
   .stem .blank { display: inline-block; min-width: 72px; border-bottom: 3px dotted var(--accent); text-align: center; padding: 0 4px; color: var(--accent); }
 
@@ -170,7 +176,7 @@
 </div>
 
 <script>
-const QUIZ = {"title":"格助词「を」","level":"N5","no":"13","subtitle":"基于笔记 notes/raw/n5/13.格助词を.md","summary":["「を」表示动作的宾语，一般不翻译。","宾语放在他动词之前，如「ご飯を食べる」「本を読む」。","「を」表示移动经过的场所，如「空を飛ぶ」。","「を」表示离开的场所（出发点），如「家を出る」。"],"questions":[{"stem":"ご飯＿＿＿食べます。","options":["を","が","に","で"],"answer":0,"explain":"「を」放在他动词前，表示动作的宾语，一般不翻译。","translation":"吃饭。","tip":"先判断动词是否为带宾语的他动词，再选「を」。"},{"stem":"本＿＿＿読みます。","options":["が","へ","を","で"],"answer":2,"explain":"「を」表示动作的对象，「本」是「読む」的宾语。","translation":"读书。","tip":"把「を」后面的动词找出来，确认它能否带宾语。"},{"stem":"空＿＿＿飛びます。","options":["に","を","へ","で"],"answer":1,"explain":"「を」表示移动经过的场所，「空を飛ぶ」意为在空中飞。","translation":"在空中飞。","tip":"“飞过/穿行某空间”这种经过的场所要用「を」，不用「で」。"},{"stem":"家＿＿＿出ます。","options":["に","で","へ","を"],"answer":3,"explain":"「を」表示离开的场所（出发点），「家を出る」意为离开家。","translation":"离开家。","tip":"区分“进入”与“离开”：进入用「に」，离开用「を」。"}],"version":"72698db8a7fe"};
+const QUIZ = {"title":"格助词「を」","level":"N5","no":"13","subtitle":"基于笔记 notes/raw/n5/13.格助词を.md","summary":["「を」作格助词，主要表示动作的宾语，一般不翻译。","他动词前用「を」接宾语，如「ご飯を食べる」「本を読む」。","「を」还可表示移动、经过或离开的场所，即【出发点】。","「空を飛ぶ」表示在空中飞、穿行于空间；「家を出る」表示离开家。","注意「を」后接动词，标记该动作直接作用的对象或经由、离开的场所。"],"questions":[{"stem":"ご飯＿＿＿食べる。","source":"意义①宾语·例1","options":["を","に","で","が"],"answer":0,"explain":"「を」接在他动词「食べる」前，标记动作的直接宾语。","translation":"吃饭。","tip":"记牢「～を食べる」固定搭配，宾语用「を」。"},{"stem":"本＿＿＿読む。","source":"意义①宾语·例2","options":["を","に","で","が"],"answer":0,"explain":"「を」接在他动词「読む」前，标记动作的宾语。","translation":"读书。","tip":"他动词前用「を」接宾语，别误用「に」。"},{"stem":"空＿＿＿飛ぶ。【移动】在空中飞，穿行于这片空间","source":"意义②移动·空を飛ぶ","options":["を","で","に","が"],"answer":0,"explain":"「を」表示动作移动、经过的空间或场所。","translation":"在空中飞，穿行于这片空间。","tip":"「空を飛ぶ」用「を」表经过的空间，不是「で」。"},{"stem":"家＿＿＿出る。【离开from】离开家（从家出发）","source":"意义②离开·家を出る","options":["を","に","で","が"],"answer":0,"explain":"「を」表示离开的场所，即出发点。","translation":"离开家（从家出发）。","tip":"「家を出る」用「を」表离开的出发点，别用「に」。"}],"version":"b7efd4e82027"};
 
 const els = {
   crumbs: document.getElementById('crumbs'),
@@ -213,7 +219,10 @@ function renderQuestion() {
 
   els.quiz.innerHTML = `
     <div class="card" id="card">
-      <div class="qnum">第 ${state.i + 1} 题</div>
+      <div class="qhead">
+        <span class="qnum">第 ${state.i + 1} 题</span>
+        <span class="src">📖 ${q.source || ''}</span>
+      </div>
       <div class="stem">${q.stem}</div>
       <div class="opts">${opts}</div>
       <div class="explain" id="explain"></div>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="quiz-version" content="d587c4e12569" />
+<meta name="quiz-version" content="86cf705d4a1a" />
 <title>JLPT 语法小测</title>
 <style>
   :root {
@@ -81,6 +81,12 @@
   }
   @keyframes pop { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
   .qnum { font-size: 13px; font-weight: 900; color: var(--accent); letter-spacing: .08em; margin-bottom: 8px; }
+  .qhead { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .qhead .qnum { margin-bottom: 0; }
+  .src {
+    font-size: 12px; font-weight: 700; color: var(--accent2);
+    background: var(--accent-soft); padding: 3px 10px; border-radius: 999px;
+  }
   .stem { font-size: 18px; font-weight: 700; margin-bottom: 18px; }
   .stem .blank { display: inline-block; min-width: 72px; border-bottom: 3px dotted var(--accent); text-align: center; padding: 0 4px; color: var(--accent); }
 
@@ -170,7 +176,7 @@
 </div>
 
 <script>
-const QUIZ = {"title":"复合型授受动词","level":"N4","no":"19","subtitle":"基于笔记 notes/raw/n4/19.复合型授受动词.md","summary":["复合型授受动词一律从后往前看：内层是实义动词＋授受动词，外层再叠一个授受动词。","第一个动词永远是实义动词（教える、叱る等），本身不含授受义。","てやる表示为晚辈、地位低的人做某事，不能用于长辈或上司。","てあげる表示为平辈或他人做某事（如课长给小李说明情况）。","てもらう表示请求、拜托对方做某事，作外层时表示“我拜托你做内层那件事”。","教えてやってもらえませんか＝能不能请你帮我去教（晚辈）下一节课。"],"questions":[{"stem":"娘に日本語を教えて＿＿＿。","options":["くださいました","やりました","もらいました","ください"],"answer":1,"explain":"「てやる」表示为晚辈、地位低的人做某事，这里对象是女儿（晚辈），所以用「やりました」。","translation":"我给女儿教日语。","tip":"看到对象是晚辈（子女、学生等）就选「てやる」。"},{"stem":"先生に写真を見せて＿＿＿。","options":["やりました","もらいました","あげました","くださいました"],"answer":2,"explain":"「てやる」不能用于长辈或上司，对老师要用「てあげる」。","translation":"我给老师看了照片。","tip":"对象是长辈、上司时，先排除「てやる」。"},{"stem":"息子に日本語を教えて＿＿＿ませんか。","options":["やってもらい","もらってあげ","あげてやり","くれてやり"],"answer":0,"explain":"内层「教えてやる」为晚辈做，外层「てもらう」请求对方做，合并为“请你帮我去教晚辈”。","translation":"能不能请你帮我去教（我）儿子日语？","tip":"复合型从后往前看，先判断内层「てやる」，再判断外层「てもらう」。"},{"stem":"子供が悪いことをしたら、遠慮しないで叱って＿＿＿ください。","options":["もらって","あげて","やって","くれて"],"answer":2,"explain":"「てやる」给晚辈做、「てください」请你做，合起来是“请你（替我）批评孩子”。","translation":"如果孩子做了坏事，请不要客气，尽管批评他。","tip":"「てやってください」是固定搭配，表示请对方对晚辈做某事。"}],"version":"d587c4e12569"};
+const QUIZ = {"title":"复合型授受动词","level":"N4","no":"19","subtitle":"基于笔记 notes/raw/n4/19.复合型授受动词.md","summary":["复合型授受动词一律从后往前看，第一个动词永远是实义动词。","～てやってください：てやる（为晚辈做）＋てください（请你做）。","～てあげて頂けませんか：てあげる（为平辈做）＋て頂く（请对方做）。","～てやってもらえませんか：内层てやる（为晚辈做）＋外层てもらう（请求对方）。","てやる只能用于晚辈或地位低的人，不能用于长辈。","てもらう／て頂く表示请求对方为自己或晚辈做某事。"],"questions":[{"stem":"幼稚園（ようちえん）で悪（わる）い事（こと）をやったら、遠慮（えんりょ）しないで叱って＿＿＿ください。","source":"例句1·～てやってください","options":["もらって","やって","くれて","いただいて"],"answer":1,"explain":"「てやってください」＝「てやる」（为晚辈做）＋「てください」（请你做），表示请对方为自己家的孩子等晚辈做某事。","translation":"孩子在幼儿园做了坏事的话，请不要客气，尽管批评他。","tip":"受益对象是晚辈（孩子），要用「てやる」；「てもらう」「てくれる」方向相反，都不对。"},{"stem":"課長（かちょう）、最新（さいしん）の状況（じょうきょう）を李（り）さんに説明して＿＿＿頂けませんか。【頂けませんか：我能不能让您做某事：课长给小李说】","source":"例句2·～てあげて頂けませんか","options":["もらって","くれて","あげて","やって"],"answer":2,"explain":"「てあげて頂けませんか」＝「てあげる」（课长为平辈小李做）＋「て頂く」（请课长做），表示请地位高的人为平辈做某事。","translation":"课长，能不能麻烦您把最新情况向小李说明一下？","tip":"受益对象是平辈小李，用「てあげる」；「てやる」只能用于晚辈，用在这里就错了。"},{"stem":"次（つぎ）の授業（じゅぎょう）を教（おし）えて＿＿＿もらえませんか。【能不能麻烦你帮我去教下一节课？】","source":"例句3·～てやってもらえませんか","options":["やって","あげて","もらって","くれて"],"answer":0,"explain":"「てやってもらえませんか」＝内层「てやる」（你为晚辈教课）＋外层「てもらう」（我拜托你），表示请对方帮忙为晚辈做某事。","translation":"能不能麻烦你帮我去教下一节课？","tip":"从后往前看：外层「てもらう」是我请你，内层「てやる」的受益者是晚辈学生。"}],"version":"86cf705d4a1a"};
 
 const els = {
   crumbs: document.getElementById('crumbs'),
@@ -213,7 +219,10 @@ function renderQuestion() {
 
   els.quiz.innerHTML = `
     <div class="card" id="card">
-      <div class="qnum">第 ${state.i + 1} 题</div>
+      <div class="qhead">
+        <span class="qnum">第 ${state.i + 1} 题</span>
+        <span class="src">📖 ${q.source || ''}</span>
+      </div>
       <div class="stem">${q.stem}</div>
       <div class="opts">${opts}</div>
       <div class="explain" id="explain"></div>

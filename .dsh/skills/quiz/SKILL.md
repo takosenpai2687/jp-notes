@@ -30,14 +30,24 @@ The HTML template is fixed — the only thing that changes is the quiz JSON.
    one-line Chinese items for the `summary` array — the conjugation rules, the
    meanings, and the fixed patterns the note teaches.
 
-3. **Write questions.** Produce 6 questions (4 for a very short note). Each follows
-   the JLPT grammar-section shape: one sentence with a `＿＿＿` blank and four
-   options. Rules:
-   - One correct answer; distractor options must be the kind of mistake the note
-     itself warns about (wrong conjugation, wrong particle, right form in the
-     wrong context), not random Japanese.
-   - Cover the note's core points first, then its sentence patterns (the
-     「相关句型」/「句型」sections). Do not test trivia the note never mentions.
+3. **Write questions from the note's own example sentences.** The note's examples
+   (例句 / 例) are the primary source — never invent a sentence. Rules:
+   - Turn EVERY example sentence into one question: copy it verbatim and blank
+     out (`＿＿＿`) exactly the word that carries the grammar point (the particle,
+     the auxiliary, the pattern, or the conjugated form). The rest stays
+     untouched, including any context in parentheses.
+   - For verb / adjective conjugation notes (变形), the conjugation rules and the
+     变形表 are the focus: add one conjugation question per rule or table row
+     (e.g. 言う→言えば), and blank the conjugated form. These are conjugation
+     questions, not sentence-pattern questions — match what the note is about.
+   - There is no fixed count: cover all examples and all conjugation points, so a
+     rich note yields more questions. Do not pad with off-topic sentences.
+   - `source` (required) names where the question came from — a short label such
+     as `意义①例句`, `变形表·言う`, `相关句型②～ば～ほど`, `例2·情感`. One label
+     per question.
+   - One correct answer; distractor options are the note's own warned-about
+     mistakes (wrong conjugation, wrong particle, right form in the wrong
+     context), never random Japanese.
    - Level-appropriate: N4 questions use N4 vocabulary and N4 grammar, N5 uses N5.
    - `answer` is the zero-based index of the correct option.
    - `explain` is ONE Chinese sentence: the core knowledge point. `translation`
@@ -46,6 +56,8 @@ The HTML template is fixed — the only thing that changes is the quiz JSON.
 
 4. **Self-review before building (required).** Re-read every question you wrote and
    check, one by one, that:
+   - every stem is a verbatim example sentence from the note (or a conjugation-
+     table entry), and `source` points to the right place;
    - the marked answer is actually correct — re-derive the conjugation or usage
      against the note, don't trust your first pass;
    - every other option is genuinely wrong for the blank (no accidental second
@@ -100,6 +112,7 @@ The HTML template is fixed — the only thing that changes is the quiz JSON.
   "questions": [
     {
       "stem": "春に＿＿＿、桜が咲きます。",
+      "source": "意义①例句",
       "options": ["なれば", "なると", "なるたら", "なって"],
       "answer": 0,
       "explain": "一类动词なる的ば形是「う段→え段＋ば」，所以是なれば。",
@@ -112,6 +125,9 @@ The HTML template is fixed — the only thing that changes is the quiz JSON.
 
 - `stem` uses `＿＿＿` (or `＿`) to mark the blank; the template renders it as an
   underlined gap.
+- `source` is required — a short label naming the note's section / example the
+  question came from (e.g. `意义①例句`, `变形表·言う`, `例2·情感`). The template
+  shows it as a tag beside the question number.
 - `options` is always exactly four strings.
 - `explain` is required (core knowledge point); `translation` is required (the
   full sentence translated into Chinese, shown as a highlighted line); `tip` is

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="quiz-version" content="246f216d0f9d" />
+<meta name="quiz-version" content="da662712588a" />
 <title>JLPT 语法小测</title>
 <style>
   :root {
@@ -81,6 +81,12 @@
   }
   @keyframes pop { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
   .qnum { font-size: 13px; font-weight: 900; color: var(--accent); letter-spacing: .08em; margin-bottom: 8px; }
+  .qhead { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .qhead .qnum { margin-bottom: 0; }
+  .src {
+    font-size: 12px; font-weight: 700; color: var(--accent2);
+    background: var(--accent-soft); padding: 3px 10px; border-radius: 999px;
+  }
   .stem { font-size: 18px; font-weight: 700; margin-bottom: 18px; }
   .stem .blank { display: inline-block; min-width: 72px; border-bottom: 3px dotted var(--accent); text-align: center; padding: 0 4px; color: var(--accent); }
 
@@ -170,7 +176,7 @@
 </div>
 
 <script>
-const QUIZ = {"title":"副助词だけ","level":"N5","no":"26","subtitle":"基于笔记 notes/raw/n5/26.副助词だけ.md","summary":["だけ 是副助词，表示限定，意为“只、仅仅、只有”。","だけ 直接接在名词后面，限定该名词的范围。","例：肉だけ食べます（只吃肉）。","例：土曜日だけ休みます（只有星期六休息）。","助词覆盖现象：だけ 前习惯省略 を、が 等助词。"],"questions":[{"stem":"私は肉＿＿＿食べます。野菜は食べません。","options":["だけ","をだけ","も","だけを"],"answer":0,"explain":"だけ 接在名词后表示限定，意为“只、仅仅”，习惯上省略 を。","translation":"我只吃肉，不吃蔬菜。","tip":"だけ 直接跟在名词后，不加 を。"},{"stem":"土曜日＿＿＿休みます。ほかの日は働きます。","options":["だけ","をだけ","がだけ","も"],"answer":0,"explain":"表示时间限定时，だけ 直接接在时间名词后，不加助词。","translation":"我只有星期六休息，其他日子都工作。","tip":"时间名词后直接加 だけ，不加 に、を、が。"},{"stem":"私＿＿＿行きます。ほかの人は行きません。","options":["だけ","がだけ","をだけ","も"],"answer":0,"explain":"だけ 限定主语时，习惯上省略 が。","translation":"只有我去，其他人不去。","tip":"だけ 前省略 が（助词覆盖现象）。"},{"stem":"この漢字＿＿＿分かりません。ほかの漢字は分かります。","options":["だけ","がだけ","をだけ","も"],"answer":0,"explain":"だけ 表示“只、仅仅”，用于否定句表示“只有……不……”。","translation":"只有这个汉字不认识，其他的汉字都认识。","tip":"分かる 的对象助词用 が，但 だけ 前习惯省略 が。"}],"version":"246f216d0f9d"};
+const QUIZ = {"title":"副助词だけ","level":"N5","no":"26","subtitle":"基于笔记 notes/raw/n5/26.副助词だけ.md","summary":["「だけ」是副助词，表示限定，译为“仅仅、只有”。","「だけ」直接接在名词后，限定该名词的范围。","「肉だけ食べます」＝只吃肉。","「土曜日だけ休みます」＝只有周六休息。","助词覆盖现象：「だけ」前习惯省略「を」「が」等助词（理论上可不覆盖）。"],"questions":[{"stem":"肉＿＿＿食べます。","source":"表示限定·例1","options":["だけ","をだけ","が","も"],"answer":0,"explain":"副助词「だけ」表示限定，意为“只、仅仅”，直接接在名词后。","translation":"只吃肉。","tip":"「だけ」前习惯省略助词「を」（助词覆盖现象）。"},{"stem":"土曜日＿＿＿休みます。","source":"表示限定·例2","options":["だけ","に","は","も"],"answer":0,"explain":"副助词「だけ」表示限定，意为“只、仅仅”，限定前面的时间名词。","translation":"只有周六休息。","tip":"表示“只有”的时间限定用「だけ」，不加时间助词「に」。"}],"version":"da662712588a"};
 
 const els = {
   crumbs: document.getElementById('crumbs'),
@@ -213,7 +219,10 @@ function renderQuestion() {
 
   els.quiz.innerHTML = `
     <div class="card" id="card">
-      <div class="qnum">第 ${state.i + 1} 题</div>
+      <div class="qhead">
+        <span class="qnum">第 ${state.i + 1} 题</span>
+        <span class="src">📖 ${q.source || ''}</span>
+      </div>
       <div class="stem">${q.stem}</div>
       <div class="opts">${opts}</div>
       <div class="explain" id="explain"></div>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="quiz-version" content="9a8dbf29bac6" />
+<meta name="quiz-version" content="c4d8ce43a95b" />
 <title>JLPT 语法小测</title>
 <style>
   :root {
@@ -81,6 +81,12 @@
   }
   @keyframes pop { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
   .qnum { font-size: 13px; font-weight: 900; color: var(--accent); letter-spacing: .08em; margin-bottom: 8px; }
+  .qhead { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .qhead .qnum { margin-bottom: 0; }
+  .src {
+    font-size: 12px; font-weight: 700; color: var(--accent2);
+    background: var(--accent-soft); padding: 3px 10px; border-radius: 999px;
+  }
   .stem { font-size: 18px; font-weight: 700; margin-bottom: 18px; }
   .stem .blank { display: inline-block; min-width: 72px; border-bottom: 3px dotted var(--accent); text-align: center; padding: 0 4px; color: var(--accent); }
 
@@ -170,7 +176,7 @@
 </div>
 
 <script>
-const QUIZ = {"title":"格助词「と」","level":"N5","no":"18","subtitle":"基于笔记 notes/raw/n5/18.格助词と.md","summary":["格助词「と」表示并列，连接两个名词，翻译成“和”。","「と」表示动作的共同执行者，翻译成“和…一起/和”。","并列用法例：猫と犬、日本と中国。","共同执行者用法例：友達と映画を見に行く、鈴木さんと結婚する。"],"questions":[{"stem":"猫＿＿＿犬が好きです。","options":["と","を","で","が"],"answer":0,"explain":"格助词「と」表示并列，连接两个名词，相当于中文的“和”。","translation":"我喜欢猫和狗。","tip":"看到两个并列的名词时优先想到「と」。"},{"stem":"日本語＿＿＿中国語を勉強します。","options":["を","と","で","が"],"answer":1,"explain":"「と」连接两个名词表示并列列举，相当于“和”。","translation":"我学习日语和中文。","tip":"「と」用于完全列举，而「や」只列举一部分。"},{"stem":"友達＿＿＿映画を見に行きます。","options":["で","を","と","に"],"answer":2,"explain":"「と」表示动作的共同执行者，相当于“和…一起”。","translation":"我和朋友一起去看电影。","tip":"和“一起做某事”的对象用「と」，不用「を」。"},{"stem":"鈴木さん＿＿＿結婚します。","options":["に","を","が","と"],"answer":3,"explain":"「と」表示动作的共同执行者，结婚的对象用「と」连接。","translation":"我和铃木结婚。","tip":"结婚对象前用「と」，可记成“和…结婚”。"}],"version":"9a8dbf29bac6"};
+const QUIZ = {"title":"格助词「と」","level":"N5","no":"18","subtitle":"基于笔记 notes/raw/n5/18.格助词と.md","summary":["「と」是格助词，连接名词表示并列，相当于汉语的“和”。","并列列举时「と」连接两个名词，如「猫と犬」。","「と」还可表示动作的共同执行者，译为“和……一起”。","共同执行者用法如「友達と映画を見にいきます」。","并列用法是全部列举，与表示不完全列举的「や」不同。"],"questions":[{"stem":"猫＿＿＿犬。","source":"并列①例句","options":["と","を","に","は"],"answer":0,"explain":"「と」连接名词表示并列，相当于汉语的“和”。","translation":"猫和狗。","tip":"两个名词并列列举时用「と」，相当于“和”。"},{"stem":"日本＿＿＿中国。","source":"并列②例句","options":["と","が","を","で"],"answer":0,"explain":"「と」连接名词表示并列列举，相当于汉语的“和”。","translation":"日本和中国。","tip":"并列两个国家名用「と」连接。"},{"stem":"鈴木さん＿＿＿結婚する。","source":"共同执行者①例句","options":["と","に","を","は"],"answer":0,"explain":"「と」表示动作的共同执行者，即一起做该动作的对象。","translation":"和铃木先生结婚。","tip":"表示“和某人一起做某事”时用「と」。"},{"stem":"友達＿＿＿映画を見に【目的】いきます。","source":"共同执行者②例句","options":["と","を","に","で"],"answer":0,"explain":"「と」表示动作的共同执行者，即和朋友一起去看电影。","translation":"和朋友一起去看电影。","tip":"“和朋友一起做某事”用「と」，句中「に」表目的。"}],"version":"c4d8ce43a95b"};
 
 const els = {
   crumbs: document.getElementById('crumbs'),
@@ -213,7 +219,10 @@ function renderQuestion() {
 
   els.quiz.innerHTML = `
     <div class="card" id="card">
-      <div class="qnum">第 ${state.i + 1} 题</div>
+      <div class="qhead">
+        <span class="qnum">第 ${state.i + 1} 题</span>
+        <span class="src">📖 ${q.source || ''}</span>
+      </div>
       <div class="stem">${q.stem}</div>
       <div class="opts">${opts}</div>
       <div class="explain" id="explain"></div>

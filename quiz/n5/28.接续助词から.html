@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="quiz-version" content="b09362e97ed5" />
+<meta name="quiz-version" content="489aabe940cb" />
 <title>JLPT 语法小测</title>
 <style>
   :root {
@@ -81,6 +81,12 @@
   }
   @keyframes pop { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
   .qnum { font-size: 13px; font-weight: 900; color: var(--accent); letter-spacing: .08em; margin-bottom: 8px; }
+  .qhead { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .qhead .qnum { margin-bottom: 0; }
+  .src {
+    font-size: 12px; font-weight: 700; color: var(--accent2);
+    background: var(--accent-soft); padding: 3px 10px; border-radius: 999px;
+  }
   .stem { font-size: 18px; font-weight: 700; margin-bottom: 18px; }
   .stem .blank { display: inline-block; min-width: 72px; border-bottom: 3px dotted var(--accent); text-align: center; padding: 0 4px; color: var(--accent); }
 
@@ -170,7 +176,7 @@
 </div>
 
 <script>
-const QUIZ = {"title":"接续助词から","level":"N5","no":"28","subtitle":"基于笔记 notes/raw/n5/28.接续助词から.md","summary":["から是接续助词，接在简体形式之后表示原因、理由，译为“因为”。","句型为“原因（…から）→ 结果/动作”：原因在前，结果在后。","接い形容词时直接用简体形：忙しいから、暑いから。","例：忙しいから、新聞を読む時間がない。（因为忙，没有时间看报纸。）","例：暑いから、窓を開けてください。（因为热，请打开窗户。）"],"questions":[{"stem":"忙しい＿＿＿、新聞を読む時間がありません。","options":["まで","から","より","を"],"answer":1,"explain":"から接在い形容词简体“忙しい”之后表示原因，译为“因为”。","translation":"因为很忙，所以没有时间看报纸。","tip":"表示原因的から要接在简体形式之后，并位于原因分句的末尾。"},{"stem":"暑い＿＿＿、窓を開けてください。","options":["は","に","から","で"],"answer":2,"explain":"から表示原因、理由，用来说明提出请求（ください）的理由。","translation":"因为很热，请打开窗户。","tip":"“…から、…ください”是说明请求理由的常见句型。"},{"stem":"寒い＿＿＿、コートを着ます。","options":["だから","くてから","から","まで"],"answer":2,"explain":"から直接接い形容词简体“寒い”表示原因，い形容词后不能加だ。","translation":"因为很冷，所以穿上外套。","tip":"い形容词后不加“だ”，要直接说“寒いから”。"},{"stem":"この店のパンはおいしい＿＿＿、よく買います。","options":["より","を","まで","から"],"answer":3,"explain":"から表示原因、理由，说明“经常买面包”的原因。","translation":"因为这家店的面包很好吃，所以我经常买。","tip":"先因后果：原因（…から）在前，结果在后。"}],"version":"b09362e97ed5"};
+const QUIZ = {"title":"接续助词から","level":"N5","no":"28","subtitle":"基于笔记 notes/raw/n5/28.接续助词から.md","summary":["接续助词「から」接在原因、理由之后，译为“因为”。","接续：谓语（简体/敬体）＋から，构成“原因在前、结果在后”的复句。","い形容词直接接「から」（忙しいから），不加「だ」。","「から」前是原因，后是结果或请求。"],"questions":[{"stem":"忙しい＿＿＿、新聞を読む時間がない。","source":"表示原因·例句1","options":["から","に","で","を"],"answer":0,"explain":"接续助词「から」接在原因后表示原因、理由，译为“因为”。","translation":"因为很忙，所以没有读报纸的时间。","tip":"「から」前是原因（忙），后面是结果（没有时间）。"},{"stem":"暑い＿＿＿、窓を開けてください。","source":"表示原因·例句2","options":["から","に","で","を"],"answer":0,"explain":"接续助词「から」表示原因、理由，接在い形容词等谓语的简体后。","translation":"因为很热，请打开窗户。","tip":"「から」前是原因（热），后面是请求（请开窗）。"}],"version":"489aabe940cb"};
 
 const els = {
   crumbs: document.getElementById('crumbs'),
@@ -213,7 +219,10 @@ function renderQuestion() {
 
   els.quiz.innerHTML = `
     <div class="card" id="card">
-      <div class="qnum">第 ${state.i + 1} 题</div>
+      <div class="qhead">
+        <span class="qnum">第 ${state.i + 1} 题</span>
+        <span class="src">📖 ${q.source || ''}</span>
+      </div>
       <div class="stem">${q.stem}</div>
       <div class="opts">${opts}</div>
       <div class="explain" id="explain"></div>

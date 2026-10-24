@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="quiz-version" content="fc5209d7a6fc" />
+<meta name="quiz-version" content="50dadbc5ded7" />
 <title>JLPT 语法小测</title>
 <style>
   :root {
@@ -81,6 +81,12 @@
   }
   @keyframes pop { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
   .qnum { font-size: 13px; font-weight: 900; color: var(--accent); letter-spacing: .08em; margin-bottom: 8px; }
+  .qhead { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .qhead .qnum { margin-bottom: 0; }
+  .src {
+    font-size: 12px; font-weight: 700; color: var(--accent2);
+    background: var(--accent-soft); padding: 3px 10px; border-radius: 999px;
+  }
   .stem { font-size: 18px; font-weight: 700; margin-bottom: 18px; }
   .stem .blank { display: inline-block; min-width: 72px; border-bottom: 3px dotted var(--accent); text-align: center; padding: 0 4px; color: var(--accent); }
 
@@ -170,7 +176,7 @@
 </div>
 
 <script>
-const QUIZ = {"title":"名词句","level":"N5","no":"1","subtitle":"基于笔记 notes/raw/n5/1.名词句.md","summary":["四大基本句型包括：名词句、形容词句、形容动词句、动词句。","名词句分为敬体名词句和简体名词句。","敬体用于陌生人、上级、长辈，标志是「です・ます」。","敬体现在・将来：肯定用「です」，否定用「ではありません」。","敬体过去：肯定用「でした」，否定用「ではありませんでした」。","简体现在・将来：肯定用「だ」，否定用「ではない」。","简体过去：肯定用「だった」，否定用「ではなかった」。"],"questions":[{"stem":"田中さんは会社員＿＿＿。","options":["です","でした","ではありません","だ"],"answer":0,"explain":"敬体现在・将来的肯定名词句，句尾用「です」。","translation":"田中先生是公司职员。","tip":"敬体现在/将来作肯定判断时，句尾加「です」。"},{"stem":"私は日本人＿＿＿。","options":["です","ではありません","でした","ではない"],"answer":1,"explain":"敬体现在・将来的否定形是「ではありません」。","translation":"我不是日本人。","tip":"敬体否定用「ではありません」，简体才是「ではない」。"},{"stem":"昨日は日曜日＿＿＿。","options":["でした","です","ではありませんでした","だ"],"answer":0,"explain":"敬体过去的肯定形是「でした」。","translation":"昨天是星期天。","tip":"看到「昨日」等过去时间词，敬体用「でした」。"},{"stem":"彼は学生＿＿＿。","options":["です","ではありません","ではありませんでした","だった"],"answer":2,"explain":"敬体过去的否定形是「ではありませんでした」。","translation":"他以前不是学生。","tip":"敬体过去否定＝「ではありません」加「でした」。"},{"stem":"これは私の本＿＿＿。","options":["だ","ではない","ではありません","だった"],"answer":1,"explain":"简体现在・将来的否定形是「ではない」。","translation":"这不是我的书。","tip":"简体否定用「ではない」，别混用敬体的「ではありません」。"},{"stem":"李さんは中国人＿＿＿。","options":["だった","だ","ではありません","ではなかった"],"answer":0,"explain":"简体过去的肯定形是「だった」。","translation":"小李以前是中国人。","tip":"简体过去肯定用「だった」。"}],"version":"fc5209d7a6fc"};
+const QUIZ = {"title":"名词句","level":"N5","no":"1","subtitle":"基于笔记 notes/raw/n5/1.名词句.md","summary":["四大基本句型包括：名词句、形容词句、形容动词句、动词句。","名词句分为敬体名词句和简体名词句两种。","敬体用于陌生人、上级、长辈，标志是「です／ます」。","敬体名词句：现在/将来肯定「です」、否定「ではありません」；过去肯定「でした」、否定「ではありませんでした」。","简体名词句：现在/将来肯定「だ」、否定「ではない」；过去肯定「だった」、否定「ではなかった」。","名词句用「名词＋です／だ」等判断助动词作谓语。"],"questions":[{"stem":"私は学生＿＿＿","source":"敬体表·现在将来·肯定","options":["でした","です","だ","ではありません"],"answer":1,"explain":"敬体名词句现在/将来的肯定形式，用「名词＋です」。","translation":"我是学生。","tip":"现在/将来＋肯定＋敬体，就选「です」。"},{"stem":"学生＿＿＿","source":"敬体表·现在将来·否定","options":["ではない","ではありませんでした","ではありません","です"],"answer":2,"explain":"敬体名词句现在/将来的否定形式，用「名词＋ではありません」。","translation":"（我）不是学生。","tip":"否定要用「ではありません」，即在「です」的位置换成否定形。"},{"stem":"学生＿＿＿","source":"敬体表·过去·肯定","options":["です","ではありませんでした","だった","でした"],"answer":3,"explain":"敬体名词句过去的肯定形式，用「名词＋でした」。","translation":"（我）曾是学生。","tip":"过去肯定用「でした」，不要与现在式「です」混淆。"},{"stem":"学生＿＿＿","source":"敬体表·过去·否定","options":["ではありませんでした","ではなかった","でした","ではありません"],"answer":0,"explain":"敬体名词句过去的否定形式，用「名词＋ではありませんでした」。","translation":"（我）过去不是学生。","tip":"过去否定=「ではありません」＋「でした」。"},{"stem":"私は学生＿＿＿","source":"简体表·现在将来·肯定","options":["だった","ではない","です","だ"],"answer":3,"explain":"简体名词句现在/将来的肯定形式，用「名词＋だ」。","translation":"我是学生。","tip":"简体肯定现在式用「だ」，对应敬体的「です」。"},{"stem":"学生＿＿＿","source":"简体表·现在将来·否定","options":["ではない","だ","ではなかった","ではありません"],"answer":0,"explain":"简体名词句现在/将来的否定形式，用「名词＋ではない」。","translation":"（我）不是学生。","tip":"简体否定是「ではない」，对应敬体的「ではありません」。"},{"stem":"学生＿＿＿","source":"简体表·过去·肯定","options":["だ","だった","ではなかった","でした"],"answer":1,"explain":"简体名词句过去的肯定形式，用「名词＋だった」。","translation":"（我）曾是学生。","tip":"简体过去肯定用「だった」，对应敬体的「でした」。"},{"stem":"学生＿＿＿","source":"简体表·过去·否定","options":["ではない","だった","ではなかった","ではありませんでした"],"answer":2,"explain":"简体名词句过去的否定形式，用「名词＋ではなかった」。","translation":"（我）过去不是学生。","tip":"简体过去否定是「ではなかった」，对应敬体的「ではありませんでした」。"},{"stem":"これは本＿＿＿","source":"作业1","options":["でした","ではありません","だ","です"],"answer":3,"explain":"名词句的敬体肯定现在式，用「名词＋です」。","translation":"这是书。","tip":"「本」是名词，谓语用判断助动词「です」。"},{"stem":"李さんは中国人＿＿＿","source":"作业2","options":["だ","です","でした","ではありません"],"answer":1,"explain":"名词句的敬体肯定现在式，用「名词＋です」。","translation":"小李是中国人。","tip":"「李さん」是主语，谓语用敬体「です」。"}],"version":"50dadbc5ded7"};
 
 const els = {
   crumbs: document.getElementById('crumbs'),
@@ -213,7 +219,10 @@ function renderQuestion() {
 
   els.quiz.innerHTML = `
     <div class="card" id="card">
-      <div class="qnum">第 ${state.i + 1} 题</div>
+      <div class="qhead">
+        <span class="qnum">第 ${state.i + 1} 题</span>
+        <span class="src">📖 ${q.source || ''}</span>
+      </div>
       <div class="stem">${q.stem}</div>
       <div class="opts">${opts}</div>
       <div class="explain" id="explain"></div>

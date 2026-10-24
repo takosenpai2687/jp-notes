@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="quiz-version" content="f2db98e4be81" />
+<meta name="quiz-version" content="ea6683a9bbf4" />
 <title>JLPT 语法小测</title>
 <style>
   :root {
@@ -81,6 +81,12 @@
   }
   @keyframes pop { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
   .qnum { font-size: 13px; font-weight: 900; color: var(--accent); letter-spacing: .08em; margin-bottom: 8px; }
+  .qhead { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .qhead .qnum { margin-bottom: 0; }
+  .src {
+    font-size: 12px; font-weight: 700; color: var(--accent2);
+    background: var(--accent-soft); padding: 3px 10px; border-radius: 999px;
+  }
   .stem { font-size: 18px; font-weight: 700; margin-bottom: 18px; }
   .stem .blank { display: inline-block; min-width: 72px; border-bottom: 3px dotted var(--accent); text-align: center; padding: 0 4px; color: var(--accent); }
 
@@ -170,7 +176,7 @@
 </div>
 
 <script>
-const QUIZ = {"title":"みたいだ","level":"N4","no":"2","subtitle":"基于笔记 notes/raw/n4/2.みたいだ.md","summary":["接续：名词、い形容词、な形容词直接接みたいだ；动词接简体形。","活用：みたいな接名词、みたいに接动词、みたいで用于句中停顿。","意义①比喻：表示“好像”，常与まるで搭配。","意义②例示：表示“像……那样”，用来举例子。","意义③推测：表示根据感觉或情况的推测“好像”。","みたいだ偏口语，ようだ偏书面语；みたいだ没有目的/内容的用法。"],"questions":[{"stem":"なんだか風邪を引いた＿＿＿、今日は学校を休みます。","options":["みたいな","みたいに","みたいで","みたいだ"],"answer":2,"explain":"动词简体形接みたいだ表示推测，句中停顿用みたいで。","translation":"总觉得像是感冒了，所以今天请假不去学校。","tip":"句中“なんだか”（总觉得）暗示推测语气。"},{"stem":"李さんは日本語が上手で、まるで日本人＿＿＿。","options":["のみたいだ","みたいだ","みたいに","みたいな"],"answer":1,"explain":"名词直接接みたいだ表示比喻，翻译成“好像”。","translation":"小李日语很好，简直像日本人一样。","tip":"见到“まるで”常表示比喻。"},{"stem":"今年の夏は暑い＿＿＿ね。","options":["みたいだ","みたいに","みたいな","みたいで"],"answer":0,"explain":"い形容词直接接みたいだ表示推测。","translation":"今年夏天好像很热呢。","tip":"い形容词直接接みたいだ，不要加の。"},{"stem":"この部屋は静か＿＿＿ね。","options":["なみたいだ","のみたいだ","みたいな","みたいだ"],"answer":3,"explain":"な形容词直接接みたいだ，不加な或の。","translation":"这个房间好像很安静呢。","tip":"な形容词接みたいだ时要去掉な。"},{"stem":"いつか先生＿＿＿うまく日本語が話せると思います。","options":["みたいに","みたいな","みたいで","みたいだ"],"answer":0,"explain":"みたいに修饰动词，表示“像……那样地”。","translation":"我想总有一天能像老师那样把日语说得很流利。","tip":"修饰动词用みたいに，修饰名词用みたいな，注意区分。"},{"stem":"彼はまるで夢＿＿＿話をしてくれた。","options":["みたいに","みたいな","みたいで","みたいだ"],"answer":1,"explain":"みたいな接名词，表示“像……一样的”。","translation":"他给我讲了一个像梦一样的故事。","tip":"みたいな＋名词＝“像……一样的”。"}],"version":"f2db98e4be81"};
+const QUIZ = {"title":"みたいだ","level":"N4","no":"2","subtitle":"基于笔记 notes/raw/n4/2.みたいだ.md","summary":["みたいだ接在名词、形容词、形容动词（直接）或动词简体形之后。","活用形式：みたいに修饰动词、みたいで作中顿、みたいな修饰名词。","意义①表示比喻（好像），常与まるで搭配使用。","意义②表示例示（像……一样）。","意义③表示推测（好像）。","ようだ接续更复杂、用法更多、偏书面语；みたいだ偏口语。"],"questions":[{"stem":"李さんは日本語が上手で、まるで日本人＿＿＿。","source":"意义①例句1","options":["みたいだ","みたいに","みたいで","みたいな"],"answer":0,"explain":"みたいだ放在句末作谓语，表示比喻“好像”，前面名词直接接续。","translation":"小李日语很好，简直像日本人一样。","tip":"まるで常与みたいだ呼应，看到まるで可优先考虑比喻用法。"},{"stem":"昨日の出会いはまるで夢＿＿＿、今でも信じられない。","source":"意义①例句2","options":["みたいだ","みたいに","みたいで","みたいな"],"answer":2,"explain":"みたいで是みたいだ的中顿形，用于句中停顿并连接后句。","translation":"昨天的相遇就像做梦一样，至今仍不敢相信。","tip":"句中用逗号停顿连接后句时，通常选みたいで。"},{"stem":"君の心は氷＿＿＿冷たい。","source":"意义①例句3","options":["みたいだ","みたいで","みたいに","みたいな"],"answer":2,"explain":"みたいに是副词性连用形，修饰后面的形容词或动词。","translation":"你的心像冰一样冰冷。","tip":"修饰形容词或动词（如冷たい）用みたいに。"},{"stem":"いつか先生＿＿＿うまく日本語が話せると思う。","source":"意义②例句","options":["みたいな","みたいだ","みたいに","みたいで"],"answer":2,"explain":"表示例示“像……一样”，みたいに修饰动词話せる。","translation":"我想总有一天能像老师那样流利地说日语。","tip":"“像某人一样做某事”用みたいに＋动词。"},{"stem":"この部屋は静か＿＿＿ね。","source":"意义③例句1","options":["みたいに","みたいで","みたいな","みたいだ"],"answer":3,"explain":"表示推测“好像”，静か（形容动词）直接接みたいだ作句尾谓语。","translation":"这个房间好像很安静呢。","tip":"表示说话人根据感觉推测时，用句尾的みたいだ。"},{"stem":"今年の夏は暑い＿＿＿ですね。","source":"意义③例句2","options":["みたいだ","みたいな","みたいに","みたいで"],"answer":0,"explain":"形容词暑い直接接みたいだ，表示推测“好像”。","translation":"今年的夏天好像很热啊。","tip":"形容词（い形容词）直接＋みたいだ，不加な或に。"},{"stem":"なんだか風邪を引いた＿＿＿、登校はしない。","source":"意义③例句3","options":["みたいな","みたいだ","みたいに","みたいで"],"answer":3,"explain":"动词简体形引いた后接みたいで作中顿，表示推测并引出后文。","translation":"总觉得像是感冒了，所以不去上学。","tip":"动词简体形（过去式）＋みたいで表示推测性的中顿。"},{"stem":"名词（直接）+ みたいだ → ＿＿＿ + 动词（像……一样，修饰动词）","source":"接续表·名词","options":["みたいに","みたいで","みたいな","みたいだ"],"answer":0,"explain":"みたいに是みたいだ的连用形，用于修饰动词。","translation":"名词直接接みたいだ；修饰动词时用みたいに，意为“像……一样”。","tip":"修饰动词用みたいに，修饰名词用みたいな，不要混淆。"},{"stem":"形容词（直接）+ みたいだ → ＿＿＿ + 中顿（像……一样，句中停顿）","source":"接续表·形容词","options":["みたいだ","みたいで","みたいに","みたいな"],"answer":1,"explain":"みたいで是みたいだ的中顿形，用于句中停顿。","translation":"形容词直接接みたいだ；句中停顿用みたいで，意为“像……一样”。","tip":"句中停顿连接后句时用みたいで。"},{"stem":"形容动词（直接）+ みたいだ → ＿＿＿ + 名词（像……一样，修饰名词）","source":"接续表·形容动词","options":["みたいだ","みたいに","みたいで","みたいな"],"answer":3,"explain":"みたいな是みたいだ的连体形，用于修饰名词。","translation":"形容动词直接接みたいだ；修饰名词时用みたいな，意为“像……一样”。","tip":"修饰名词用みたいな（如“みたいな人”）。"},{"stem":"动词（简体）→ ＿＿＿（表推测、比喻）","source":"接续表·动词","options":["みたいに","みたいだ","みたいな","みたいで"],"answer":1,"explain":"动词简体形直接接みたいだ，表示推测或比喻。","translation":"动词简体形直接接みたいだ，表示推测、比喻。","tip":"动词简体形（原形、过去式等）后直接接みたいだ。"}],"version":"ea6683a9bbf4"};
 
 const els = {
   crumbs: document.getElementById('crumbs'),
@@ -213,7 +219,10 @@ function renderQuestion() {
 
   els.quiz.innerHTML = `
     <div class="card" id="card">
-      <div class="qnum">第 ${state.i + 1} 题</div>
+      <div class="qhead">
+        <span class="qnum">第 ${state.i + 1} 题</span>
+        <span class="src">📖 ${q.source || ''}</span>
+      </div>
       <div class="stem">${q.stem}</div>
       <div class="opts">${opts}</div>
       <div class="explain" id="explain"></div>

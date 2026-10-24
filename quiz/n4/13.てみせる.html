@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="quiz-version" content="67048cbb13be" />
+<meta name="quiz-version" content="cdcbfa21724b" />
 <title>JLPT 语法小测</title>
 <style>
   :root {
@@ -81,6 +81,12 @@
   }
   @keyframes pop { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
   .qnum { font-size: 13px; font-weight: 900; color: var(--accent); letter-spacing: .08em; margin-bottom: 8px; }
+  .qhead { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .qhead .qnum { margin-bottom: 0; }
+  .src {
+    font-size: 12px; font-weight: 700; color: var(--accent2);
+    background: var(--accent-soft); padding: 3px 10px; border-radius: 999px;
+  }
   .stem { font-size: 18px; font-weight: 700; margin-bottom: 18px; }
   .stem .blank { display: inline-block; min-width: 72px; border-bottom: 3px dotted var(--accent); text-align: center; padding: 0 4px; color: var(--accent); }
 
@@ -170,7 +176,7 @@
 </div>
 
 <script>
-const QUIZ = {"title":"てみせる","level":"N4","no":"13","subtitle":"基于笔记 notes/raw/n4/13.てみせる.md","summary":["「てみせる」表示\"做给……看\"，通过实际动作向对方展示或示范。","接续为：动词て形＋てみせる。","常与「今度こそ」「絶対」「必ず」等词连用，表达\"一定要……给你看\"的决心。","例句「今度こそ絶対勝って見せる」意为\"这次一定要赢给你看\"。"],"questions":[{"stem":"私が作り方を説明するから、まず私が作って＿＿＿。","options":["みる","みせる","みた","みます"],"answer":1,"explain":"「てみせる」接在动词て形之后，表示\"做给……看\"。","translation":"我先说明做法，所以首先由我做给你看。","tip":"看到\"做给……看\"的意思时，选「てみせる」，注意前面必须是て形。"},{"stem":"今度こそ絶対に勝って＿＿＿。","options":["みた","みて","みる","みせる"],"answer":3,"explain":"「今度こそ絶対勝ってみせる」表示\"这次一定要赢给你看\"，体现决心。","translation":"这次一定要赢给你看。","tip":"「今度こそ」「絶対」常与「てみせる」连用，表示强烈的决心。"},{"stem":"お客さんが来るから、今日は私がピアノを弾いて＿＿＿。","options":["おく","みる","みせる","しまう"],"answer":2,"explain":"「てみせる」表示\"做给……看\"，这里指弹钢琴给大家看。","translation":"因为客人要来，今天我来弹钢琴给大家看。","tip":"区分「てみる」(尝试)、「ておく」(预先)、「てしまう」(完成或遗憾)。"},{"stem":"この漢字の書き方を教えます。私がまず書いて＿＿＿から、よく見てください。","options":["みます","しまいます","みせます","おきます"],"answer":2,"explain":"「てみせる」表示\"示范、做给……看\"，即先写给你看。","translation":"我来教这个汉字的写法。我先写给你看，请仔细看。","tip":"表示\"示范、做给……看\"时，用「てみせる」。"}],"version":"67048cbb13be"};
+const QUIZ = {"title":"てみせる","level":"N4","no":"13","subtitle":"基于笔记 notes/raw/n4/13.てみせる.md","summary":["意义：表示「做给~看」，带有说话人展示决心或能力的语气。","接续：动词て形＋みせる（例：勝つ → 勝ってみせる）。","例句：今度こそ絶対勝って見せる。（这次一定要赢给你看。）","常与「今度こそ」「絶対」等表达强烈决心的副词连用。"],"questions":[{"stem":"今度こそ絶対勝って＿＿＿。","source":"例句","options":["見せる","見て","見た","見える"],"answer":0,"explain":"て形＋みせる 表示「做给~看」、下定决心展示，故「勝って見せる」正确。","translation":"这次一定要赢给你看。","tip":"注意区分「てみる」（尝试做）与「てみせる」（做给~看）。"}],"version":"cdcbfa21724b"};
 
 const els = {
   crumbs: document.getElementById('crumbs'),
@@ -213,7 +219,10 @@ function renderQuestion() {
 
   els.quiz.innerHTML = `
     <div class="card" id="card">
-      <div class="qnum">第 ${state.i + 1} 题</div>
+      <div class="qhead">
+        <span class="qnum">第 ${state.i + 1} 题</span>
+        <span class="src">📖 ${q.source || ''}</span>
+      </div>
       <div class="stem">${q.stem}</div>
       <div class="opts">${opts}</div>
       <div class="explain" id="explain"></div>

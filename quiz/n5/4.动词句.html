@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="quiz-version" content="c07003e36207" />
+<meta name="quiz-version" content="7ac6323d0ff0" />
 <title>JLPT 语法小测</title>
 <style>
   :root {
@@ -81,6 +81,12 @@
   }
   @keyframes pop { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
   .qnum { font-size: 13px; font-weight: 900; color: var(--accent); letter-spacing: .08em; margin-bottom: 8px; }
+  .qhead { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .qhead .qnum { margin-bottom: 0; }
+  .src {
+    font-size: 12px; font-weight: 700; color: var(--accent2);
+    background: var(--accent-soft); padding: 3px 10px; border-radius: 999px;
+  }
   .stem { font-size: 18px; font-weight: 700; margin-bottom: 18px; }
   .stem .blank { display: inline-block; min-width: 72px; border-bottom: 3px dotted var(--accent); text-align: center; padding: 0 4px; color: var(--accent); }
 
@@ -170,7 +176,7 @@
 </div>
 
 <script>
-const QUIZ = {"title":"动词句","level":"N5","no":"4","subtitle":"基于笔记 notes/raw/n5/4.动词句.md","summary":["动词句基本结构：私はご飯を食べます（我吃米饭）。","敬体现在/将来：肯定「食べます」，否定「食べません」。","敬体过去：肯定「食べました」，否定「食べませんでした」。","简体现在/将来：肯定「食べる」（原形），否定「食べない」（ない形）。","简体过去：肯定「食べた」（た形），否定「食べなかった」。"],"questions":[{"stem":"私は毎朝、ご飯を＿＿＿。","options":["食べます","食べました","食べません","食べませんでした"],"answer":0,"explain":"表示现在、将来的习惯动作，敬体肯定用「食べます」。","translation":"我每天早上吃米饭。","tip":"看到「毎朝」等习惯性时间词，选现在时敬体肯定形。"},{"stem":"きのう、ご飯をぜんぜん＿＿＿。","options":["食べました","食べませんでした","食べません","食べます"],"answer":1,"explain":"「きのう」表过去、「ぜんぜん」与否定呼应，过去否定用「食べませんでした」。","translation":"昨天我完全没吃饭。","tip":"「きのう」定过去、「ぜんぜん」定否定，两者合起来选「ませんでした」。"},{"stem":"きのう、ご飯を＿＿＿。","options":["食べる","食べない","食べた","食べなかった"],"answer":2,"explain":"简体过去肯定用「た形」，即「食べた」。","translation":"昨天我吃了饭。","tip":"简体句中，过去肯定直接选「た形」。"},{"stem":"私は朝ご飯をあまり＿＿＿。","options":["食べた","食べる","食べなかった","食べない"],"answer":3,"explain":"「あまり」与否定呼应表示“不太……”，简体现在否定用「ない形」即「食べない」。","translation":"我不太吃早饭。","tip":"「あまり～ない」是固定搭配，直接选「ない形」。"}],"version":"c07003e36207"};
+const QUIZ = {"title":"动词句","level":"N5","no":"4","subtitle":"基于笔记 notes/raw/n5/4.动词句.md","summary":["动词句基本结构：私はご飯を食べます（我吃米饭），谓语动词放在句末。","敬体现在、将来：肯定「たべます／食べます」，否定「食べません」。","敬体过去：肯定「食べました」，否定「食べませんでした」。","简体现在、将来：肯定「食べる」（原形），否定「食べない」（ない形）。","简体过去：肯定「食べた」（た形），否定「食べなかった」。"],"questions":[{"stem":"ご飯を＿＿＿。","source":"敬体表·现在、将来·肯定","options":["たべます","食べました","食べません","食べる"],"answer":0,"explain":"敬体现在、将来的肯定形用ます形，「食べる」去掉「る」加「ます」即「食べます（たべます）」。","translation":"我吃米饭。","tip":"敬体肯定句以「ます」结尾，先排除「ました／ません」等非现在肯定形。"},{"stem":"ご飯を＿＿＿。","source":"敬体表·现在、将来·否定","options":["食べます","食べません","食べました","食べませんでした"],"answer":1,"explain":"敬体现在、将来的否定形，把「ます」换成「ません」，即「食べません」。","translation":"我不吃米饭。","tip":"「否定」列直接找「ません」结尾；「ませんでした」是过去否定，注意区分。"},{"stem":"ご飯を＿＿＿。","source":"敬体表·过去·肯定","options":["食べます","食べませんでした","食べました","食べた"],"answer":2,"explain":"敬体过去肯定形，把「ます」换成「ました」，即「食べました」。","translation":"我吃了米饭。","tip":"「ました」= 敬体过去肯定，别和「ませんでした」（否定）混淆。"},{"stem":"ご飯を＿＿＿。","source":"敬体表·过去·否定","options":["食べません","食べました","食べなかった","食べませんでした"],"answer":3,"explain":"敬体过去否定形，把「ます」换成「ませんでした」，即「食べませんでした」。","translation":"我没吃米饭。","tip":"「ませんでした」是「ません」的过去式，表示过去的否定。"},{"stem":"ご飯を＿＿＿（原形）。","source":"简体表·现在、将来·肯定","options":["食べる","食べない","食べた","食べます"],"answer":0,"explain":"简体现在、将来的肯定形用原形（辞书形），即「食べる」。","translation":"我吃米饭。","tip":"「（原形）」提示选辞书形「食べる」，不加ます也不加た。"},{"stem":"ご飯を＿＿＿（ない形）。","source":"简体表·现在、将来·否定","options":["食べる","食べない","食べなかった","食べません"],"answer":1,"explain":"简体现在、将来的否定形用ない形，即「食べない」。","translation":"我不吃米饭。","tip":"「（ない形）」提示选「食べない」；「食べなかった」是过去否定，勿选。"},{"stem":"ご飯を＿＿＿（た形）。","source":"简体表·过去·肯定","options":["食べる","食べなかった","食べた","食べました"],"answer":2,"explain":"简体过去肯定形用た形，即「食べた」。","translation":"我吃了米饭。","tip":"「（た形）」提示选「食べた」，别选现在形「食べる」。"},{"stem":"ご飯を＿＿＿。","source":"简体表·过去·否定","options":["食べた","食べない","食べませんでした","食べなかった"],"answer":3,"explain":"简体过去否定形，把ない形的「ない」换成「なかった」，即「食べなかった」。","translation":"我没吃米饭。","tip":"简体过去否定 = ない形去「い」加「かった」→「食べなかった」。"}],"version":"7ac6323d0ff0"};
 
 const els = {
   crumbs: document.getElementById('crumbs'),
@@ -213,7 +219,10 @@ function renderQuestion() {
 
   els.quiz.innerHTML = `
     <div class="card" id="card">
-      <div class="qnum">第 ${state.i + 1} 题</div>
+      <div class="qhead">
+        <span class="qnum">第 ${state.i + 1} 题</span>
+        <span class="src">📖 ${q.source || ''}</span>
+      </div>
       <div class="stem">${q.stem}</div>
       <div class="opts">${opts}</div>
       <div class="explain" id="explain"></div>
