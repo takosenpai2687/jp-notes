@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="quiz-version" content="412d0e353792" />
+<title>JLPT 语法小测</title>
+<style>
+  :root {
+    --bg: #fff7f9;
+    --card: #ffffff;
+    --ink: #3d3550;
+    --muted: #9b8fb0;
+    --accent: #ff6f9c;
+    --accent2: #a18cff;
+    --accent-soft: #ffe8f0;
+    --ok: #3fc47d;
+    --ok-soft: #e6fbee;
+    --bad: #ff7d6e;
+    --bad-soft: #fff0ec;
+    --line: #f4e8f0;
+    --radius: 22px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Segoe UI", "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+    background:
+      radial-gradient(circle at 12% 8%, #ffe4ef 0%, transparent 34%),
+      radial-gradient(circle at 92% 16%, #e6e1ff 0%, transparent 36%),
+      radial-gradient(circle at 50% 100%, #ffe9c7 0%, transparent 40%),
+      var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 32px 18px 88px; }
+
+  /* header */
+  .head { text-align: center; margin-bottom: 20px; }
+  .mascot { font-size: 46px; display: inline-block; animation: bob 2.6s ease-in-out infinite; }
+  @keyframes bob { 0%,100%{transform:translateY(0) rotate(-3deg)} 50%{transform:translateY(-8px) rotate(3deg)} }
+  /* breadcrumb (level + lesson) */
+  .crumbs { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+  .crumbs .crumb {
+    display: inline-flex; align-items: center;
+    font-size: 15px; font-weight: 900; letter-spacing: .04em;
+    color: #fff; background: linear-gradient(120deg, var(--accent), var(--accent2));
+    padding: 6px 16px; border-radius: 999px;
+    box-shadow: 0 4px 12px rgba(255,111,156,.30);
+  }
+  .crumbs .crumb.plain {
+    background: #fff; color: var(--accent2);
+    border: 2px solid var(--accent2); box-shadow: none;
+  }
+  .crumbs .sep { color: var(--muted); font-weight: 900; font-size: 18px; }
+  h1 { font-size: 27px; font-weight: 900; letter-spacing: .01em; margin-top: 10px; }
+  .sub { color: var(--muted); font-size: 14px; margin-top: 4px; }
+
+  /* progress */
+  .progress { display: flex; align-items: center; gap: 12px; margin: 24px 0; }
+  .bar { flex: 1; height: 14px; border-radius: 999px; background: #ffeef5; overflow: hidden; box-shadow: inset 0 2px 4px rgba(255,111,156,.15); }
+  .fill { height: 100%; width: 0%; border-radius: 999px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width .4s cubic-bezier(.22,1,.36,1); }
+  .count { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 700; }
+
+  /* summary */
+  .summary {
+    background: var(--card); border: 2px solid var(--line); border-radius: var(--radius);
+    padding: 20px 22px; margin-bottom: 22px; box-shadow: 0 8px 24px rgba(161,140,255,.10);
+  }
+  .summary h2 { font-size: 14px; color: var(--accent2); font-weight: 900; letter-spacing: .05em; margin-bottom: 10px; }
+  .summary li { margin: 8px 0 8px 22px; font-size: 15px; }
+  .summary li::marker { color: var(--accent); }
+  .summary b { color: var(--accent); }
+
+  /* question card */
+  .card {
+    background: var(--card); border: 2px solid var(--line); border-radius: var(--radius);
+    padding: 24px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(255,111,156,.10);
+    animation: pop .45s cubic-bezier(.34,1.56,.64,1) both;
+  }
+  @keyframes pop { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
+  .qnum { font-size: 13px; font-weight: 900; color: var(--accent); letter-spacing: .08em; margin-bottom: 8px; }
+  .qhead { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .qhead .qnum { margin-bottom: 0; }
+  .src {
+    font-size: 12px; font-weight: 700; color: var(--accent2);
+    background: var(--accent-soft); padding: 3px 10px; border-radius: 999px;
+  }
+  .stem { font-size: 18px; font-weight: 700; margin-bottom: 18px; }
+  .stem .blank { display: inline-block; min-width: 72px; border-bottom: 3px dotted var(--accent); text-align: center; padding: 0 4px; color: var(--accent); }
+
+  .opts { display: grid; gap: 10px; }
+  .opt {
+    display: flex; align-items: center; gap: 12px; text-align: left;
+    border: 2px solid var(--line); background: #fff; border-radius: 16px;
+    padding: 12px 14px; font-size: 16px; cursor: pointer; font-family: inherit;
+    transition: transform .16s cubic-bezier(.34,1.56,.64,1), border-color .16s ease, background .16s ease, box-shadow .16s ease;
+  }
+  .opt:hover:not(:disabled) { border-color: var(--accent2); transform: translateY(-2px) scale(1.01); box-shadow: 0 8px 18px rgba(161,140,255,.18); }
+  .opt .key {
+    flex: none; width: 28px; height: 28px; border-radius: 50%; font-size: 14px; font-weight: 900;
+    display: grid; place-items: center; background: #fdf1f6; color: var(--accent);
+  }
+  .opt.correct { border-color: var(--ok); background: var(--ok-soft); }
+  .opt.correct .key { background: var(--ok); color: #fff; }
+  .opt.wrong { border-color: var(--bad); background: var(--bad-soft); animation: shake .35s ease; }
+  .opt.wrong .key { background: var(--bad); color: #fff; }
+  @keyframes shake { 0%,100%{transform:none} 20%{transform:translateX(-5px)} 40%{transform:translateX(5px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+  .opt:disabled { cursor: default; }
+
+  /* explanation */
+  .explain { display: none; margin-top: 16px; padding: 15px 17px; border-radius: 16px; font-size: 14.5px; }
+  .explain.show { display: block; animation: pop .3s cubic-bezier(.34,1.56,.64,1) both; }
+  .explain .headline { font-weight: 900; margin-bottom: 4px; }
+  .explain .trans {
+    display: flex; align-items: center; gap: 10px;
+    margin: 8px 0 6px; padding: 9px 13px;
+    border-radius: 11px; background: rgba(255,255,255,.72);
+    border: 1.5px dashed var(--accent);
+    font-weight: 700; font-size: 15px; color: var(--ink);
+  }
+  .explain .trans .tlbl {
+    flex: none; font-size: 12px; font-weight: 900; letter-spacing: .04em;
+    color: #fff; background: linear-gradient(120deg, var(--accent), var(--accent2));
+    padding: 3px 9px; border-radius: 999px;
+  }
+  .explain.ok { background: var(--ok-soft); } .explain.ok .headline { color: var(--ok); }
+  .explain.no { background: var(--bad-soft); } .explain.no .headline { color: var(--bad); }
+  .explain .tip { color: var(--muted); font-size: 13px; margin-top: 6px; }
+  .next { margin-top: 16px; width: 100%; padding: 13px; border: none; border-radius: 16px;
+    background: linear-gradient(120deg, var(--accent), var(--accent2)); color: #fff; font-size: 15px; font-weight: 900; cursor: pointer; font-family: inherit;
+    box-shadow: 0 6px 16px rgba(255,111,156,.35); transition: transform .16s cubic-bezier(.34,1.56,.64,1), filter .16s; }
+  .next:disabled { opacity: .4; cursor: default; box-shadow: none; }
+  .next:not(:disabled):hover { transform: translateY(-2px); filter: brightness(1.05); }
+
+  /* result */
+  .result { text-align: center; padding: 40px 24px; animation: pop .5s cubic-bezier(.34,1.56,.64,1) both; }
+  .result .mascot { font-size: 60px; margin-bottom: 6px; }
+  .ring { width: 136px; height: 136px; margin: 4px auto 18px; }
+  .ring .bg { fill: none; stroke: #ffeef5; stroke-width: 12; }
+  .ring .val { fill: none; stroke: var(--accent); stroke-width: 12; stroke-linecap: round; transition: stroke-dashoffset 1s cubic-bezier(.22,1,.36,1); }
+  .ring text { font-size: 30px; font-weight: 900; fill: var(--ink); }
+  .result h2 { font-size: 22px; margin-bottom: 6px; }
+  .result p { color: var(--muted); font-size: 14px; margin-bottom: 18px; }
+  .again { padding: 12px 30px; border: none; border-radius: 16px; background: linear-gradient(120deg, var(--accent), var(--accent2)); color: #fff; font-size: 15px; font-weight: 900; cursor: pointer; font-family: inherit; box-shadow: 0 6px 16px rgba(255,111,156,.35); transition: transform .16s cubic-bezier(.34,1.56,.64,1); }
+  .again:hover { transform: translateY(-2px) scale(1.03); }
+
+  /* version marker */
+  .ver { text-align: center; color: var(--muted); font-size: 12px; margin-top: 30px; opacity: .75; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="head">
+    <span class="mascot">🌸</span>
+    <br />
+    <nav class="crumbs" id="crumbs"></nav>
+    <h1 id="title"></h1>
+    <div class="sub" id="sub"></div>
+  </header>
+
+  <div class="progress">
+    <span class="count" id="count"></span>
+    <div class="bar"><div class="fill" id="fill"></div></div>
+  </div>
+
+  <section class="summary">
+    <h2>知识点速览</h2>
+    <ul id="summary"></ul>
+  </section>
+
+  <div id="quiz"></div>
+  <div id="result" class="result" style="display:none"></div>
+  <div class="ver" id="ver"></div>
+</div>
+
+<script>
+const QUIZ = {"title":"动词变形总结","level":"N4","no":"28","subtitle":"基于笔记 notes/raw/n4/28.动词变形总结.md","summary":["一类动词（五段动词）活用要记牢「あ・い・う・え・お」五个段位：ない形、使役形、受身形用あ段，ます形用い段，辞書形用う段，ば形、可能形用え段，意向形用お段。","一类动词的て形、た形会发生音便：く→いて、ぐ→いで、す→して、う・つ・る→って、ぬ・ぶ・む→んで。","二类动词去掉「る」后直接接ます、て、た、ない、よう、ろ、れば、られる、させる。","する是不规则动词：しない、しよう、すれば、できる、される、させる等需单独记忆。","来る也是不规则动词：こない、きて、くれば、こられる、こさせる等需单独记忆。","二类动词可能形与受身形同形（食べられる）；来る可能形与受身形也同形（こられる），需结合语境判断。"],"questions":[{"stem":"「書く」の「ない形」は＿＿＿。","source":"五段变形表·ない形","options":["書かない","書くない","書きない","書かせる"],"answer":0,"explain":"五段动词ない形＝あ段＋ない，「書く」的あ段是「か」，所以是「書かない」。","translation":"「書く」的ない形是「書かない」，意为「不写」。","tip":"ない形一律用あ段＋ない，别写成「書くない」。"},{"stem":"「書く」の「使役形」は＿＿＿。","source":"五段变形表·使役形","options":["書かせる","書かれる","書ける","書かない"],"answer":0,"explain":"五段动词使役形＝あ段＋せる，「書く」→「書かせる」，意为让某人写。","translation":"「書く」的使役形是「書かせる」，意为「让某人写」。","tip":"使役形是「あ段＋せる」，受身形才是「あ段＋れる」，别混淆。"},{"stem":"「書く」の「受身形」は＿＿＿。","source":"五段变形表·受身形","options":["書かれる","書かせる","書ける","書こう"],"answer":0,"explain":"五段动词受身形＝あ段＋れる，「書く」→「書かれる」，意为被写。","translation":"「書く」的受身形是「書かれる」，意为「被写」。","tip":"受身形是「あ段＋れる」，与使役形「あ段＋せる」只差一个音。"},{"stem":"「書く」の「ます形」は＿＿＿。","source":"五段变形表·ます形","options":["書きます","書かます","書けます","書きまする"],"answer":0,"explain":"五段动词ます形＝い段＋ます，「書く」→「書きます」。","translation":"「書く」的ます形是「書きます」。","tip":"ます形用い段＋ます，别用あ段「書かます」。"},{"stem":"「書きます」の「辞書形」は＿＿＿。","source":"五段变形表·辞書形","options":["書く","書きます","書け","書こう"],"answer":0,"explain":"辞書形即动词原形（う段），「書きます」的原形是「書く」。","translation":"「書きます」的辞書形是「書く」。","tip":"辞書形＝う段原形，去ます后把い段变回う段。"},{"stem":"「書く」の「ば形」は＿＿＿。","source":"五段变形表·ば形","options":["書けば","書かば","書ければ","書くば"],"answer":0,"explain":"五段动词ば形＝え段＋ば，「書く」→「書けば」。","translation":"「書く」的ば形是「書けば」，意为「如果写」。","tip":"ば形用え段＋ば；「書ければ」是可能形「書ける」的ば形，别混。"},{"stem":"「書く」の「可能形」は＿＿＿。","source":"五段变形表·可能形","options":["書ける","書かれる","書けるば","書けます"],"answer":0,"explain":"五段动词可能形＝え段＋る，「書く」→「書ける」，意为能写。","translation":"「書く」的可能形是「書ける」，意为「能写」。","tip":"可能形是え段＋る，与受身形「あ段＋れる」不同。"},{"stem":"「書く」の「意向形」は＿＿＿。","source":"五段变形表·意向形","options":["書こう","書かう","書きう","書こうる"],"answer":0,"explain":"五段动词意向形＝お段＋う，「書く」→「書こう」。","translation":"「書く」的意向形是「書こう」，意为「写吧」。","tip":"意向形用お段＋う，别用あ段「書かう」。"},{"stem":"「書く」の「て形」は＿＿＿。","source":"五段变形表·書·音便","options":["書いて","書いで","書くて","書きて"],"answer":0,"explain":"「書く」以く结尾，て形音便为「いて」，即「書いて」。","translation":"「書く」的て形是「書いて」。","tip":"く结尾音便为「い＋て」，别写成「書いで」（で是ぐ的浊音）。"},{"stem":"「書く」の「た形」は＿＿＿。","source":"五段变形表·書·音便","options":["書いた","書いだ","書いたく","書きだ"],"answer":0,"explain":"「書く」的た形音便同て形，「書いて」→「書いた」。","translation":"「書く」的た形是「書いた」。","tip":"た形与て形音便相同，只是把て换成た。"},{"stem":"「会う」の「て形」は＿＿＿。","source":"五段变形表·会·音便","options":["会って","会いて","会うて","会ってで"],"answer":0,"explain":"「会う」以う结尾，て形音便为「って」，即「会って」。","translation":"「会う」的て形是「会って」。","tip":"う结尾音便为「っ＋て」，别写成「会いて」。"},{"stem":"「泳ぐ」の「て形」は＿＿＿。","source":"五段变形表·泳·音便","options":["泳いで","泳いて","泳ぐて","泳ぎて"],"answer":0,"explain":"「泳ぐ」以ぐ结尾，て形音便为浊音「いで」，即「泳いで」。","translation":"「泳ぐ」的て形是「泳いで」。","tip":"ぐ结尾音便为「い＋で」浊音，与「く→いて」不同。"},{"stem":"「貸す」の「て形」は＿＿＿。","source":"五段变形表·貸·音便","options":["貸して","貸いて","貸すて","貸してる"],"answer":0,"explain":"「貸す」以す结尾，て形音便为「して」，即「貸して」。","translation":"「貸す」的て形是「貸して」。","tip":"す结尾音便为「し＋て」，不发生「っ」或「い」。"},{"stem":"「待つ」の「て形」は＿＿＿。","source":"五段变形表·待·音便","options":["待って","待ちて","待つて","待ってで"],"answer":0,"explain":"「待つ」以つ结尾，て形音便为「って」，即「待って」。","translation":"「待つ」的て形是「待って」。","tip":"つ结尾音便为「っ＋て」，与う、る相同。"},{"stem":"「死ぬ」の「て形」は＿＿＿。","source":"五段变形表·死·音便","options":["死んで","死にて","死ぬて","死んでる"],"answer":0,"explain":"「死ぬ」以ぬ结尾，て形音便为「んで」，即「死んで」。","translation":"「死ぬ」的て形是「死んで」。","tip":"ぬ结尾音便为「ん＋で」，与ぶ、む相同。"},{"stem":"「遊ぶ」の「て形」は＿＿＿。","source":"五段变形表·遊·音便","options":["遊んで","遊びて","遊ぶて","遊んでる"],"answer":0,"explain":"「遊ぶ」以ぶ结尾，て形音便为「んで」，即「遊んで」。","translation":"「遊ぶ」的て形是「遊んで」。","tip":"ぶ结尾音便为「ん＋で」，别写成「遊びて」。"},{"stem":"「飲む」の「て形」は＿＿＿。","source":"五段变形表·飲·音便","options":["飲んで","飲みて","飲むて","飲んでる"],"answer":0,"explain":"「飲む」以む结尾，て形音便为「んで」，即「飲んで」。","translation":"「飲む」的て形是「飲んで」。","tip":"む结尾音便为「ん＋で」，与ぬ、ぶ相同。"},{"stem":"「送る」の「て形」は＿＿＿。","source":"五段变形表·送·音便","options":["送って","送りて","送るて","送いて"],"answer":0,"explain":"「送る」以る结尾，て形音便为「って」，即「送って」。","translation":"「送る」的て形是「送って」。","tip":"る结尾音便为「っ＋て」，别写成「送りて」。"},{"stem":"「食べる」の「ます形」は＿＿＿。","source":"二类变形表·食べる·ます形","options":["食べます","食べるます","食べまする","食べられます"],"answer":0,"explain":"二类动词去掉る接ます，「食べる」→「食べます」。","translation":"「食べる」的ます形是「食べます」。","tip":"二类动词去る直接接ます，不加别的音。"},{"stem":"「食べる」の「て形」は＿＿＿。","source":"二类变形表·食べる·て形","options":["食べて","食べるて","食べた","食べてる"],"answer":0,"explain":"二类动词去掉る接て，「食べる」→「食べて」。","translation":"「食べる」的て形是「食べて」。","tip":"二类て形是去る＋て，别用一类音便。"},{"stem":"「食べる」の「た形」は＿＿＿。","source":"二类变形表·食べる·た形","options":["食べた","食べるた","食べたて","食べてた"],"answer":0,"explain":"二类动词去掉る接た，「食べる」→「食べた」。","translation":"「食べる」的た形是「食べた」。","tip":"た形与て形同样去る直接接た。"},{"stem":"「食べる」の「ない形」は＿＿＿。","source":"二类变形表·食べる·ない形","options":["食べない","食べるない","食べららない","食べないる"],"answer":0,"explain":"二类动词去掉る接ない，「食べる」→「食べない」。","translation":"「食べる」的ない形是「食べない」。","tip":"二类ない形是去る＋ない，别用あ段。"},{"stem":"「食べる」の「意向形」は＿＿＿。","source":"二类变形表·食べる·意向形","options":["食べよう","食べるよう","食べようう","食べおう"],"answer":0,"explain":"二类动词去掉る接よう，「食べる」→「食べよう」。","translation":"「食べる」的意向形是「食べよう」，意为「吃吧」。","tip":"二类意向形是去る＋よう，别按五段变成お段＋う。"},{"stem":"「食べる」の「命令形」は＿＿＿。","source":"二类变形表·食べる·命令形","options":["食べろ","食べれ","食べろる","食べよう"],"answer":0,"explain":"二类动词去掉る接ろ，「食べる」→「食べろ」。","translation":"「食べる」的命令形是「食べろ」，意为「吃！（命令）」。","tip":"二类命令形是去る＋ろ，别与え段「食べれ」混。"},{"stem":"「食べる」の「ば形」は＿＿＿。","source":"二类变形表·食べる·ば形","options":["食べれば","食べるば","食べれれば","食べば"],"answer":0,"explain":"二类动词去掉る接れば，「食べる」→「食べれば」。","translation":"「食べる」的ば形是「食べれば」，意为「如果吃」。","tip":"二类ば形是去る＋れば，别写成「食べるば」。"},{"stem":"「食べる」の「可能形」は＿＿＿。","source":"二类变形表·食べる·可能形","options":["食べられる","食べれる","食べさせる","食べられるる"],"answer":0,"explain":"二类动词去掉る接られる，「食べる」→「食べられる」，意为能吃。","translation":"「食べる」的可能形是「食べられる」，意为「能吃」。","tip":"别把可能形说成「食べれる」（ら抜き言葉），考试要求「食べられる」。"},{"stem":"「食べる」の「受身形」は＿＿＿。","source":"二类变形表·食べる·受身形","options":["食べられる","食べさせる","食べれる","食べられるる"],"answer":0,"explain":"二类动词去掉る接られる，「食べる」→「食べられる」，意为被吃。","translation":"「食べる」的受身形是「食べられる」，意为「被吃」。","tip":"二类可能形与受身形同形都是「食べられる」，要按语境区分。"},{"stem":"「食べる」の「使役形」は＿＿＿。","source":"二类变形表·食べる·使役形","options":["食べさせる","食べられる","食べさせられる","食べさす"],"answer":0,"explain":"二类动词去掉る接させる，「食べる」→「食べさせる」，意为让某人吃。","translation":"「食べる」的使役形是「食べさせる」，意为「让某人吃」。","tip":"使役形是去る＋させる，与受身、可能「食べられる」不同。"},{"stem":"「する」の「ます形」は＿＿＿。","source":"三类变形表·する·ます形","options":["します","しります","するます","しまする"],"answer":0,"explain":"する变し再接ます，「する」→「します」。","translation":"「する」的ます形是「します」。","tip":"する是不规则动词，ます形是「します」不是「するます」。"},{"stem":"「する」の「て形」は＿＿＿。","source":"三类变形表·する·て形","options":["して","してる","するて","しって"],"answer":0,"explain":"する变し再接て，「する」→「して」。","translation":"「する」的て形是「して」。","tip":"する的て形是「して」，不是「しって」。"},{"stem":"「する」の「た形」は＿＿＿。","source":"三类变形表·する·た形","options":["した","しった","するた","してた"],"answer":0,"explain":"する变し再接た，「する」→「した」。","translation":"「する」的た形是「した」。","tip":"する的た形是「した」，与て形「して」对应。"},{"stem":"「する」の「ない形」は＿＿＿。","source":"三类变形表·する·ない形","options":["しない","しないする","しらない","するない"],"answer":0,"explain":"する变し再接ない，「する」→「しない」。","translation":"「する」的ない形是「しない」。","tip":"する的ない形是「しない」，不是「しらない」（那是「知る」的ない形）。"},{"stem":"「する」の「意向形」は＿＿＿。","source":"三类变形表·する·意向形","options":["しよう","しろう","するよう","しよ"],"answer":0,"explain":"する变し再接よう，「する」→「しよう」。","translation":"「する」的意向形是「しよう」，意为「做吧」。","tip":"する的意向形是「しよう」，不是「しろう」。"},{"stem":"「する」の「命令形」は＿＿＿。","source":"三类变形表·する·命令形","options":["しろ","しれ","しよう","しろる"],"answer":0,"explain":"する变し再接ろ，「する」→「しろ」。","translation":"「する」的命令形是「しろ」，意为「做！（命令）」。","tip":"する的命令形是「しろ」，别写成「しれ」。"},{"stem":"「する」の「ば形」は＿＿＿。","source":"三类变形表·する·ば形","options":["すれば","するば","しれば","すれば"],"answer":0,"explain":"する变すれ再接ば，「する」→「すれば」。","translation":"「する」的ば形是「すれば」，意为「如果做」。","tip":"する的ば形是「すれば」，不是「しれば」。"},{"stem":"「する」の「可能形」は＿＿＿。","source":"三类变形表·する·可能形","options":["できる","できるする","される","できるよう"],"answer":0,"explain":"する的可能形是「できる」，不加任何后缀。","translation":"「する」的可能形是「できる」，意为「能做」。","tip":"する的可能形是单独的「できる」，不是「する＋られる」。"},{"stem":"「する」の「受身形」は＿＿＿。","source":"三类变形表·する·受身形","options":["される","させる","できる","されるる"],"answer":0,"explain":"する的受身形是「される」，不加任何后缀。","translation":"「する」的受身形是「される」，意为「被做」。","tip":"する的受身形是「される」，与使役形「させる」不同。"},{"stem":"「する」の「使役形」は＿＿＿。","source":"三类变形表·する·使役形","options":["させる","される","できる","させられる"],"answer":0,"explain":"する的使役形是「させる」，不加任何后缀。","translation":"「する」的使役形是「させる」，意为「让某人做」。","tip":"する的使役形是「させる」，别与受身形「される」混。"},{"stem":"「来る」の「ます形」は＿＿＿。","source":"三类变形表·来る·ます形","options":["きます","きまする","くるます","こます"],"answer":0,"explain":"来る的ます形是「きます」，不规则需单独记忆。","translation":"「来る」的ます形是「きます」。","tip":"来る的ます形是「きます」，不是「くるます」。"},{"stem":"「来る」の「て形」は＿＿＿。","source":"三类变形表·来る·て形","options":["きて","きって","くるて","きてる"],"answer":0,"explain":"来る的て形是「きて」，不规则需单独记忆。","translation":"「来る」的て形是「きて」。","tip":"来る的て形是「きて」，不是「きって」。"},{"stem":"「来る」の「た形」は＿＿＿。","source":"三类变形表·来る·た形","options":["きた","きった","くるた","きてた"],"answer":0,"explain":"来る的た形是「きた」，不规则需单独记忆。","translation":"「来る」的た形是「きた」。","tip":"来る的た形是「きた」，与て形「きて」对应。"},{"stem":"「来る」の「ない形」は＿＿＿。","source":"三类变形表·来る·ない形","options":["こない","きない","くるない","こられない"],"answer":0,"explain":"来る的ない形是「こない」，不规则需单独记忆。","translation":"「来る」的ない形是「こない」，意为「不来」。","tip":"来る的ない形是「こない」，不是「きない」。"},{"stem":"「来る」の「意向形」は＿＿＿。","source":"三类变形表·来る·意向形","options":["こよう","きよう","くるよう","こようる"],"answer":0,"explain":"来る的意向形是「こよう」，不规则需单独记忆。","translation":"「来る」的意向形是「こよう」，意为「来吧」。","tip":"来る的意向形是「こよう」，不是「きよう」。"},{"stem":"「来る」の「命令形」は＿＿＿。","source":"三类变形表·来る·命令形","options":["こい","きい","くるろ","きて"],"answer":0,"explain":"来る的命令形是「こい」，不规则需单独记忆。","translation":"「来る」的命令形是「こい」，意为「来！（命令）」。","tip":"来る的命令形是「こい」，别写成「きい」。"},{"stem":"「来る」の「ば形」は＿＿＿。","source":"三类变形表·来る·ば形","options":["くれば","きれば","くるば","こば"],"answer":0,"explain":"来る的ば形是「くれば」，不规则需单独记忆。","translation":"「来る」的ば形是「くれば」，意为「如果来」。","tip":"来る的ば形是「くれば」，不是「きれば」。"},{"stem":"「来る」の「可能形」は＿＿＿。","source":"三类变形表·来る·可能形","options":["こられる","これる","くるられる","これる"],"answer":0,"explain":"来る的可能形是「こられる」，意为能来。","translation":"「来る」的可能形是「こられる」，意为「能来」。","tip":"来る的可能形是「こられる」，别用ら抜き「これる」。"},{"stem":"「来る」の「受身形」は＿＿＿。","source":"三类变形表·来る·受身形","options":["こられる","こさせる","これる","くるられる"],"answer":0,"explain":"来る的受身形是「こられる」。","translation":"「来る」的受身形是「こられる」。","tip":"来る可能形与受身形同形都是「こられる」，按语境区分。"},{"stem":"「来る」の「使役形」は＿＿＿。","source":"三类变形表·来る·使役形","options":["こさせる","こられる","こさせられる","こする"],"answer":0,"explain":"来る的使役形是「こさせる」，意为让某人来。","translation":"「来る」的使役形是「こさせる」，意为「让某人来」。","tip":"来る的使役形是「こさせる」，别与受身、可能「こられる」混。"}],"version":"412d0e353792"};
+
+const els = {
+  crumbs: document.getElementById('crumbs'),
+  title: document.getElementById('title'),
+  sub: document.getElementById('sub'),
+  count: document.getElementById('count'),
+  fill: document.getElementById('fill'),
+  summary: document.getElementById('summary'),
+  quiz: document.getElementById('quiz'),
+  result: document.getElementById('result'),
+  ver: document.getElementById('ver'),
+};
+
+function renderSummary() {
+  const level = QUIZ.level || '';
+  const no = QUIZ.no || '';
+  const parts = [];
+  if (level) parts.push(`<span class="crumb">${level}</span>`);
+  if (no) parts.push(`<span class="crumb plain">第${no}课</span>`);
+  els.crumbs.innerHTML = parts.join('<span class="sep">›</span>');
+  els.title.textContent = QUIZ.title || '';
+  els.sub.textContent = QUIZ.subtitle || '';
+  els.ver.textContent = 'quiz · v' + (QUIZ.version || '?');
+  els.summary.innerHTML = (QUIZ.summary || []).map(s => `<li>${s}</li>`).join('');
+}
+
+let state = { i: 0, score: 0, total: QUIZ.questions.length };
+
+function renderQuestion() {
+  const q = QUIZ.questions[state.i];
+  els.count.textContent = `${state.i + 1} / ${state.total}`;
+  els.fill.style.width = `${(state.i / state.total) * 100}%`;
+
+  const opts = q.options.map((o, idx) => {
+    const key = String.fromCharCode(65 + idx);
+    return `<button class="opt" data-idx="${idx}">
+      <span class="key">${key}</span><span>${o}</span>
+    </button>`;
+  }).join('');
+
+  els.quiz.innerHTML = `
+    <div class="card" id="card">
+      <div class="qhead">
+        <span class="qnum">第 ${state.i + 1} 题</span>
+        <span class="src">📖 ${q.source || ''}</span>
+      </div>
+      <div class="stem">${q.stem}</div>
+      <div class="opts">${opts}</div>
+      <div class="explain" id="explain"></div>
+      <button class="next" id="next" disabled>${state.i + 1 === state.total ? '查看成绩' : '下一题 →'}</button>
+    </div>`;
+
+  els.quiz.querySelectorAll('.opt').forEach(btn => {
+    btn.addEventListener('click', () => answer(Number(btn.dataset.idx)));
+  });
+  els.quiz.querySelector('#next').addEventListener('click', next);
+}
+
+function answer(pick) {
+  const q = QUIZ.questions[state.i];
+  const btns = els.quiz.querySelectorAll('.opt');
+  const expl = els.quiz.querySelector('#explain');
+  const nextBtn = els.quiz.querySelector('#next');
+
+  btns.forEach((b, idx) => {
+    b.disabled = true;
+    if (idx === q.answer) b.classList.add('correct');
+    else if (idx === pick) b.classList.add('wrong');
+  });
+
+  const right = pick === q.answer;
+  if (right) state.score++;
+
+  expl.className = 'explain show ' + (right ? 'ok' : 'no');
+  expl.innerHTML = `
+    <div class="headline">${right ? '✓ 正确' : '✗ 正确答案是 ' + String.fromCharCode(65 + q.answer)}</div>
+    <div class="trans"><span class="tlbl">译文</span><span>${q.translation || ''}</span></div>
+    <div>${q.explain}</div>
+    <div class="tip">${q.tip || ''}</div>`;
+  nextBtn.disabled = false;
+}
+
+function next() {
+  state.i++;
+  if (state.i < state.total) renderQuestion();
+  else renderResult();
+}
+
+function renderResult() {
+  els.quiz.style.display = 'none';
+  document.querySelector('.summary').style.display = 'none';
+  els.fill.style.width = '100%';
+  els.count.textContent = `${state.total} / ${state.total}`;
+
+  const pct = Math.round((state.score / state.total) * 100);
+  const R = 56, C = 2 * Math.PI * R;
+  els.result.style.display = 'block';
+  els.result.innerHTML = `
+    <span class="mascot">${pct >= 80 ? '🎉' : pct >= 60 ? '💪' : '🌱'}</span>
+    <svg class="ring" viewBox="0 0 132 132">
+      <defs>
+        <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#ff6f9c"></stop>
+          <stop offset="100%" stop-color="#a18cff"></stop>
+        </linearGradient>
+      </defs>
+      <circle class="bg" cx="66" cy="66" r="${R}"></circle>
+      <circle class="val" cx="66" cy="66" r="${R}" stroke-dasharray="${C}" stroke-dashoffset="${C}"></circle>
+      <text x="50%" y="58%" text-anchor="middle">${pct}%</text>
+    </svg>
+    <h2>${state.score} / ${state.total} 题答对</h2>
+    <p>${pct >= 80 ? '掌握得很好，保持这个状态。' : pct >= 60 ? '不错，再回顾一下错题的知识点。' : '先回笔记过一遍知识点，再来刷一轮。'}</p>
+    <button class="again" onclick="location.reload()">再来一轮</button>`;
+
+  requestAnimationFrame(() => {
+    const circle = els.result.querySelector('.val');
+    circle.style.strokeDashoffset = String(C * (1 - pct / 100));
+  });
+}
+
+renderSummary();
+renderQuestion();
+</script>
+</body>
+</html>

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="quiz-version" content="0ff466f15583" />
+<title>JLPT 语法小测</title>
+<style>
+  :root {
+    --bg: #fff7f9;
+    --card: #ffffff;
+    --ink: #3d3550;
+    --muted: #9b8fb0;
+    --accent: #ff6f9c;
+    --accent2: #a18cff;
+    --accent-soft: #ffe8f0;
+    --ok: #3fc47d;
+    --ok-soft: #e6fbee;
+    --bad: #ff7d6e;
+    --bad-soft: #fff0ec;
+    --line: #f4e8f0;
+    --radius: 22px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Segoe UI", "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+    background:
+      radial-gradient(circle at 12% 8%, #ffe4ef 0%, transparent 34%),
+      radial-gradient(circle at 92% 16%, #e6e1ff 0%, transparent 36%),
+      radial-gradient(circle at 50% 100%, #ffe9c7 0%, transparent 40%),
+      var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 32px 18px 88px; }
+
+  /* header */
+  .head { text-align: center; margin-bottom: 20px; }
+  .mascot { font-size: 46px; display: inline-block; animation: bob 2.6s ease-in-out infinite; }
+  @keyframes bob { 0%,100%{transform:translateY(0) rotate(-3deg)} 50%{transform:translateY(-8px) rotate(3deg)} }
+  /* breadcrumb (level + lesson) */
+  .crumbs { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+  .crumbs .crumb {
+    display: inline-flex; align-items: center;
+    font-size: 15px; font-weight: 900; letter-spacing: .04em;
+    color: #fff; background: linear-gradient(120deg, var(--accent), var(--accent2));
+    padding: 6px 16px; border-radius: 999px;
+    box-shadow: 0 4px 12px rgba(255,111,156,.30);
+  }
+  .crumbs .crumb.plain {
+    background: #fff; color: var(--accent2);
+    border: 2px solid var(--accent2); box-shadow: none;
+  }
+  .crumbs .sep { color: var(--muted); font-weight: 900; font-size: 18px; }
+  h1 { font-size: 27px; font-weight: 900; letter-spacing: .01em; margin-top: 10px; }
+  .sub { color: var(--muted); font-size: 14px; margin-top: 4px; }
+
+  /* progress */
+  .progress { display: flex; align-items: center; gap: 12px; margin: 24px 0; }
+  .bar { flex: 1; height: 14px; border-radius: 999px; background: #ffeef5; overflow: hidden; box-shadow: inset 0 2px 4px rgba(255,111,156,.15); }
+  .fill { height: 100%; width: 0%; border-radius: 999px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width .4s cubic-bezier(.22,1,.36,1); }
+  .count { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 700; }
+
+  /* summary */
+  .summary {
+    background: var(--card); border: 2px solid var(--line); border-radius: var(--radius);
+    padding: 20px 22px; margin-bottom: 22px; box-shadow: 0 8px 24px rgba(161,140,255,.10);
+  }
+  .summary h2 { font-size: 14px; color: var(--accent2); font-weight: 900; letter-spacing: .05em; margin-bottom: 10px; }
+  .summary li { margin: 8px 0 8px 22px; font-size: 15px; }
+  .summary li::marker { color: var(--accent); }
+  .summary b { color: var(--accent); }
+
+  /* question card */
+  .card {
+    background: var(--card); border: 2px solid var(--line); border-radius: var(--radius);
+    padding: 24px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(255,111,156,.10);
+    animation: pop .45s cubic-bezier(.34,1.56,.64,1) both;
+  }
+  @keyframes pop { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
+  .qnum { font-size: 13px; font-weight: 900; color: var(--accent); letter-spacing: .08em; margin-bottom: 8px; }
+  .qhead { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .qhead .qnum { margin-bottom: 0; }
+  .src {
+    font-size: 12px; font-weight: 700; color: var(--accent2);
+    background: var(--accent-soft); padding: 3px 10px; border-radius: 999px;
+  }
+  .stem { font-size: 18px; font-weight: 700; margin-bottom: 18px; }
+  .stem .blank { display: inline-block; min-width: 72px; border-bottom: 3px dotted var(--accent); text-align: center; padding: 0 4px; color: var(--accent); }
+
+  .opts { display: grid; gap: 10px; }
+  .opt {
+    display: flex; align-items: center; gap: 12px; text-align: left;
+    border: 2px solid var(--line); background: #fff; border-radius: 16px;
+    padding: 12px 14px; font-size: 16px; cursor: pointer; font-family: inherit;
+    transition: transform .16s cubic-bezier(.34,1.56,.64,1), border-color .16s ease, background .16s ease, box-shadow .16s ease;
+  }
+  .opt:hover:not(:disabled) { border-color: var(--accent2); transform: translateY(-2px) scale(1.01); box-shadow: 0 8px 18px rgba(161,140,255,.18); }
+  .opt .key {
+    flex: none; width: 28px; height: 28px; border-radius: 50%; font-size: 14px; font-weight: 900;
+    display: grid; place-items: center; background: #fdf1f6; color: var(--accent);
+  }
+  .opt.correct { border-color: var(--ok); background: var(--ok-soft); }
+  .opt.correct .key { background: var(--ok); color: #fff; }
+  .opt.wrong { border-color: var(--bad); background: var(--bad-soft); animation: shake .35s ease; }
+  .opt.wrong .key { background: var(--bad); color: #fff; }
+  @keyframes shake { 0%,100%{transform:none} 20%{transform:translateX(-5px)} 40%{transform:translateX(5px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+  .opt:disabled { cursor: default; }
+
+  /* explanation */
+  .explain { display: none; margin-top: 16px; padding: 15px 17px; border-radius: 16px; font-size: 14.5px; }
+  .explain.show { display: block; animation: pop .3s cubic-bezier(.34,1.56,.64,1) both; }
+  .explain .headline { font-weight: 900; margin-bottom: 4px; }
+  .explain .trans {
+    display: flex; align-items: center; gap: 10px;
+    margin: 8px 0 6px; padding: 9px 13px;
+    border-radius: 11px; background: rgba(255,255,255,.72);
+    border: 1.5px dashed var(--accent);
+    font-weight: 700; font-size: 15px; color: var(--ink);
+  }
+  .explain .trans .tlbl {
+    flex: none; font-size: 12px; font-weight: 900; letter-spacing: .04em;
+    color: #fff; background: linear-gradient(120deg, var(--accent), var(--accent2));
+    padding: 3px 9px; border-radius: 999px;
+  }
+  .explain.ok { background: var(--ok-soft); } .explain.ok .headline { color: var(--ok); }
+  .explain.no { background: var(--bad-soft); } .explain.no .headline { color: var(--bad); }
+  .explain .tip { color: var(--muted); font-size: 13px; margin-top: 6px; }
+  .next { margin-top: 16px; width: 100%; padding: 13px; border: none; border-radius: 16px;
+    background: linear-gradient(120deg, var(--accent), var(--accent2)); color: #fff; font-size: 15px; font-weight: 900; cursor: pointer; font-family: inherit;
+    box-shadow: 0 6px 16px rgba(255,111,156,.35); transition: transform .16s cubic-bezier(.34,1.56,.64,1), filter .16s; }
+  .next:disabled { opacity: .4; cursor: default; box-shadow: none; }
+  .next:not(:disabled):hover { transform: translateY(-2px); filter: brightness(1.05); }
+
+  /* result */
+  .result { text-align: center; padding: 40px 24px; animation: pop .5s cubic-bezier(.34,1.56,.64,1) both; }
+  .result .mascot { font-size: 60px; margin-bottom: 6px; }
+  .ring { width: 136px; height: 136px; margin: 4px auto 18px; }
+  .ring .bg { fill: none; stroke: #ffeef5; stroke-width: 12; }
+  .ring .val { fill: none; stroke: var(--accent); stroke-width: 12; stroke-linecap: round; transition: stroke-dashoffset 1s cubic-bezier(.22,1,.36,1); }
+  .ring text { font-size: 30px; font-weight: 900; fill: var(--ink); }
+  .result h2 { font-size: 22px; margin-bottom: 6px; }
+  .result p { color: var(--muted); font-size: 14px; margin-bottom: 18px; }
+  .again { padding: 12px 30px; border: none; border-radius: 16px; background: linear-gradient(120deg, var(--accent), var(--accent2)); color: #fff; font-size: 15px; font-weight: 900; cursor: pointer; font-family: inherit; box-shadow: 0 6px 16px rgba(255,111,156,.35); transition: transform .16s cubic-bezier(.34,1.56,.64,1); }
+  .again:hover { transform: translateY(-2px) scale(1.03); }
+
+  /* version marker */
+  .ver { text-align: center; color: var(--muted); font-size: 12px; margin-top: 30px; opacity: .75; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="head">
+    <span class="mascot">🌸</span>
+    <br />
+    <nav class="crumbs" id="crumbs"></nav>
+    <h1 id="title"></h1>
+    <div class="sub" id="sub"></div>
+  </header>
+
+  <div class="progress">
+    <span class="count" id="count"></span>
+    <div class="bar"><div class="fill" id="fill"></div></div>
+  </div>
+
+  <section class="summary">
+    <h2>知识点速览</h2>
+    <ul id="summary"></ul>
+  </section>
+
+  <div id="quiz"></div>
+  <div id="result" class="result" style="display:none"></div>
+  <div class="ver" id="ver"></div>
+</div>
+
+<script>
+const QUIZ = {"title":"使役被动态","level":"N4","no":"27","subtitle":"基于笔记 notes/raw/n4/27.使役被动态.md","summary":["使役被动态表示「被迫做某事」。","一类动词：词尾う段→あ段＋される；「話す」特殊为「話させられる」。","二类动词：去掉「る」＋させられる。","三类动词：「する」→させられる、「来る」→こさせられる。","句型：一般句「Aがする」变为使役被动句「AはBにさせられる」。","例：「立つ」→「立たされる」，如「私が先生に立たされる」。"],"questions":[{"stem":"一类：词尾う段→あ段＋＿＿＿　特殊：話す→話させられる","source":"变形规则·一类","options":["される","させられる","させる","せる"],"answer":0,"explain":"一类（五段）动词的使役被动态一般规则是「う段→あ段＋される」。","translation":"一类动词：词尾「う」段变为「あ」段，再加「される」；特殊：話す→話させられる。","tip":"一类动词多数用「される」，但「話す」例外为「話させられる」。"},{"stem":"二类：去掉る＋＿＿＿","source":"变形规则·二类","options":["させられる","される","させる","せる"],"answer":0,"explain":"二类（一段）动词的使役被动态是「去掉る＋させられる」。","translation":"二类动词：去掉「る」再加「させられる」。","tip":"二类动词使役被动态用「させられる」，如「見る→見させられる」。"},{"stem":"三类：する→＿＿＿、来る→こさせられる","source":"变形规则·三类","options":["させられる","される","させる","せる"],"answer":0,"explain":"三类动词「する」的使役被动态是「させられる」，「来る」是「こさせられる」。","translation":"三类动词：「する」变为「させられる」、「来る」变为「こさせられる」。","tip":"「する」和「来る」都是三类动词，使役被动态均用「させられる」。"},{"stem":"言う → ＿＿＿","source":"变形表·言う","options":["言わされる","言わせる","言われる","言わさせる"],"answer":0,"explain":"「言う」是一类动词，使役被动态为「言わされる」。","translation":"言う → 言わされる（被迫说）。","tip":"词尾「う」变「わ」加「される」。"},{"stem":"書く → ＿＿＿","source":"变形表·書く","options":["書かせる","書かされる","書かれる","書かさせる"],"answer":1,"explain":"「書く」是一类动词，使役被动态为「書かされる」。","translation":"書く → 書かされる（被迫写）。","tip":"词尾「く」变「か」加「される」。"},{"stem":"話す → ＿＿＿","source":"变形表·話す","options":["話させる","話される","話させられる","話さされる"],"answer":2,"explain":"「話す」是特殊的一类动词，使役被动态为「話させられる」。","translation":"話す → 話させられる（被迫说）。","tip":"「話す」特殊，不用「話さされる」而用「話させられる」。"},{"stem":"待つ → ＿＿＿","source":"变形表·待つ","options":["待たされる","待たせる","待たれる","待たさせる"],"answer":0,"explain":"「待つ」是一类动词，使役被动态为「待たされる」。","translation":"待つ → 待たされる（被迫等待）。","tip":"词尾「つ」变「た」加「される」。"},{"stem":"死ぬ → ＿＿＿","source":"变形表·死ぬ","options":["死なせる","死なされる","死なれる","死なさせる"],"answer":1,"explain":"「死ぬ」是一类动词，使役被动态为「死なされる」。","translation":"死ぬ → 死なされる（被逼死）。","tip":"词尾「ぬ」变「な」加「される」。"},{"stem":"飛ぶ → ＿＿＿","source":"变形表·飛ぶ","options":["飛ばせる","飛ばれる","飛ばされる","飛ばさせる"],"answer":2,"explain":"「飛ぶ」是一类动词，使役被动态为「飛ばされる」。","translation":"飛ぶ → 飛ばされる（被迫飞）。","tip":"词尾「ぶ」变「ば」加「される」。"},{"stem":"飲む → ＿＿＿","source":"变形表·飲む","options":["飲まされる","飲ませる","飲まれる","飲まさせる"],"answer":0,"explain":"「飲む」是一类动词，使役被动态为「飲まされる」。","translation":"飲む → 飲まされる（被迫喝）。","tip":"词尾「む」变「ま」加「される」。"},{"stem":"送る → ＿＿＿","source":"变形表·送る","options":["送らせる","送らされる","送られる","送らさせる"],"answer":1,"explain":"「送る」是一类动词，使役被动态为「送らされる」。","translation":"送る → 送らされる（被迫送）。","tip":"词尾「る」变「ら」加「される」。"},{"stem":"泳ぐ → ＿＿＿","source":"变形表·泳ぐ","options":["泳がせる","泳がれる","泳がされる","泳がさせる"],"answer":2,"explain":"「泳ぐ」是一类动词，使役被动态为「泳がされる」。","translation":"泳ぐ → 泳がされる（被迫游泳）。","tip":"词尾「ぐ」变「が」加「される」。"},{"stem":"見る → ＿＿＿","source":"变形表·見る","options":["見させられる","見させる","見られる","見される"],"answer":0,"explain":"「見る」是二类动词，使役被动态为「見させられる」。","translation":"見る → 見させられる（被迫看）。","tip":"二类动词去掉「る」加「させられる」。"},{"stem":"食べる → ＿＿＿","source":"变形表·食べる","options":["食べさせる","食べさせられる","食べられる","食べされる"],"answer":1,"explain":"「食べる」是二类动词，使役被动态为「食べさせられる」。","translation":"食べる → 食べさせられる（被迫吃）。","tip":"二类动词去掉「る」加「させられる」。"},{"stem":"勉強する → ＿＿＿","source":"变形表·勉強する","options":["勉強させる","勉強される","勉強させられる","勉強せられる"],"answer":2,"explain":"「勉強する」是三类动词，使役被动态为「勉強させられる」。","translation":"勉強する → 勉強させられる（被迫学习）。","tip":"「する」的三类使役被动态是「させられる」。"},{"stem":"来る → ＿＿＿","source":"变形表·来る","options":["こさせられる","こさせる","こられる","こされる"],"answer":0,"explain":"「来る」是三类动词，使役被动态为「こさせられる」。","translation":"来る → こさせられる（被迫来）。","tip":"「来る」的使役被动态是「こさせられる」。"},{"stem":"起きる → ＿＿＿","source":"变形表·起きる","options":["起きさせる","起きさせられる","起きられる","起きされる"],"answer":1,"explain":"「起きる」是二类动词，使役被动态为「起きさせられる」。","translation":"起きる → 起きさせられる（被迫起床）。","tip":"二类动词去掉「る」加「させられる」。"},{"stem":"行く → ＿＿＿","source":"变形表·行く","options":["行かせる","行かれる","行かされる","行かさせる"],"answer":2,"explain":"「行く」是一类动词，使役被动态为「行かされる」。","translation":"行く → 行かされる（被迫去）。","tip":"词尾「く」变「か」加「される」。"},{"stem":"帰る → ＿＿＿","source":"变形表·帰る","options":["帰らされる","帰らせる","帰られる","帰らさせる"],"answer":0,"explain":"「帰る」是一类动词，使役被动态为「帰らされる」。","translation":"帰る → 帰らされる（被迫回家）。","tip":"词尾「る」变「ら」加「される」。"},{"stem":"私が＿＿＿。（我站着。）","source":"例句·一般句","options":["立つ","立たされる","立たせる","立たせられる"],"answer":0,"explain":"一般句「Aがする」表示主动动作，用动词原形「立つ」。","translation":"我站着。","tip":"没有「被迫」含义的一般句用动词原形。"},{"stem":"私が先生に＿＿＿。（我被老师逼着站起来 / 老师让我站起来。）","source":"例句·使役被动句","options":["立たされる","立つ","立たせる","立たせられる"],"answer":0,"explain":"使役被动句「AはBにさせられる」表示被迫，用使役被动态「立たされる」。","translation":"我被老师逼着站起来。","tip":"有「に」引出施动者时用使役被动态。"}],"version":"0ff466f15583"};
+
+const els = {
+  crumbs: document.getElementById('crumbs'),
+  title: document.getElementById('title'),
+  sub: document.getElementById('sub'),
+  count: document.getElementById('count'),
+  fill: document.getElementById('fill'),
+  summary: document.getElementById('summary'),
+  quiz: document.getElementById('quiz'),
+  result: document.getElementById('result'),
+  ver: document.getElementById('ver'),
+};
+
+function renderSummary() {
+  const level = QUIZ.level || '';
+  const no = QUIZ.no || '';
+  const parts = [];
+  if (level) parts.push(`<span class="crumb">${level}</span>`);
+  if (no) parts.push(`<span class="crumb plain">第${no}课</span>`);
+  els.crumbs.innerHTML = parts.join('<span class="sep">›</span>');
+  els.title.textContent = QUIZ.title || '';
+  els.sub.textContent = QUIZ.subtitle || '';
+  els.ver.textContent = 'quiz · v' + (QUIZ.version || '?');
+  els.summary.innerHTML = (QUIZ.summary || []).map(s => `<li>${s}</li>`).join('');
+}
+
+let state = { i: 0, score: 0, total: QUIZ.questions.length };
+
+function renderQuestion() {
+  const q = QUIZ.questions[state.i];
+  els.count.textContent = `${state.i + 1} / ${state.total}`;
+  els.fill.style.width = `${(state.i / state.total) * 100}%`;
+
+  const opts = q.options.map((o, idx) => {
+    const key = String.fromCharCode(65 + idx);
+    return `<button class="opt" data-idx="${idx}">
+      <span class="key">${key}</span><span>${o}</span>
+    </button>`;
+  }).join('');
+
+  els.quiz.innerHTML = `
+    <div class="card" id="card">
+      <div class="qhead">
+        <span class="qnum">第 ${state.i + 1} 题</span>
+        <span class="src">📖 ${q.source || ''}</span>
+      </div>
+      <div class="stem">${q.stem}</div>
+      <div class="opts">${opts}</div>
+      <div class="explain" id="explain"></div>
+      <button class="next" id="next" disabled>${state.i + 1 === state.total ? '查看成绩' : '下一题 →'}</button>
+    </div>`;
+
+  els.quiz.querySelectorAll('.opt').forEach(btn => {
+    btn.addEventListener('click', () => answer(Number(btn.dataset.idx)));
+  });
+  els.quiz.querySelector('#next').addEventListener('click', next);
+}
+
+function answer(pick) {
+  const q = QUIZ.questions[state.i];
+  const btns = els.quiz.querySelectorAll('.opt');
+  const expl = els.quiz.querySelector('#explain');
+  const nextBtn = els.quiz.querySelector('#next');
+
+  btns.forEach((b, idx) => {
+    b.disabled = true;
+    if (idx === q.answer) b.classList.add('correct');
+    else if (idx === pick) b.classList.add('wrong');
+  });
+
+  const right = pick === q.answer;
+  if (right) state.score++;
+
+  expl.className = 'explain show ' + (right ? 'ok' : 'no');
+  expl.innerHTML = `
+    <div class="headline">${right ? '✓ 正确' : '✗ 正确答案是 ' + String.fromCharCode(65 + q.answer)}</div>
+    <div class="trans"><span class="tlbl">译文</span><span>${q.translation || ''}</span></div>
+    <div>${q.explain}</div>
+    <div class="tip">${q.tip || ''}</div>`;
+  nextBtn.disabled = false;
+}
+
+function next() {
+  state.i++;
+  if (state.i < state.total) renderQuestion();
+  else renderResult();
+}
+
+function renderResult() {
+  els.quiz.style.display = 'none';
+  document.querySelector('.summary').style.display = 'none';
+  els.fill.style.width = '100%';
+  els.count.textContent = `${state.total} / ${state.total}`;
+
+  const pct = Math.round((state.score / state.total) * 100);
+  const R = 56, C = 2 * Math.PI * R;
+  els.result.style.display = 'block';
+  els.result.innerHTML = `
+    <span class="mascot">${pct >= 80 ? '🎉' : pct >= 60 ? '💪' : '🌱'}</span>
+    <svg class="ring" viewBox="0 0 132 132">
+      <defs>
+        <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#ff6f9c"></stop>
+          <stop offset="100%" stop-color="#a18cff"></stop>
+        </linearGradient>
+      </defs>
+      <circle class="bg" cx="66" cy="66" r="${R}"></circle>
+      <circle class="val" cx="66" cy="66" r="${R}" stroke-dasharray="${C}" stroke-dashoffset="${C}"></circle>
+      <text x="50%" y="58%" text-anchor="middle">${pct}%</text>
+    </svg>
+    <h2>${state.score} / ${state.total} 题答对</h2>
+    <p>${pct >= 80 ? '掌握得很好，保持这个状态。' : pct >= 60 ? '不错，再回顾一下错题的知识点。' : '先回笔记过一遍知识点，再来刷一轮。'}</p>
+    <button class="again" onclick="location.reload()">再来一轮</button>`;
+
+  requestAnimationFrame(() => {
+    const circle = els.result.querySelector('.val');
+    circle.style.strokeDashoffset = String(C * (1 - pct / 100));
+  });
+}
+
+renderSummary();
+renderQuestion();
+</script>
+</body>
+</html>

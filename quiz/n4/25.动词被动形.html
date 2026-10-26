@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="quiz-version" content="591d492f5e4f" />
+<title>JLPT 语法小测</title>
+<style>
+  :root {
+    --bg: #fff7f9;
+    --card: #ffffff;
+    --ink: #3d3550;
+    --muted: #9b8fb0;
+    --accent: #ff6f9c;
+    --accent2: #a18cff;
+    --accent-soft: #ffe8f0;
+    --ok: #3fc47d;
+    --ok-soft: #e6fbee;
+    --bad: #ff7d6e;
+    --bad-soft: #fff0ec;
+    --line: #f4e8f0;
+    --radius: 22px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Segoe UI", "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+    background:
+      radial-gradient(circle at 12% 8%, #ffe4ef 0%, transparent 34%),
+      radial-gradient(circle at 92% 16%, #e6e1ff 0%, transparent 36%),
+      radial-gradient(circle at 50% 100%, #ffe9c7 0%, transparent 40%),
+      var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 32px 18px 88px; }
+
+  /* header */
+  .head { text-align: center; margin-bottom: 20px; }
+  .mascot { font-size: 46px; display: inline-block; animation: bob 2.6s ease-in-out infinite; }
+  @keyframes bob { 0%,100%{transform:translateY(0) rotate(-3deg)} 50%{transform:translateY(-8px) rotate(3deg)} }
+  /* breadcrumb (level + lesson) */
+  .crumbs { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+  .crumbs .crumb {
+    display: inline-flex; align-items: center;
+    font-size: 15px; font-weight: 900; letter-spacing: .04em;
+    color: #fff; background: linear-gradient(120deg, var(--accent), var(--accent2));
+    padding: 6px 16px; border-radius: 999px;
+    box-shadow: 0 4px 12px rgba(255,111,156,.30);
+  }
+  .crumbs .crumb.plain {
+    background: #fff; color: var(--accent2);
+    border: 2px solid var(--accent2); box-shadow: none;
+  }
+  .crumbs .sep { color: var(--muted); font-weight: 900; font-size: 18px; }
+  h1 { font-size: 27px; font-weight: 900; letter-spacing: .01em; margin-top: 10px; }
+  .sub { color: var(--muted); font-size: 14px; margin-top: 4px; }
+
+  /* progress */
+  .progress { display: flex; align-items: center; gap: 12px; margin: 24px 0; }
+  .bar { flex: 1; height: 14px; border-radius: 999px; background: #ffeef5; overflow: hidden; box-shadow: inset 0 2px 4px rgba(255,111,156,.15); }
+  .fill { height: 100%; width: 0%; border-radius: 999px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width .4s cubic-bezier(.22,1,.36,1); }
+  .count { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 700; }
+
+  /* summary */
+  .summary {
+    background: var(--card); border: 2px solid var(--line); border-radius: var(--radius);
+    padding: 20px 22px; margin-bottom: 22px; box-shadow: 0 8px 24px rgba(161,140,255,.10);
+  }
+  .summary h2 { font-size: 14px; color: var(--accent2); font-weight: 900; letter-spacing: .05em; margin-bottom: 10px; }
+  .summary li { margin: 8px 0 8px 22px; font-size: 15px; }
+  .summary li::marker { color: var(--accent); }
+  .summary b { color: var(--accent); }
+
+  /* question card */
+  .card {
+    background: var(--card); border: 2px solid var(--line); border-radius: var(--radius);
+    padding: 24px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(255,111,156,.10);
+    animation: pop .45s cubic-bezier(.34,1.56,.64,1) both;
+  }
+  @keyframes pop { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
+  .qnum { font-size: 13px; font-weight: 900; color: var(--accent); letter-spacing: .08em; margin-bottom: 8px; }
+  .qhead { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .qhead .qnum { margin-bottom: 0; }
+  .src {
+    font-size: 12px; font-weight: 700; color: var(--accent2);
+    background: var(--accent-soft); padding: 3px 10px; border-radius: 999px;
+  }
+  .stem { font-size: 18px; font-weight: 700; margin-bottom: 18px; }
+  .stem .blank { display: inline-block; min-width: 72px; border-bottom: 3px dotted var(--accent); text-align: center; padding: 0 4px; color: var(--accent); }
+
+  .opts { display: grid; gap: 10px; }
+  .opt {
+    display: flex; align-items: center; gap: 12px; text-align: left;
+    border: 2px solid var(--line); background: #fff; border-radius: 16px;
+    padding: 12px 14px; font-size: 16px; cursor: pointer; font-family: inherit;
+    transition: transform .16s cubic-bezier(.34,1.56,.64,1), border-color .16s ease, background .16s ease, box-shadow .16s ease;
+  }
+  .opt:hover:not(:disabled) { border-color: var(--accent2); transform: translateY(-2px) scale(1.01); box-shadow: 0 8px 18px rgba(161,140,255,.18); }
+  .opt .key {
+    flex: none; width: 28px; height: 28px; border-radius: 50%; font-size: 14px; font-weight: 900;
+    display: grid; place-items: center; background: #fdf1f6; color: var(--accent);
+  }
+  .opt.correct { border-color: var(--ok); background: var(--ok-soft); }
+  .opt.correct .key { background: var(--ok); color: #fff; }
+  .opt.wrong { border-color: var(--bad); background: var(--bad-soft); animation: shake .35s ease; }
+  .opt.wrong .key { background: var(--bad); color: #fff; }
+  @keyframes shake { 0%,100%{transform:none} 20%{transform:translateX(-5px)} 40%{transform:translateX(5px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+  .opt:disabled { cursor: default; }
+
+  /* explanation */
+  .explain { display: none; margin-top: 16px; padding: 15px 17px; border-radius: 16px; font-size: 14.5px; }
+  .explain.show { display: block; animation: pop .3s cubic-bezier(.34,1.56,.64,1) both; }
+  .explain .headline { font-weight: 900; margin-bottom: 4px; }
+  .explain .trans {
+    display: flex; align-items: center; gap: 10px;
+    margin: 8px 0 6px; padding: 9px 13px;
+    border-radius: 11px; background: rgba(255,255,255,.72);
+    border: 1.5px dashed var(--accent);
+    font-weight: 700; font-size: 15px; color: var(--ink);
+  }
+  .explain .trans .tlbl {
+    flex: none; font-size: 12px; font-weight: 900; letter-spacing: .04em;
+    color: #fff; background: linear-gradient(120deg, var(--accent), var(--accent2));
+    padding: 3px 9px; border-radius: 999px;
+  }
+  .explain.ok { background: var(--ok-soft); } .explain.ok .headline { color: var(--ok); }
+  .explain.no { background: var(--bad-soft); } .explain.no .headline { color: var(--bad); }
+  .explain .tip { color: var(--muted); font-size: 13px; margin-top: 6px; }
+  .next { margin-top: 16px; width: 100%; padding: 13px; border: none; border-radius: 16px;
+    background: linear-gradient(120deg, var(--accent), var(--accent2)); color: #fff; font-size: 15px; font-weight: 900; cursor: pointer; font-family: inherit;
+    box-shadow: 0 6px 16px rgba(255,111,156,.35); transition: transform .16s cubic-bezier(.34,1.56,.64,1), filter .16s; }
+  .next:disabled { opacity: .4; cursor: default; box-shadow: none; }
+  .next:not(:disabled):hover { transform: translateY(-2px); filter: brightness(1.05); }
+
+  /* result */
+  .result { text-align: center; padding: 40px 24px; animation: pop .5s cubic-bezier(.34,1.56,.64,1) both; }
+  .result .mascot { font-size: 60px; margin-bottom: 6px; }
+  .ring { width: 136px; height: 136px; margin: 4px auto 18px; }
+  .ring .bg { fill: none; stroke: #ffeef5; stroke-width: 12; }
+  .ring .val { fill: none; stroke: var(--accent); stroke-width: 12; stroke-linecap: round; transition: stroke-dashoffset 1s cubic-bezier(.22,1,.36,1); }
+  .ring text { font-size: 30px; font-weight: 900; fill: var(--ink); }
+  .result h2 { font-size: 22px; margin-bottom: 6px; }
+  .result p { color: var(--muted); font-size: 14px; margin-bottom: 18px; }
+  .again { padding: 12px 30px; border: none; border-radius: 16px; background: linear-gradient(120deg, var(--accent), var(--accent2)); color: #fff; font-size: 15px; font-weight: 900; cursor: pointer; font-family: inherit; box-shadow: 0 6px 16px rgba(255,111,156,.35); transition: transform .16s cubic-bezier(.34,1.56,.64,1); }
+  .again:hover { transform: translateY(-2px) scale(1.03); }
+
+  /* version marker */
+  .ver { text-align: center; color: var(--muted); font-size: 12px; margin-top: 30px; opacity: .75; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="head">
+    <span class="mascot">🌸</span>
+    <br />
+    <nav class="crumbs" id="crumbs"></nav>
+    <h1 id="title"></h1>
+    <div class="sub" id="sub"></div>
+  </header>
+
+  <div class="progress">
+    <span class="count" id="count"></span>
+    <div class="bar"><div class="fill" id="fill"></div></div>
+  </div>
+
+  <section class="summary">
+    <h2>知识点速览</h2>
+    <ul id="summary"></ul>
+  </section>
+
+  <div id="quiz"></div>
+  <div id="result" class="result" style="display:none"></div>
+  <div class="ver" id="ver"></div>
+</div>
+
+<script>
+const QUIZ = {"title":"动词被动形","level":"N4","no":"25","subtitle":"基于笔记 notes/raw/n4/25.动词被动形.md","summary":["被动形表示被动：一类动词把う段改为あ段再加れる，如言う→言われる。","二类动词去掉る再加られる，三类动词する→される、来る→こられる。","二项被动句把主动句的宾语变成主语，施动者后用に，如「魚は猫に食べられる」。","三项与所属关系被动句把间接对象或所有者变成主语，原宾语仍用を。","非特定对象被动句不出现施动者，主语用が，如「鐘が鳴らされる」。","受害者（自动词）被动句表示受损害或被打扰，如「雨に降られる」「友達に来られる」。"],"questions":[{"stem":"言う（1類）→ ＿＿＿","source":"变形表·言う","options":["言われる","言える","言う","言わられる"],"answer":0,"explain":"一类动词把う段改成あ段再加れる，言う→言わ＋れる＝言われる。","translation":"「言う」的被动态是「言われる」。","tip":"一类动词被动形是「あ段＋れる」，不要写成「あ段＋られる」。"},{"stem":"書く（1類）→ ＿＿＿","source":"变形表·書く","options":["書かれる","書ける","書く","書かられる"],"answer":0,"explain":"一类动词把う段改成あ段再加れる，書く→書か＋れる＝書かれる。","translation":"「書く」的被动态是「書かれる」。","tip":"書ける是可能态，書かれる才是被动态。"},{"stem":"話す（1類）→ ＿＿＿","source":"变形表·話す","options":["話される","話せる","話す","話さられる"],"answer":0,"explain":"一类动词把う段改成あ段再加れる，話す→話さ＋れる＝話される。","translation":"「話す」的被动态是「話される」。","tip":"話せる是可能态，話される才是被动态。"},{"stem":"待つ（1類）→ ＿＿＿","source":"变形表·待つ","options":["待たれる","待てる","待つ","待たられる"],"answer":0,"explain":"一类动词把う段改成あ段再加れる，待つ→待た＋れる＝待たれる。","translation":"「待つ」的被动态是「待たれる」。","tip":"待てる是可能态，待たれる才是被动态。"},{"stem":"死ぬ（1類）→ ＿＿＿","source":"变形表·死ぬ","options":["死なれる","死ねる","死ぬ","死なられる"],"answer":0,"explain":"一类动词把う段改成あ段再加れる，死ぬ→死な＋れる＝死なれる。","translation":"「死ぬ」的被动态是「死なれる」。","tip":"死ねる是可能态，死なれる才是被动态（还表示受害者被动）。"},{"stem":"飛ぶ（1類）→ ＿＿＿","source":"变形表·飛ぶ","options":["飛ばれる","飛べる","飛ぶ","飛ばられる"],"answer":0,"explain":"一类动词把う段改成あ段再加れる，飛ぶ→飛ば＋れる＝飛ばれる。","translation":"「飛ぶ」的被动态是「飛ばれる」。","tip":"飛べる是可能态，飛ばれる才是被动态。"},{"stem":"飲む（1類）→ ＿＿＿","source":"变形表·飲む","options":["飲まれる","飲める","飲む","飲まられる"],"answer":0,"explain":"一类动词把う段改成あ段再加れる，飲む→飲ま＋れる＝飲まれる。","translation":"「飲む」的被动态是「飲まれる」。","tip":"飲める是可能态，飲まれる才是被动态。"},{"stem":"送る（1類）→ ＿＿＿","source":"变形表·送る","options":["送られる","送れる","送る","送らられる"],"answer":0,"explain":"一类动词把う段改成あ段再加れる，送る→送ら＋れる＝送られる。","translation":"「送る」的被动态是「送られる」。","tip":"送れる是可能态，送られる才是被动态。"},{"stem":"泳ぐ（1類）→ ＿＿＿","source":"变形表·泳ぐ","options":["泳がれる","泳げる","泳ぐ","泳がられる"],"answer":0,"explain":"一类动词把う段改成あ段再加れる，泳ぐ→泳が＋れる＝泳がれる。","translation":"「泳ぐ」的被动态是「泳がれる」。","tip":"泳げる是可能态，泳がれる才是被动态。"},{"stem":"急ぐ（1類）→ ＿＿＿","source":"变形表·急ぐ","options":["急がれる","急げる","急ぐ","急がられる"],"answer":0,"explain":"一类动词把う段改成あ段再加れる，急ぐ→急が＋れる＝急がれる。","translation":"「急ぐ」的被动态是「急がれる」。","tip":"急げる是可能态，急がれる才是被动态。"},{"stem":"見る（2類）→ ＿＿＿","source":"变形表·見る","options":["見られる","見る","見れる","見える"],"answer":0,"explain":"二类动词去掉る再加られる，見る→見＋られる＝見られる。","translation":"「見る」的被动态是「見られる」。","tip":"見える是「能看见」，見られる才是被动（二类动词被动与可能同形）。"},{"stem":"食べる（2類）→ ＿＿＿","source":"变形表·食べる","options":["食べられる","食べる","食べれる","食べらる"],"answer":0,"explain":"二类动词去掉る再加られる，食べる→食べ＋られる＝食べられる。","translation":"「食べる」的被动态是「食べられる」。","tip":"二类动词被动是「去る＋られる」，不是「去る＋れる」。"},{"stem":"起きる（2類）→ ＿＿＿","source":"变形表·起きる","options":["起きられる","起きる","起きれる","起きらる"],"answer":0,"explain":"二类动词去掉る再加られる，起きる→起き＋られる＝起きられる。","translation":"「起きる」的被动态是「起きられる」。","tip":"二类动词被动是「去る＋られる」，不要漏掉ら。"},{"stem":"勉強する（3類）→ ＿＿＿","source":"变形表·勉強する","options":["勉強される","勉強する","勉強できる","勉強さられる"],"answer":0,"explain":"三类动词する→される，勉強する→勉強される。","translation":"「勉強する」的被动态是「勉強される」。","tip":"する→される是被动，する→できる是可能，别混淆。"},{"stem":"来る（3類）→ ＿＿＿","source":"变形表·来る","options":["来られる","来る","来れる","来た"],"answer":0,"explain":"三类动词来る→こられる，写作「来られる」。","translation":"「来る」的被动态是「来られる」。","tip":"来る的被动是こられる，来れる是ら抜き的非正式说法。"},{"stem":"行く（1類）→ ＿＿＿","source":"变形表·行く","options":["行かれる","行ける","行く","行かられる"],"answer":0,"explain":"一类动词把う段改成あ段再加れる，行く→行か＋れる＝行かれる。","translation":"「行く」的被动态是「行かれる」。","tip":"行ける是可能态，行かれる才是被动态。"},{"stem":"帰る（1類）→ ＿＿＿","source":"变形表·帰る","options":["帰られる","帰れる","帰る","帰らられる"],"answer":0,"explain":"一类动词把う段改成あ段再加れる，帰る→帰ら＋れる＝帰られる。","translation":"「帰る」的被动态是「帰られる」。","tip":"帰れる是可能态，帰られる才是被动态。"},{"stem":"魚は 猫に ＿＿＿","source":"①二项动词被动句","options":["食べられる","食べる","食べれる","食べた"],"answer":0,"explain":"被动句谓语用被动形，鱼被猫吃说「魚は猫に食べられる」。","translation":"鱼被猫吃了。","tip":"被动句主语（魚）是受动者，谓语用被动形食べられる。"},{"stem":"猫は 魚を ＿＿＿","source":"①二项主动句","options":["食べる","食べられる","食べれる","食べた"],"answer":0,"explain":"主动句谓语用原形，「猫は魚を食べる」表示猫主动吃鱼。","translation":"猫吃鱼。","tip":"主动句主语（猫）是施动者，动词用原形食べる，不用被动形。"},{"stem":"私は 彼に 道を ＿＿＿","source":"②三项动词被动句","options":["聞かれる","聞く","聞ける","聞かせる"],"answer":0,"explain":"三项被动句把主动句的间接对象（私）变主语，谓语用被动形聞かれる。","translation":"我被他问路。","tip":"三项被动句里原宾语仍用を，施动者后用に。"},{"stem":"彼は 私に 道を ＿＿＿","source":"②三项主动句","options":["聞く","聞かれる","聞ける","聞かせる"],"answer":0,"explain":"主动句谓语用原形聞く，施动者（彼）作主语。","translation":"他向我问路。","tip":"主动句主语是施动者，用主动形聞く；被动句才说「私は彼に道を聞かれる」。"},{"stem":"私は 彼に 年を ＿＿＿","source":"③所属关系被动句","options":["聞かれる","聞く","聞ける","聞かせる"],"answer":0,"explain":"所属关系被动句把所有者（私）变主语，所属物（年）仍作宾语用を，谓语用被动形。","translation":"我被他问了年龄。","tip":"不能说「私の年は彼に聞かれる」，所属物不能当被动句主语。"},{"stem":"彼は 私の年（とし）を ＿＿＿","source":"③所属关系主动句","options":["聞く","聞かれる","聞ける","聞かせる"],"answer":0,"explain":"主动句谓语用原形聞く，「私の年（とし）」整体作宾语。","translation":"他问我的年龄。","tip":"主动句里「私の年」作宾语用を；被动句要说「私は彼に年を聞かれる」。"},{"stem":"鐘が ＿＿＿","source":"④非特定对象被动句","options":["鳴らされる","鳴らす","鳴る","鳴らせる"],"answer":0,"explain":"非特定对象被动句不出现施动者，主语用が，谓语用被动形鳴らされる。","translation":"钟被敲响。","tip":"鳴らす（他动词）的被动是鳴らされる，别与自动词鳴る混淆。"},{"stem":"人は 鐘を ＿＿＿","source":"④非特定对象主动句","options":["鳴らす","鳴らされる","鳴る","鳴らせる"],"answer":0,"explain":"主动句谓语用原形鳴らす，施动者「人」作主语。","translation":"人们敲钟。","tip":"鳴らす是主动形；变成被动是「鐘が鳴らされる」。"},{"stem":"展覧会が ＿＿＿","source":"④非特定对象被动句","options":["開かれる","開く","開ける","開かせる"],"answer":0,"explain":"非特定对象被动句用が提示主语，谓语用被动形開かれる。","translation":"展览会（被）举办。","tip":"開く→開かれる是被动，開ける是另一个动词（打开）。"},{"stem":"人は 展覧会を ＿＿＿","source":"④非特定对象主动句","options":["開く","開かれる","開ける","開かせる"],"answer":0,"explain":"主动句谓语用原形開く，施动者「人」作主语。","translation":"人们举办展览会。","tip":"開く是主动形；被动是「展覧会が開かれる」。"},{"stem":"私は雨に＿＿＿（我被雨淋了）","source":"⑤受害者被动句","options":["降られる","降る","降れる","降らせる"],"answer":0,"explain":"受害者被动句用自动词的被动形表示受害，雨が降る→私は雨に降られる。","translation":"我被雨淋了。","tip":"自动词被动表示遭受损害，「雨に降られる」意为被雨淋。"},{"stem":"雨が＿＿＿（下雨）","source":"⑤受害者主动句","options":["降る","降られる","降れる","降らせる"],"answer":0,"explain":"主动句「雨が降る」用自动词原形降る表示自然现象。","translation":"下雨。","tip":"雨が降る是主动句（下雨）；「雨に降られる」才是被动（被雨淋）。"},{"stem":"私は犬に＿＿＿（狗狗死了，我很受打击/蒙受损失）","source":"⑤受害者被动句","options":["死なれる","死ぬ","死ねる","死なせる"],"answer":0,"explain":"自动词死ぬ的被动形死なれる表示「（重要的物）死去」带来的损失。","translation":"狗狗死了，我很受打击（蒙受损失）。","tip":"「犬に死なれる」是受害者被动，表示蒙受损失。"},{"stem":"犬が＿＿＿（狗狗死去）","source":"⑤受害者主动句","options":["死ぬ","死なれる","死ねる","死なせる"],"answer":0,"explain":"主动句「犬が死ぬ」用自动词原形死ぬ表示狗狗死去。","translation":"狗狗死了。","tip":"犬が死ぬ是主动句；「犬に死なれる」才是受害者被动（蒙受损失）。"},{"stem":"私は妻に＿＿＿（我被妻子训斥）","source":"⑤受害者被动句","options":["怒られる","怒る","怒れる","怒らせる"],"answer":0,"explain":"自动词怒る的被动形怒られる表示被某人发怒、训斥。","translation":"我被妻子训斥。","tip":"怒られる表示「被训斥」，施动者用に。"},{"stem":"妻が＿＿＿（妻子生气）","source":"⑤受害者主动句","options":["怒る","怒られる","怒れる","怒らせる"],"answer":0,"explain":"主动句「妻が怒る」用自动词原形怒る表示妻子生气。","translation":"妻子生气。","tip":"妻が怒る是主动句；「妻に怒られる」才是被动（被训斥）。"},{"stem":"私は友達に＿＿＿（朋友来了，打扰到我了）","source":"⑤受害者被动句","options":["来られる","来る","来れる","来させる"],"answer":0,"explain":"自动词来る的被动形来られる表示朋友来了、打扰到自己。","translation":"朋友来了，打扰到我了。","tip":"「友達に来られる」是受害者被动，隐含被打扰的负面感受。"},{"stem":"友達が＿＿＿（朋友过来）","source":"⑤受害者主动句","options":["来る","来られる","来れる","来させる"],"answer":0,"explain":"主动句「友達が来る」用自动词原形来る表示朋友过来。","translation":"朋友来了。","tip":"友達が来る是主动句；「友達に来られる」才是受害者被动（被打扰）。"}],"version":"591d492f5e4f"};
+
+const els = {
+  crumbs: document.getElementById('crumbs'),
+  title: document.getElementById('title'),
+  sub: document.getElementById('sub'),
+  count: document.getElementById('count'),
+  fill: document.getElementById('fill'),
+  summary: document.getElementById('summary'),
+  quiz: document.getElementById('quiz'),
+  result: document.getElementById('result'),
+  ver: document.getElementById('ver'),
+};
+
+function renderSummary() {
+  const level = QUIZ.level || '';
+  const no = QUIZ.no || '';
+  const parts = [];
+  if (level) parts.push(`<span class="crumb">${level}</span>`);
+  if (no) parts.push(`<span class="crumb plain">第${no}课</span>`);
+  els.crumbs.innerHTML = parts.join('<span class="sep">›</span>');
+  els.title.textContent = QUIZ.title || '';
+  els.sub.textContent = QUIZ.subtitle || '';
+  els.ver.textContent = 'quiz · v' + (QUIZ.version || '?');
+  els.summary.innerHTML = (QUIZ.summary || []).map(s => `<li>${s}</li>`).join('');
+}
+
+let state = { i: 0, score: 0, total: QUIZ.questions.length };
+
+function renderQuestion() {
+  const q = QUIZ.questions[state.i];
+  els.count.textContent = `${state.i + 1} / ${state.total}`;
+  els.fill.style.width = `${(state.i / state.total) * 100}%`;
+
+  const opts = q.options.map((o, idx) => {
+    const key = String.fromCharCode(65 + idx);
+    return `<button class="opt" data-idx="${idx}">
+      <span class="key">${key}</span><span>${o}</span>
+    </button>`;
+  }).join('');
+
+  els.quiz.innerHTML = `
+    <div class="card" id="card">
+      <div class="qhead">
+        <span class="qnum">第 ${state.i + 1} 题</span>
+        <span class="src">📖 ${q.source || ''}</span>
+      </div>
+      <div class="stem">${q.stem}</div>
+      <div class="opts">${opts}</div>
+      <div class="explain" id="explain"></div>
+      <button class="next" id="next" disabled>${state.i + 1 === state.total ? '查看成绩' : '下一题 →'}</button>
+    </div>`;
+
+  els.quiz.querySelectorAll('.opt').forEach(btn => {
+    btn.addEventListener('click', () => answer(Number(btn.dataset.idx)));
+  });
+  els.quiz.querySelector('#next').addEventListener('click', next);
+}
+
+function answer(pick) {
+  const q = QUIZ.questions[state.i];
+  const btns = els.quiz.querySelectorAll('.opt');
+  const expl = els.quiz.querySelector('#explain');
+  const nextBtn = els.quiz.querySelector('#next');
+
+  btns.forEach((b, idx) => {
+    b.disabled = true;
+    if (idx === q.answer) b.classList.add('correct');
+    else if (idx === pick) b.classList.add('wrong');
+  });
+
+  const right = pick === q.answer;
+  if (right) state.score++;
+
+  expl.className = 'explain show ' + (right ? 'ok' : 'no');
+  expl.innerHTML = `
+    <div class="headline">${right ? '✓ 正确' : '✗ 正确答案是 ' + String.fromCharCode(65 + q.answer)}</div>
+    <div class="trans"><span class="tlbl">译文</span><span>${q.translation || ''}</span></div>
+    <div>${q.explain}</div>
+    <div class="tip">${q.tip || ''}</div>`;
+  nextBtn.disabled = false;
+}
+
+function next() {
+  state.i++;
+  if (state.i < state.total) renderQuestion();
+  else renderResult();
+}
+
+function renderResult() {
+  els.quiz.style.display = 'none';
+  document.querySelector('.summary').style.display = 'none';
+  els.fill.style.width = '100%';
+  els.count.textContent = `${state.total} / ${state.total}`;
+
+  const pct = Math.round((state.score / state.total) * 100);
+  const R = 56, C = 2 * Math.PI * R;
+  els.result.style.display = 'block';
+  els.result.innerHTML = `
+    <span class="mascot">${pct >= 80 ? '🎉' : pct >= 60 ? '💪' : '🌱'}</span>
+    <svg class="ring" viewBox="0 0 132 132">
+      <defs>
+        <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#ff6f9c"></stop>
+          <stop offset="100%" stop-color="#a18cff"></stop>
+        </linearGradient>
+      </defs>
+      <circle class="bg" cx="66" cy="66" r="${R}"></circle>
+      <circle class="val" cx="66" cy="66" r="${R}" stroke-dasharray="${C}" stroke-dashoffset="${C}"></circle>
+      <text x="50%" y="58%" text-anchor="middle">${pct}%</text>
+    </svg>
+    <h2>${state.score} / ${state.total} 题答对</h2>
+    <p>${pct >= 80 ? '掌握得很好，保持这个状态。' : pct >= 60 ? '不错，再回顾一下错题的知识点。' : '先回笔记过一遍知识点，再来刷一轮。'}</p>
+    <button class="again" onclick="location.reload()">再来一轮</button>`;
+
+  requestAnimationFrame(() => {
+    const circle = els.result.querySelector('.val');
+    circle.style.strokeDashoffset = String(C * (1 - pct / 100));
+  });
+}
+
+renderSummary();
+renderQuestion();
+</script>
+</body>
+</html>
