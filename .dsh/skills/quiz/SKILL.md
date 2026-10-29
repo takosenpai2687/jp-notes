@@ -32,6 +32,13 @@ The HTML template is fixed — the only thing that changes is the quiz JSON.
 
 3. **Write questions from the note's own example sentences.** The note's examples
    (例句 / 例) are the primary source — never invent a sentence. Rules:
+   - **真题 / 例题 are mandatory.** If the note contains a 真题 (past/real exam
+     questions) or 例题 (worked examples) section — any item that already ships
+     with its own options and answer — you MUST include EVERY one of them
+     verbatim: copy the stem exactly, keep the same four options in the same
+     order, keep the same correct answer. Never paraphrase, merge, reorder, or
+     drop a 真题 / 例题. Label them `真题1`, `真题2`, `例题1`… in `source`. They
+     are required in addition to, never instead of, the other questions.
    - Turn EVERY example sentence into one question: copy it verbatim and blank
      out (`＿＿＿`) exactly the word that carries the grammar point (the particle,
      the auxiliary, the pattern, or the conjugated form). The rest stays
@@ -56,6 +63,8 @@ The HTML template is fixed — the only thing that changes is the quiz JSON.
 
 4. **Self-review before building (required).** Re-read every question you wrote and
    check, one by one, that:
+   - every 真题 / 例题 in the note appears in the quiz verbatim — same stem, same
+     options in the same order, same answer — and none was dropped or reworded;
    - every stem is a verbatim example sentence from the note (or a conjugation-
      table entry), and `source` points to the right place;
    - the marked answer is actually correct — re-derive the conjugation or usage
@@ -155,6 +164,9 @@ presentation. The template holds two placeholders the script fills:
 
 - Never invent a note or a grammar point that is not in the matched note. If the
   note is thin, write fewer questions instead of padding with off-topic items.
+- **真题 and 例题 are non-negotiable:** whenever the note contains them, every one
+  must appear in the quiz exactly as written (stem, options, answer), even if
+  that makes the quiz longer. Never substitute invented questions for them.
 - Keep the whole quiz in the note's own language register: Chinese explanations,
   Japanese stems/options.
 - The JSON is the source of truth: keep it alongside the HTML, do not delete it.
