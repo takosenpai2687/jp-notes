@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="quiz-version" content="219bd6d056fc" />
+<title>JLPT 语法小测</title>
+<style>
+  :root {
+    --bg: #fff7f9;
+    --card: #ffffff;
+    --ink: #3d3550;
+    --muted: #9b8fb0;
+    --accent: #ff6f9c;
+    --accent2: #a18cff;
+    --accent-soft: #ffe8f0;
+    --ok: #3fc47d;
+    --ok-soft: #e6fbee;
+    --bad: #ff7d6e;
+    --bad-soft: #fff0ec;
+    --line: #f4e8f0;
+    --radius: 22px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Segoe UI", "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+    background:
+      radial-gradient(circle at 12% 8%, #ffe4ef 0%, transparent 34%),
+      radial-gradient(circle at 92% 16%, #e6e1ff 0%, transparent 36%),
+      radial-gradient(circle at 50% 100%, #ffe9c7 0%, transparent 40%),
+      var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 32px 18px 88px; }
+
+  /* header */
+  .head { text-align: center; margin-bottom: 20px; }
+  .mascot { font-size: 46px; display: inline-block; animation: bob 2.6s ease-in-out infinite; }
+  @keyframes bob { 0%,100%{transform:translateY(0) rotate(-3deg)} 50%{transform:translateY(-8px) rotate(3deg)} }
+  /* breadcrumb (level + lesson) */
+  .crumbs { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+  .crumbs .crumb {
+    display: inline-flex; align-items: center;
+    font-size: 15px; font-weight: 900; letter-spacing: .04em;
+    color: #fff; background: linear-gradient(120deg, var(--accent), var(--accent2));
+    padding: 6px 16px; border-radius: 999px;
+    box-shadow: 0 4px 12px rgba(255,111,156,.30);
+  }
+  .crumbs .crumb.plain {
+    background: #fff; color: var(--accent2);
+    border: 2px solid var(--accent2); box-shadow: none;
+  }
+  .crumbs .sep { color: var(--muted); font-weight: 900; font-size: 18px; }
+  h1 { font-size: 27px; font-weight: 900; letter-spacing: .01em; margin-top: 10px; }
+  .sub { color: var(--muted); font-size: 14px; margin-top: 4px; }
+
+  /* progress */
+  .progress { display: flex; align-items: center; gap: 12px; margin: 24px 0; }
+  .bar { flex: 1; height: 14px; border-radius: 999px; background: #ffeef5; overflow: hidden; box-shadow: inset 0 2px 4px rgba(255,111,156,.15); }
+  .fill { height: 100%; width: 0%; border-radius: 999px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width .4s cubic-bezier(.22,1,.36,1); }
+  .count { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 700; }
+
+  /* summary */
+  .summary {
+    background: var(--card); border: 2px solid var(--line); border-radius: var(--radius);
+    padding: 20px 22px; margin-bottom: 22px; box-shadow: 0 8px 24px rgba(161,140,255,.10);
+  }
+  .summary h2 { font-size: 14px; color: var(--accent2); font-weight: 900; letter-spacing: .05em; margin-bottom: 10px; }
+  .summary li { margin: 8px 0 8px 22px; font-size: 15px; }
+  .summary li::marker { color: var(--accent); }
+  .summary b { color: var(--accent); }
+
+  /* question card */
+  .card {
+    background: var(--card); border: 2px solid var(--line); border-radius: var(--radius);
+    padding: 24px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(255,111,156,.10);
+    animation: pop .45s cubic-bezier(.34,1.56,.64,1) both;
+  }
+  @keyframes pop { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
+  .qnum { font-size: 13px; font-weight: 900; color: var(--accent); letter-spacing: .08em; margin-bottom: 8px; }
+  .qhead { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .qhead .qnum { margin-bottom: 0; }
+  .src {
+    font-size: 12px; font-weight: 700; color: var(--accent2);
+    background: var(--accent-soft); padding: 3px 10px; border-radius: 999px;
+  }
+  .stem { font-size: 18px; font-weight: 700; margin-bottom: 18px; }
+  .stem .blank { display: inline-block; min-width: 72px; border-bottom: 3px dotted var(--accent); text-align: center; padding: 0 4px; color: var(--accent); }
+
+  .opts { display: grid; gap: 10px; }
+  .opt {
+    display: flex; align-items: center; gap: 12px; text-align: left;
+    border: 2px solid var(--line); background: #fff; border-radius: 16px;
+    padding: 12px 14px; font-size: 16px; cursor: pointer; font-family: inherit;
+    transition: transform .16s cubic-bezier(.34,1.56,.64,1), border-color .16s ease, background .16s ease, box-shadow .16s ease;
+  }
+  .opt:hover:not(:disabled) { border-color: var(--accent2); transform: translateY(-2px) scale(1.01); box-shadow: 0 8px 18px rgba(161,140,255,.18); }
+  .opt .key {
+    flex: none; width: 28px; height: 28px; border-radius: 50%; font-size: 14px; font-weight: 900;
+    display: grid; place-items: center; background: #fdf1f6; color: var(--accent);
+  }
+  .opt.correct { border-color: var(--ok); background: var(--ok-soft); }
+  .opt.correct .key { background: var(--ok); color: #fff; }
+  .opt.wrong { border-color: var(--bad); background: var(--bad-soft); animation: shake .35s ease; }
+  .opt.wrong .key { background: var(--bad); color: #fff; }
+  @keyframes shake { 0%,100%{transform:none} 20%{transform:translateX(-5px)} 40%{transform:translateX(5px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+  .opt:disabled { cursor: default; }
+
+  /* explanation */
+  .explain { display: none; margin-top: 16px; padding: 15px 17px; border-radius: 16px; font-size: 14.5px; }
+  .explain.show { display: block; animation: pop .3s cubic-bezier(.34,1.56,.64,1) both; }
+  .explain .headline { font-weight: 900; margin-bottom: 4px; }
+  .explain .trans {
+    display: flex; align-items: center; gap: 10px;
+    margin: 8px 0 6px; padding: 9px 13px;
+    border-radius: 11px; background: rgba(255,255,255,.72);
+    border: 1.5px dashed var(--accent);
+    font-weight: 700; font-size: 15px; color: var(--ink);
+  }
+  .explain .trans .tlbl {
+    flex: none; font-size: 12px; font-weight: 900; letter-spacing: .04em;
+    color: #fff; background: linear-gradient(120deg, var(--accent), var(--accent2));
+    padding: 3px 9px; border-radius: 999px;
+  }
+  .explain.ok { background: var(--ok-soft); } .explain.ok .headline { color: var(--ok); }
+  .explain.no { background: var(--bad-soft); } .explain.no .headline { color: var(--bad); }
+  .explain .tip { color: var(--muted); font-size: 13px; margin-top: 6px; }
+  .next { margin-top: 16px; width: 100%; padding: 13px; border: none; border-radius: 16px;
+    background: linear-gradient(120deg, var(--accent), var(--accent2)); color: #fff; font-size: 15px; font-weight: 900; cursor: pointer; font-family: inherit;
+    box-shadow: 0 6px 16px rgba(255,111,156,.35); transition: transform .16s cubic-bezier(.34,1.56,.64,1), filter .16s; }
+  .next:disabled { opacity: .4; cursor: default; box-shadow: none; }
+  .next:not(:disabled):hover { transform: translateY(-2px); filter: brightness(1.05); }
+
+  /* result */
+  .result { text-align: center; padding: 40px 24px; animation: pop .5s cubic-bezier(.34,1.56,.64,1) both; }
+  .result .mascot { font-size: 60px; margin-bottom: 6px; }
+  .ring { width: 136px; height: 136px; margin: 4px auto 18px; }
+  .ring .bg { fill: none; stroke: #ffeef5; stroke-width: 12; }
+  .ring .val { fill: none; stroke: var(--accent); stroke-width: 12; stroke-linecap: round; transition: stroke-dashoffset 1s cubic-bezier(.22,1,.36,1); }
+  .ring text { font-size: 30px; font-weight: 900; fill: var(--ink); }
+  .result h2 { font-size: 22px; margin-bottom: 6px; }
+  .result p { color: var(--muted); font-size: 14px; margin-bottom: 18px; }
+  .again { padding: 12px 30px; border: none; border-radius: 16px; background: linear-gradient(120deg, var(--accent), var(--accent2)); color: #fff; font-size: 15px; font-weight: 900; cursor: pointer; font-family: inherit; box-shadow: 0 6px 16px rgba(255,111,156,.35); transition: transform .16s cubic-bezier(.34,1.56,.64,1); }
+  .again:hover { transform: translateY(-2px) scale(1.03); }
+
+  /* version marker */
+  .ver { text-align: center; color: var(--muted); font-size: 12px; margin-top: 30px; opacity: .75; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="head">
+    <span class="mascot">🌸</span>
+    <br />
+    <nav class="crumbs" id="crumbs"></nav>
+    <h1 id="title"></h1>
+    <div class="sub" id="sub"></div>
+  </header>
+
+  <div class="progress">
+    <span class="count" id="count"></span>
+    <div class="bar"><div class="fill" id="fill"></div></div>
+  </div>
+
+  <section class="summary">
+    <h2>知识点速览</h2>
+    <ul id="summary"></ul>
+  </section>
+
+  <div id="quiz"></div>
+  <div id="result" class="result" style="display:none"></div>
+  <div class="ver" id="ver"></div>
+</div>
+
+<script>
+const QUIZ = {"title":"敬语②","level":"N4","no":"37","subtitle":"基于笔记 notes/raw/n4/37.敬语②自谦语.md","summary":["自谦语用于压低自己或己方，尊他语用于抬高对方，两者不可混用。","常用自谦动词：いただく・参る・おる・拝見する・伺う・申す・いたす・さしあげる・いただく・存じる。","句型①お＋ます形＋する・いたす，表示自己为对方做某事。","句型②お＋ます形＋申し上げる，用于郑重地代他人致意或祝愿。","句型③お＋ます形＋いただく，表示承蒙对方为自己做某事。","句型④お＋ます形＋願う，表示请求对方做某事。","和语动词前接「お」，汉语词前接「ご」。"],"questions":[{"stem":"山下：はい、x建設営業課、山下です。 石田：ABC銀行の石田と申しますが、中川さんか林さんはいらっしゃいますか。 山下：はい、中川が（ ）ので、今、代わります。","source":"真题1","options":["いたします","おります","いただきます","ございます"],"answer":1,"explain":"「おります」是「いる」的自谦语，用于描述己方人员中川在公司。","translation":"山下：您好，这里是X建设营业部，我是山下。石田：我是ABC银行的石田，请问中川先生或者林先生在吗？山下：是的，中川在，我现在让他接电话。","tip":"电话场景中描述己方人员「在」，一律用「おる」而不用「いらっしゃる」。"},{"stem":"山田：あ、課長。昨日はどうもごちそうさまでした。美味しいものをたくさん（ ） 課長：それはよかった。またうちで食事しよう。","source":"真题2","options":["いただきました","召し上がっていました","召し上がっていました","召し上がりました"],"answer":0,"explain":"「いただく」是「食べる」的自谦语，主语是山田自己。","translation":"山田：啊，课长。昨天多谢您款待。我吃了很多好吃的东西。课长：那就好。下次再来我家吃饭吧。","tip":"「召し上がる」是尊他语，只能描述长辈或对方的动作。"},{"stem":"「食べる・飲む」的自谦动词是＿＿＿。","source":"自谦动词表·食べる・飲む","options":["いただく","召し上がる","おる","ございます"],"answer":0,"explain":"吃喝的自谦语固定为「いただく」，用于描述自己吃喝。","translation":"「吃、喝」的自谦动词是「いただく」。","tip":"「召し上がる」是尊他语，不能用于自己。"},{"stem":"「来る・行く」的自谦动词是＿＿＿。","source":"自谦动词表·来る・行く","options":["いらっしゃる","参る","伺う","いたす"],"answer":1,"explain":"来、去的自谦语是「参る」，「いらっしゃる」是尊他语。","translation":"「来、去」的自谦动词是「参る」。","tip":"「参る」既可用于「来」也可用于「行」。"},{"stem":"「いる」的自谦动词是＿＿＿。","source":"自谦动词表·いる","options":["いらっしゃる","参る","おる","いただく"],"answer":2,"explain":"「いる」的自谦语是「おる」，用于描述己方有人在场。","translation":"「在、有」的自谦动词是「おる」。","tip":"「いらっしゃる」是尊他语，只能用于对方。"},{"stem":"「見る」的自谦动词是＿＿＿。","source":"自谦动词表·見る","options":["ご覧になる","伺う","申す","拝見する"],"answer":3,"explain":"「見る」的自谦语是「拝見する」，「ご覧になる」是尊他语。","translation":"「看」的自谦动词是「拝見する」。","tip":"「拝見」只用于看对方的东西或资料。"},{"stem":"「聞く・尋ねる」的自谦动词是＿＿＿。","source":"自谦动词表·聞く・尋ねる","options":["参る","伺う","拝見する","申す"],"answer":1,"explain":"「聞く・尋ねる」的自谦语是「伺う」，表示向对方请教或打听。","translation":"「听、问」的自谦动词是「伺う」。","tip":"「伺う」还可表示「拜访」，需结合上下文判断。"},{"stem":"「言う」的自谦动词是＿＿＿。","source":"自谦动词表·言う","options":["伺う","いたす","申す","さしあげる"],"answer":2,"explain":"「言う」的自谦语是「申す」，自我介绍时常用「～と申します」。","translation":"「说」的自谦动词是「申す」。","tip":"电话自报姓名用「～と申します」。"},{"stem":"「する」的自谦动词是＿＿＿。","source":"自谦动词表·する","options":["いただく","申す","おる","いたす"],"answer":3,"explain":"「する」的自谦语是「いたす」，常与「お＋ます形」构成句型①。","translation":"「做」的自谦动词是「いたす」。","tip":"「いたす」比「する」更郑重，用于对上级或客人。"},{"stem":"「あげる」的自谦动词是＿＿＿。","source":"自谦动词表·あげる","options":["さしあげる","いただく","いたす","参る"],"answer":0,"explain":"「あげる」的自谦语是「さしあげる」，表示自己给对方东西。","translation":"「给（别人）」的自谦动词是「さしあげる」。","tip":"「いただく」是「もらう」的自谦语，方向相反。"},{"stem":"「もらう」的自谦动词是＿＿＿。","source":"自谦动词表·もらう","options":["さしあげる","いただく","おる","拝見する"],"answer":1,"explain":"「もらう」的自谦语是「いただく」，表示自己从对方处领受。","translation":"「领受」的自谦动词是「いただく」。","tip":"「さしあげる」是给出的方向，不能用于领受。"},{"stem":"「知る」的自谦动词是＿＿＿。","source":"自谦动词表·知る","options":["拝見する","伺う","存じる","いたす"],"answer":2,"explain":"「知る」的自谦语是「存じる」，否定形「存じません」表示不知道。","translation":"「知道」的自谦动词是「存じる」。","tip":"「存じる」是特殊自谦动词，需单独记忆。"},{"stem":"この番組はご覧のスポンサーの提供で＿＿＿。","source":"自谦句型①例句","options":["お送りします","ご送りします","お送りいただけます","お送り願います"],"answer":0,"explain":"「送る」是和语动词，句型①应说「お＋ます形＋する」，即「お送りします」。","translation":"本节目由各位观众所见赞助商提供播出。","tip":"和语动词前用「お」，汉语词前才用「ご」。"},{"stem":"明日の午後、また＿＿＿。","source":"自谦句型①例句","options":["お連絡します","ご連絡します","ご連絡いただけます","ご連絡願います"],"answer":1,"explain":"「連絡」是汉语词，句型①要用「ご＋ます形＋する」，即「ご連絡します」。","translation":"明天下午，我再跟您联系。","tip":"汉语词前误加「お」是常见错误。"},{"stem":"社長に代わって＿＿＿。","source":"自谦句型②例句","options":["お挨拶申し上げます","ご挨拶いたします","ご挨拶申し上げます","ご挨拶いただけます"],"answer":2,"explain":"句型②为「お＋ます形＋申し上げる」，郑重地代他人致意，此处用「ご挨拶申し上げます」。","translation":"我代替社长向您问好。","tip":"「申し上げる」比「いたす」更郑重，用于致意、祝愿。"},{"stem":"ご健康を＿＿＿。","source":"自谦句型②例句","options":["ご祈り申し上げます","お祈り申し上げます","お祈りいたします","お祈りいただけます"],"answer":1,"explain":"「祈る」是和语动词，句型②应为「お＋ます形＋申し上げる」，即「お祈り申し上げます」。","translation":"谨祝您身体健康。","tip":"祝愿类表达多用「お祈り申し上げます」。"},{"stem":"こちらにお名前を＿＿＿か。","source":"自谦句型③例句","options":["お記入いただけます","ご記入いたします","ご記入申し上げます","ご記入いただけます"],"answer":3,"explain":"句型③为「お＋ます形＋いただく」，表示承蒙对方做某事，此处用「ご記入いただけますか」。","translation":"能否请您在这里填写姓名？","tip":"请对方做事时用「いただく」，不要用表示己方动作的「いたす」。"},{"stem":"本日は＿＿＿、ありがとうございます。","source":"自谦句型③例句","options":["ご来店いただき","お来店いただき","ご来店いたし","ご来店になり"],"answer":0,"explain":"「来店」是汉语词，句型③用「ご＋ます形＋いただく」，即「ご来店いただき」。","translation":"感谢您今天光临本店。","tip":"「ご来店いたし」主语变成自己，与感谢客人的句意不符。"},{"stem":"念のため、もう一度＿＿＿。","source":"自谦句型④例句","options":["ご調べ願います","お調べいたします","お調べ願います","お調べいただけます"],"answer":2,"explain":"「調べる」是和语动词，句型④为「お＋ます形＋願う」，即「お調べ願います」。","translation":"为慎重起见，麻烦您再查一下。","tip":"「願う」表示请求对方，前接「お＋ます形」。"},{"stem":"お暇があれば、＿＿＿か。","source":"自谦句型④例句","options":["お案内願えません","ご案内願えません","ご案内いたしましょう","ご案内申し上げません"],"answer":1,"explain":"「案内」是汉语词，句型④用「ご＋ます形＋願う」，即「ご案内願えませんか」。","translation":"如果您有空，能否劳烦您带路？","tip":"「願えませんか」比「願います」更委婉。"}],"version":"219bd6d056fc"};
+
+const els = {
+  crumbs: document.getElementById('crumbs'),
+  title: document.getElementById('title'),
+  sub: document.getElementById('sub'),
+  count: document.getElementById('count'),
+  fill: document.getElementById('fill'),
+  summary: document.getElementById('summary'),
+  quiz: document.getElementById('quiz'),
+  result: document.getElementById('result'),
+  ver: document.getElementById('ver'),
+};
+
+function renderSummary() {
+  const level = QUIZ.level || '';
+  const no = QUIZ.no || '';
+  const parts = [];
+  if (level) parts.push(`<span class="crumb">${level}</span>`);
+  if (no) parts.push(`<span class="crumb plain">第${no}课</span>`);
+  els.crumbs.innerHTML = parts.join('<span class="sep">›</span>');
+  els.title.textContent = QUIZ.title || '';
+  els.sub.textContent = QUIZ.subtitle || '';
+  els.ver.textContent = 'quiz · v' + (QUIZ.version || '?');
+  els.summary.innerHTML = (QUIZ.summary || []).map(s => `<li>${s}</li>`).join('');
+}
+
+let state = { i: 0, score: 0, total: QUIZ.questions.length };
+
+function renderQuestion() {
+  const q = QUIZ.questions[state.i];
+  els.count.textContent = `${state.i + 1} / ${state.total}`;
+  els.fill.style.width = `${(state.i / state.total) * 100}%`;
+
+  const opts = q.options.map((o, idx) => {
+    const key = String.fromCharCode(65 + idx);
+    return `<button class="opt" data-idx="${idx}">
+      <span class="key">${key}</span><span>${o}</span>
+    </button>`;
+  }).join('');
+
+  els.quiz.innerHTML = `
+    <div class="card" id="card">
+      <div class="qhead">
+        <span class="qnum">第 ${state.i + 1} 题</span>
+        <span class="src">📖 ${q.source || ''}</span>
+      </div>
+      <div class="stem">${q.stem}</div>
+      <div class="opts">${opts}</div>
+      <div class="explain" id="explain"></div>
+      <button class="next" id="next" disabled>${state.i + 1 === state.total ? '查看成绩' : '下一题 →'}</button>
+    </div>`;
+
+  els.quiz.querySelectorAll('.opt').forEach(btn => {
+    btn.addEventListener('click', () => answer(Number(btn.dataset.idx)));
+  });
+  els.quiz.querySelector('#next').addEventListener('click', next);
+}
+
+function answer(pick) {
+  const q = QUIZ.questions[state.i];
+  const btns = els.quiz.querySelectorAll('.opt');
+  const expl = els.quiz.querySelector('#explain');
+  const nextBtn = els.quiz.querySelector('#next');
+
+  btns.forEach((b, idx) => {
+    b.disabled = true;
+    if (idx === q.answer) b.classList.add('correct');
+    else if (idx === pick) b.classList.add('wrong');
+  });
+
+  const right = pick === q.answer;
+  if (right) state.score++;
+
+  expl.className = 'explain show ' + (right ? 'ok' : 'no');
+  expl.innerHTML = `
+    <div class="headline">${right ? '✓ 正确' : '✗ 正确答案是 ' + String.fromCharCode(65 + q.answer)}</div>
+    <div class="trans"><span class="tlbl">译文</span><span>${q.translation || ''}</span></div>
+    <div>${q.explain}</div>
+    <div class="tip">${q.tip || ''}</div>`;
+  nextBtn.disabled = false;
+}
+
+function next() {
+  state.i++;
+  if (state.i < state.total) renderQuestion();
+  else renderResult();
+}
+
+function renderResult() {
+  els.quiz.style.display = 'none';
+  document.querySelector('.summary').style.display = 'none';
+  els.fill.style.width = '100%';
+  els.count.textContent = `${state.total} / ${state.total}`;
+
+  const pct = Math.round((state.score / state.total) * 100);
+  const R = 56, C = 2 * Math.PI * R;
+  els.result.style.display = 'block';
+  els.result.innerHTML = `
+    <span class="mascot">${pct >= 80 ? '🎉' : pct >= 60 ? '💪' : '🌱'}</span>
+    <svg class="ring" viewBox="0 0 132 132">
+      <defs>
+        <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#ff6f9c"></stop>
+          <stop offset="100%" stop-color="#a18cff"></stop>
+        </linearGradient>
+      </defs>
+      <circle class="bg" cx="66" cy="66" r="${R}"></circle>
+      <circle class="val" cx="66" cy="66" r="${R}" stroke-dasharray="${C}" stroke-dashoffset="${C}"></circle>
+      <text x="50%" y="58%" text-anchor="middle">${pct}%</text>
+    </svg>
+    <h2>${state.score} / ${state.total} 题答对</h2>
+    <p>${pct >= 80 ? '掌握得很好，保持这个状态。' : pct >= 60 ? '不错，再回顾一下错题的知识点。' : '先回笔记过一遍知识点，再来刷一轮。'}</p>
+    <button class="again" onclick="location.reload()">再来一轮</button>`;
+
+  requestAnimationFrame(() => {
+    const circle = els.result.querySelector('.val');
+    circle.style.strokeDashoffset = String(C * (1 - pct / 100));
+  });
+}
+
+renderSummary();
+renderQuestion();
+</script>
+</body>
+</html>
