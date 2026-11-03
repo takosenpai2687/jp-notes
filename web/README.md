@@ -2,6 +2,8 @@
 
 天蓝色的日语学习空岛。Next.js App Router、TypeScript、Tailwind CSS、Motion，配合 Netlify Database（Postgres）。
 
+**线上版本：[https://tako-jp.netlify.app/](https://tako-jp.netlify.app/)** · [项目介绍](../README.md)
+
 应用代码、依赖、构建缓存和本地开发数据库均隔离在本目录。上层的 `quiz`、`notes/raw` 只读，不修改原文件；生产构建会把需要的 JSON、Markdown 和图片复制到本目录的 `.netlify-content`，随服务端函数部署，不包含原来的单文件 HTML。
 
 ## 开始使用
