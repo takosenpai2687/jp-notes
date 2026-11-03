@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { AppProvider } from "@/components/app-provider";
 import { Shell } from "@/components/shell";
+import { GoogleAnalytics } from "@/components/google-analytics";
 import { currentUser } from "@/lib/server";
 import { loadProgress } from "@/lib/database";
 import { emptyProgress } from "@/lib/models";
@@ -18,7 +19,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const progress = user ? await loadProgress(user.id) : emptyProgress();
   return (
     <html lang="zh-CN" data-scroll-behavior="smooth">
-      <body><AppProvider initialUser={user} initialProgress={progress}><Shell>{children}</Shell></AppProvider></body>
+      <body>
+        <AppProvider initialUser={user} initialProgress={progress}><Shell>{children}</Shell></AppProvider>
+        <GoogleAnalytics />
+      </body>
     </html>
   );
 }

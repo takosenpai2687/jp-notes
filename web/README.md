@@ -35,7 +35,7 @@ $env:npm_config_https_proxy = $env:HTTP_PROXY
 npm install
 ```
 
-字体随 npm 依赖本地打包，运行与构建都不依赖 Google Fonts。浏览器只请求本站接口，不直接连接数据库。
+字体随 npm 依赖本地打包，运行与构建都不依赖 Google Fonts。浏览器不直接连接数据库；默认只请求本站，启用下方可选 Google Analytics 后会额外请求 Google 统计服务。
 
 ## 功能
 
@@ -112,7 +112,39 @@ R2 仍适合附件和加密备份，不用作在线账户事务数据库。应�
 
 官方参考：[导入项目](https://docs.netlify.com/manage/projects/add-new-project/#import-from-an-existing-repository)、[子目录设置](https://docs.netlify.com/build/configure-builds/monorepos/)、[Netlify Database](https://docs.netlify.com/build/data-and-storage/netlify-database/)。
 
-### 旧 SQLite 账号数据迁移（可选）
+## Google Analytics 4：网页端配置
+
+已用 Next.js `next/script` 接入全站 GA4，页面开始交互后异步加载，不阻塞页面；同一页面会话内切换路由不会重复安装脚本。**不配置 `NEXT_PUBLIC_GA_ID` 就不会加载统计脚本，也不会向 Google 发送统计请求**。填写非 `G-` 格式的 ID 会明确报错，避免错误配置被静默忽略。
+
+### 1. 在 Google Analytics 创建网站数据流
+
+1. 打开 <https://analytics.google.com/> 并登录。首次使用点 **开始衡量 / Start measuring**；已有账号则进入左下角 **管理 / Admin → 创建 / Create → 媒体资源 / Property**。
+2. 账号名称、媒体资源名称可填 `tako-jp`，报告时区按你的需求选择（例如中国时间），继续完成业务信息并接受相关条款。
+3. 选择 **网站 / Web** 数据流，填写正式站点的 HTTPS 地址，数据流名称填 `tako-jp web`，点 **创建数据流 / Create stream**。已有媒体资源可从 **管理 → 数据收集和修改 → 数据流 → 添加数据流 → 网站** 进入。
+4. 复制 **衡量 ID / Measurement ID**，格式是 `G-XXXXXXXXXX`。不是 `GTM-…`、纯数字媒体资源 ID，也不需要 API Secret。
+5. 在该数据流的 **增强型衡量 / Enhanced measurement → 齿轮 → 网页浏览 / Page views → 显示高级设置**，保留 **根据浏览器历史记录事件更改网页 / Page changes based on browser history events**。这样 Next.js 的站内跳转、笔记查询参数切换和浏览器前进/后退也能统计；本应用不再手动重复发送 `page_view`。
+6. 如果只需访问量，可关闭其他增强型衡量事件（尤其表单互动和站内搜索）。**不要再粘贴 Google 提供的整段脚本或同时通过 GTM 安装同一个 GA4**，否则可能重复统计。
+
+### 2. 在 Netlify 填入 ID 并重新部署
+
+1. 打开项目 **Project configuration → Environment variables → Add a variable / Add a single variable**。
+2. Key 填 `NEXT_PUBLIC_GA_ID`，Value 填刚复制的 `G-…`。这是浏览器可见的公开标识，不是数据库凭据。
+3. 如可选择作用域，至少包含 **Builds**；部署上下文只为 **Production** 填值，Deploy Previews 和 Branch deploys 留空，避免测试流量进入正式报表。
+4. 保存后去 **Deploys → Trigger deploy → Deploy project**。`NEXT_PUBLIC_*` 在构建时写入客户端产物，后续修改 ID 或移除统计都需要重新构建部署，不能只修改变量而不发布。
+
+本地默认不开启。若需要调试，在 `.env.local` 填同名变量并重启开发服务；建议使用独立的测试媒体资源，不要污染正式数据。
+
+### 3. 验收与隐私
+
+1. 打开正式网站（关闭广告拦截，必要时使用能访问 Google 的网络），依次访问首页、笔记和测验。
+2. 回到 GA **报告 / Reports → 实时 / Realtime**，通常几分钟内可看到活动；常规报表处理可能需要 24–48 小时。
+3. 若没有数据，在浏览器开发者工具 **Network** 中查看 `gtag/js?id=G-…` 是否成功加载，以及 `g/collect` 请求是否发出；检查是否用错 ID、忘记重新构建，或被浏览器/网络拦截。GA 不可用不影响测验、笔记和账号功能。国内网络可能拦截 Google，因此数据可能明显少于实际访问量。
+
+应用不向 GA 主动发送用户名、密码、答题内容、成绩或账号 ID，且关闭 Google signals 与广告个性化信号。但 GA 本身仍会处理访问、设备信息及页面 URL，并可能设置 Cookie；不要把个人信息放进 URL。启用前应提供适用的隐私告知；本集成不含 Cookie 同意管理，如面向需要事先同意的地区，应先接入同意管理并控制标签加载，再开启统计。
+
+官方参考：[GA4 初始设置](https://support.google.com/analytics/answer/9304153)、[Next.js 脚本加载](https://nextjs.org/docs/app/guides/scripts)、[单页应用网页浏览统计](https://developers.google.com/analytics/devguides/collection/ga4/single-page-applications)。
+
+## 旧 SQLite 账号数据迁移（可选）
 
 若旧版的 `data/tako.sqlite` 中已有注册账号，先备份该文件，再在云端数据库及表结构就绪后：
 

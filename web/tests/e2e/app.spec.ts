@@ -7,6 +7,55 @@ const origin = "http://127.0.0.1:3108";
 const catalog = getCatalog();
 const quiz = getQuiz(catalog.quizzes.find((item) => item.level === "N5")!.id)!;
 
+test("analytics is opt-in and initializes only once across client navigations", async ({ page }) => {
+  const measurementId = process.env.NEXT_PUBLIC_GA_ID?.trim();
+  let scriptLoads = 0;
+  await page.route("https://www.googletagmanager.com/**", async (route) => {
+    scriptLoads++;
+    await route.fulfill({ contentType: "application/javascript", body: "" });
+  });
+  await page.route(/https:\/\/[^/]*google-analytics\.com\//, (route) => route.abort());
+  await page.goto("/");
+  await expect(page.locator("#main-content")).toBeVisible();
+  if (measurementId) {
+    await expect(page.locator("script#tako-ga-loader")).toHaveAttribute(
+      "src", `https://www.googletagmanager.com/gtag/js?id=${measurementId}`,
+    );
+    await expect.poll(() => page.evaluate(() => JSON.stringify(Reflect.get(window, "dataLayer")))).toContain(
+      JSON.stringify({
+        0: "config", 1: measurementId,
+        2: { allow_google_signals: false, allow_ad_personalization_signals: false },
+      }),
+    );
+    await expect.poll(() => scriptLoads).toBe(1);
+  }
+  await page.getByRole("link", { name: "笔记森林，N5" }).click();
+  await expect(page).toHaveURL(/\/notes\?level=N5$/);
+  await page.goBack();
+  await expect(page).toHaveURL(`${origin}/`);
+  await expect(page.locator("script#tako-ga-init")).toHaveCount(measurementId ? 1 : 0);
+  await expect(page.locator("script#tako-ga-loader")).toHaveCount(measurementId ? 1 : 0);
+  expect(scriptLoads).toBe(measurementId ? 1 : 0);
+  if (measurementId) {
+    const configCount = await page.evaluate(() => {
+      const entries: unknown[] = Reflect.get(window, "dataLayer");
+      return entries.filter((entry) => typeof entry === "object" && entry !== null && "0" in entry && entry[0] === "config").length;
+    });
+    expect(configCount).toBe(1);
+  } else {
+    expect(await page.evaluate(() => "dataLayer" in window)).toBe(false);
+  }
+});
+
+test("blocked analytics does not prevent learning navigation", async ({ page }) => {
+  test.skip(!process.env.NEXT_PUBLIC_GA_ID?.trim(), "Analytics is not configured.");
+  await page.route(/https:\/\/(www\.googletagmanager\.com|[^/]*google-analytics\.com)\//, (route) => route.abort());
+  await page.goto("/");
+  await page.getByRole("link", { name: "语法试炼，N5" }).click();
+  await expect(page).toHaveURL(/\/quiz\?level=N5$/);
+  await expect(page.locator(".lesson-card")).not.toHaveCount(0);
+});
+
 test("four islands, level selection, honest unavailable levels and coming soon", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
