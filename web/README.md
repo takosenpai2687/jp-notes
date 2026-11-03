@@ -88,9 +88,20 @@ R2 仍适合附件和加密备份，不用作在线账户事务数据库。应�
 | Publish directory | `.next`，相对于 `web` |
 | Functions directory | 保持默认，不要覆盖 Next.js 自动生成的函数目录 |
 
-6. 点击 **Deploy site / Deploy project**。Node 24 和打包规则由本目录的 `netlify.toml` 配置；Next.js 使用 Netlify 自动提供的 OpenNext adapter，不需要安装旧版 Next.js 插件，也不要配置静态 SPA 的 `/* → /index.html` 重写。
+6. 点击 **Deploy site / Deploy project**。Node 24 和打包规则由本目录的 `netlify.toml` 配置；项目已显式安装并启用现代 OpenNext adapter `@netlify/plugin-nextjs`（v5），不依赖平台自动识别。不要换成旧版 v4 runtime，也不要配置静态 SPA 的 `/* → /index.html` 重写。
 
 若已建站，在 **Project configuration → Developer settings → Continuous deployment → Build settings** 修改上述设置。
+
+#### 构建成功但首页出现 Netlify 默认 404
+
+如果日志里 `next build` 成功后直接进入 `Deploy site`，没有 Next.js adapter 的构建阶段，不能说明 SSR 应用部署成功。本应用首页及学习页面都需要服务端函数，直接上传 `.next` 目录里的静态文件不能提供这些路由。
+
+1. 确认部署提交包含 `netlify.toml` 中的 `[[plugins]] package = "@netlify/plugin-nextjs"`，以及 `package.json` / lockfile 中的对应开发依赖。本项目已显式配置。
+2. 在 **Project configuration → Environment variables** 检查是否有 `NETLIFY_NEXT_PLUGIN_SKIP`；若有，移除这个跳过开关。不要设置 `NODE_ENV=production` 或 `NPM_FLAGS=--omit=dev` 等阻止安装构建用开发依赖的配置。
+3. 保留上表的构建目录与 `.next` 发布目录，不要改成 `out`、仓库根目录，也不要手动拖放构建文件。
+4. 推送修复后，打开 **Deploys → Trigger deploy → Clear cache and deploy site**（部分界面为 **Retry without cache**），确保旧部署缓存不会掩盖配置变化。
+5. 新日志应出现 `@netlify/plugin-nextjs` / Next.js Runtime 的 adapter 阶段及 Functions 打包；部署摘要或 Functions 页面应包含 Next.js 服务端处理函数（通常名为 `___netlify-server-handler`）。仅看 `0 new function(s) to upload` 不能判定错误，因为未变化的函数可复用；应检查实际已发布函数和 adapter 阶段。
+6. 部署标记 **Published** 后，先打开该次部署的唯一预览地址，再验证正式域名的首页、笔记和测验，以及刷新页面是否正常。若变成应用的 500 而不是平台 404，再根据 Functions 日志排查运行时错误，不要继续添加静态重写。
 
 ### 2. 启用数据库
 

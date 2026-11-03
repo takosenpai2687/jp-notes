@@ -34,6 +34,7 @@
   },
   "devDependencies": {
     "@netlify/database-dev": "^1.0.1",
+    "@netlify/plugin-nextjs": "^5.16.5",
     "@playwright/test": "^1.56.1",
     "@tailwindcss/turbopack": "^4",
     "@types/node": "^24",

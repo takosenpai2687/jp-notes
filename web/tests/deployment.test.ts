@@ -41,6 +41,9 @@ test("Netlify build config traces packaged learning content and uses the officia
   assert.match(configuration, /publish\s*=\s*"\.next"/);
   assert.match(configuration, /NODE_VERSION\s*=\s*"24"/);
   assert.match(configuration, /included_files\s*=\s*\["\.netlify-content\/\*\*"\]/);
+  assert.match(configuration, /\[\[plugins\]\]\s*package\s*=\s*"@netlify\/plugin-nextjs"/);
+  const manifest = JSON.parse(readFileSync(path.join(process.cwd(), "package.json"), "utf8"));
+  assert.ok(manifest.devDependencies["@netlify/plugin-nextjs"]);
   const migrations = readdirSync(path.join(process.cwd(), "netlify", "database", "migrations"));
   assert.ok(migrations.some((name) => /^\d+_.+\.sql$/.test(name)));
 });
