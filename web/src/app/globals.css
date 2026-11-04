@@ -511,6 +511,8 @@ kbd { font-family: "Nunito Variable", sans-serif; background: white; border: 1px
 .auth-form input { width: 100%; height: 44px; border: 1px solid #dbe9f2; border-radius: 11px; background: white; padding: 10px 13px; color: #3c657e; font-size: 13px; }
 .auth-form input::placeholder { color: #788e9d; font-size: 11px; }
 .auth-form > input { margin-bottom: 19px; }
+.auth-form label[for="auth-confirm-password"] { margin-top: 19px; }
+.auth-form #auth-confirm-password { margin-bottom: 0; }
 .password-field { position: relative; }
 .password-field > input { padding-right: 46px; }
 .password-field > button { position: absolute; right: 3px; top: 3px; }

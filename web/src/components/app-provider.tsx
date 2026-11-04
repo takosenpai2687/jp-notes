@@ -211,6 +211,7 @@ function AuthDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open
   const [mode, setMode] = useState<"login" | "register">("login");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -218,8 +219,12 @@ function AuthDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open
     event.preventDefault();
     const parsed = credentialsSchema.safeParse({ username, password });
     if (!parsed.success) { setError(parsed.error.issues[0].message); return; }
+    if (mode === "register" && password !== confirmPassword) {
+      setError("两次输入的密码不一致，请重新确认。");
+      return;
+    }
     setBusy(true); setError("");
-    try { await authenticate(mode, parsed.data.username, password); setPassword(""); }
+    try { await authenticate(mode, parsed.data.username, password); setPassword(""); setConfirmPassword(""); }
     catch (failure) { setError(failure instanceof Error ? failure.message : "登录失败，请重试。"); }
     finally { setBusy(false); }
   }
@@ -231,7 +236,7 @@ function AuthDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open
   }
   return (
     <Modal open={open} onOpenChange={(value) => {
-      if (!busy) { onOpenChange(value); setError(""); setPassword(""); }
+      if (!busy) { onOpenChange(value); setError(""); setPassword(""); setConfirmPassword(""); }
     }} title={user ? "你的学习护照" : mode === "login" ? "带上护照，继续出发" : "领取你的空岛护照"}
       description={user ? "账号记录保存在本站 SQLite 数据库中。" : "不登录也能自由探索；登录后，足迹就有了自己的家。"}>
       <div className="auth-mascot"><CloudFriend /></div>
@@ -256,18 +261,26 @@ function AuthDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open
             <button type="button" className="icon-button" aria-label={showPassword ? "隐藏密码" : "显示密码"}
               onClick={() => setShowPassword(!showPassword)}>{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>
           </div>
+          {mode === "register" && <>
+            <label htmlFor="auth-confirm-password">确认密码</label>
+            <input id="auth-confirm-password" type={showPassword ? "text" : "password"} value={confirmPassword}
+              onChange={(event) => setConfirmPassword(event.target.value)} minLength={8} maxLength={128}
+              autoComplete="new-password" required disabled={busy}
+              aria-invalid={!!error && password !== confirmPassword}
+              aria-describedby={error ? "auth-error" : undefined} />
+          </>}
           <button className="button primary full" disabled={busy} type="submit">
             {busy ? <LoaderCircle size={18} className="spin" /> : <ShieldCheck size={18} />}
             {busy ? "正在准备你的护照…" : mode === "login" ? "登录，继续探索" : "创建账号，开启旅程"}
           </button>
           <button type="button" className="text-button auth-switch" disabled={busy}
-            onClick={() => { setMode(mode === "login" ? "register" : "login"); setError(""); }}>
+            onClick={() => { setMode(mode === "login" ? "register" : "login"); setError(""); setConfirmPassword(""); }}>
             {mode === "login" ? "还没有护照？免费注册" : "已经有护照？返回登录"}
           </button>
           <p className="auth-footnote"><ShieldCheck size={14} /> 密码加密保存 · 自动合并游客记录</p>
         </form>
       )}
-      {error && <p className="inline-error" role="alert">{error}</p>}
+      {error && <p id="auth-error" className="inline-error" role="alert">{error}</p>}
     </Modal>
   );
 }

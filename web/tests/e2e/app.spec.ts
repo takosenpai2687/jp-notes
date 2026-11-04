@@ -312,6 +312,50 @@ test("safe Markdown tables and br tags render, and read marks persist", async ({
   await expect(page.locator(".record-row")).toHaveCount(1);
 });
 
+test("registration requires matching password confirmation and clears it when switching modes", async ({ page }) => {
+  let submissions = 0;
+  page.on("request", (request) => {
+    if (new URL(request.url()).pathname === "/api/auth/register") submissions++;
+  });
+  await page.goto("/");
+  await page.locator(".account-button").click();
+  await expect(page.getByLabel("确认密码", { exact: true })).toHaveCount(0);
+  await page.getByRole("button", { name: "还没有护照？免费注册" }).click();
+  const confirmation = page.getByLabel("确认密码", { exact: true });
+  await page.getByLabel("用户名", { exact: true }).fill("confirm_test");
+  await page.getByLabel(/密码 至少/).fill("a-strong-test-password");
+  await expect(confirmation).toHaveAttribute("type", "password");
+  await expect(confirmation).toHaveAttribute("autocomplete", "new-password");
+  const submit = page.getByRole("button", { name: "创建账号，开启旅程" });
+  await submit.click();
+  expect(await confirmation.evaluate((el: HTMLInputElement) => el.validity.valueMissing)).toBe(true);
+  await confirmation.fill("a-different-password");
+  await submit.click();
+  await expect(page.getByRole("alert")).toHaveText("两次输入的密码不一致，请重新确认。");
+  await expect(confirmation).toHaveAttribute("aria-invalid", "true");
+  await confirmation.fill("a-strong-test-password");
+  await page.getByLabel(/密码 至少/).fill("changed-test-password");
+  await submit.click();
+  await expect(page.getByRole("alert")).toBeVisible();
+  expect(submissions).toBe(0);
+  await page.getByRole("button", { name: "已经有护照？返回登录" }).click();
+  await expect(confirmation).toHaveCount(0);
+  await page.getByRole("button", { name: "还没有护照？免费注册" }).click();
+  await expect(confirmation).toHaveValue("");
+  await expect(page.getByRole("alert")).toHaveCount(0);
+  await confirmation.fill("temporary-confirmation");
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog")).toBeHidden();
+  await page.locator(".account-button").click();
+  await expect(confirmation).toHaveValue("");
+  for (const width of [1440, 768, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    await expect(confirmation).toBeVisible();
+    await expect(submit).toBeInViewport();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+  }
+});
+
 test("register, merge guest records idempotently, logout, login, and isolate accounts", async ({ page, browser }) => {
   const attempt = gradeQuiz(quiz, {
     id: randomUUID(), quizId: quiz.id, version: quiz.version,
@@ -326,6 +370,7 @@ test("register, merge guest records idempotently, logout, login, and isolate acc
   const username = `tako_${randomUUID().slice(0, 8)}`;
   await page.getByLabel("用户名", { exact: true }).fill(username);
   await page.getByLabel(/密码 至少/).fill("a-strong-test-password");
+  await page.getByLabel("确认密码", { exact: true }).fill("a-strong-test-password");
   await page.getByRole("button", { name: "创建账号，开启旅程" }).click();
   await expect(page.getByRole("dialog")).toBeHidden();
   let response = await page.request.get("/api/progress");
