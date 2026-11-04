@@ -23,6 +23,7 @@ const destinations = [
 
 export function Shell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const readingNotes = pathname.startsWith("/notes");
   const { user, preferredLevel, openAuth, error, retrySync, loading } = useApp();
   const [menuOpen, setMenuOpen] = useState(false);
   const current = destinations.find((item) => item.href === "/" ? pathname === "/" : pathname.startsWith(item.href));
@@ -32,7 +33,6 @@ export function Shell({ children }: { children: ReactNode }) {
         <Link href="/" className="brand" onClick={() => setMenuOpen(false)}>
           <Logo />
         </Link>
-        <div className="nav-caption">你的日语小世界</div>
         <nav className="navigation" aria-label="主导航">
           {destinations.map((item) => {
             const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
@@ -53,7 +53,7 @@ export function Shell({ children }: { children: ReactNode }) {
           </Link>
         </nav>
         <div className="sidebar-bottom">
-          <div className="sidebar-postcard"><CloudFriend /><p>一点点，也很了不起。</p><span>自分のペースで。</span></div>
+          <div className="sidebar-postcard" aria-hidden="true"><CloudFriend /></div>
           <button className="sidebar-user" onClick={() => { setMenuOpen(false); openAuth(); }}>
             <span className="avatar">{user ? user.username.slice(0, 1).toUpperCase() : <UserRound size={20} />}</span>
             <span><strong>{user?.username ?? "自由的旅行者"}</strong><small>{user ? "查看学习护照" : "游客模式 · 本机保存"}</small></span>
@@ -64,7 +64,7 @@ export function Shell({ children }: { children: ReactNode }) {
     );
   }
   return (
-    <div className="app-shell">
+    <div className={`app-shell${readingNotes ? " notes-shell" : ""}`}>
       <a className="skip-link" href="#main-content">跳到主要内容</a>
       <aside className="sidebar">{navigation()}</aside>
       <div className="workspace">
@@ -73,11 +73,12 @@ export function Shell({ children }: { children: ReactNode }) {
           <Link href="/" className="mobile-brand" aria-label="tako-jp 首页"><Logo /></Link>
           <nav className="breadcrumb" aria-label="面包屑">
             <Link href="/" aria-label="返回主页"><House size={16} /><span>主页</span></Link>
-            <span aria-hidden="true">/</span><span aria-current="page">{current?.label ?? "学习足迹"}</span>
+            <span aria-hidden="true">/</span>
+            <span aria-current="page">{current?.label ?? "学习足迹"}</span>
           </nav>
           <div className="topbar-right">
-            <span className="weather"><Sun size={17} /> 今天也是学习的好天气</span>
-            <span className="topbar-divider" />
+            {!readingNotes && <><span className="weather"><Sun size={17} /> 今天也是学习的好天气</span>
+              <span className="topbar-divider" /></>}
             <button className="account-button" onClick={openAuth}>
               <span className="tiny-avatar">{user ? user.username.slice(0, 1).toUpperCase() : <UserRound size={15} />}</span>
               <span>{user?.username ?? "登录 / 注册"}</span><ArrowUpRight size={15} />
@@ -89,7 +90,7 @@ export function Shell({ children }: { children: ReactNode }) {
             <button disabled={loading} onClick={() => void retrySync()}><RefreshCw size={15} className={loading ? "spin" : ""} /> 重试同步</button></div>}
           {children}
         </main>
-        <footer className="app-footer"><span>tako-jp</span><span>不赶路，感受日语的每一步。<span className="footer-japanese"> 今日も、少しずつ。</span></span><span>Made for your own pace <Sparkle className="footer-star" size={12} /></span></footer>
+        {!readingNotes && <footer className="app-footer"><span>tako-jp</span><span>不赶路，感受日语的每一步。<span className="footer-japanese"> 今日も、少しずつ。</span></span><span>Made for your own pace <Sparkle className="footer-star" size={12} /></span></footer>}
       </div>
       <Modal open={menuOpen} onOpenChange={setMenuOpen} title="探索空岛" className="navigation-modal">
         {navigation()}

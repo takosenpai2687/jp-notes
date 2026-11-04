@@ -29,7 +29,7 @@ export function NoteActions({ noteId }: { noteId: string }) {
   const [busy, setBusy] = useState(false);
   async function mark() {
     setBusy(true);
-    try { await markRead(noteId); notify("这片风景，已经收进你的学习足迹。"); }
+    try { await markRead(noteId); }
     catch (error) { notify(error instanceof Error ? error.message : "阅读记录未保存，请重试。", true); }
     finally { setBusy(false); }
   }

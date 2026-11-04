@@ -7,7 +7,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { ArrowRight, BookOpen, Check, Clock3, Flag, Search, Sparkles, Trophy, X } from "lucide-react";
 import { useApp } from "./app-provider";
 import { Arrival, EmptyState, IslandArt, PageIntro } from "./ui";
-import { formatDate, levelLabels, levels, quizStats } from "@/lib/models";
+import { formatDate, levels, quizStats } from "@/lib/models";
 import type { Catalog, Level } from "@/lib/models";
 import { NoteLink } from "./note-link";
 
@@ -36,7 +36,6 @@ export function Library({ section, level, catalog, reader, selectedNoteId, detai
     : progress.reads.some((read) => read.noteId === id);
   const filtered = entries.filter((entry) => entry.title.normalize("NFC").toLowerCase().includes(query.normalize("NFC").toLowerCase())
     && (filter === "all" || (filter === "done" ? done(entry.id) : !done(entry.id))));
-  const completeCount = entries.filter((entry) => done(entry.id)).length;
   return (
     <div className={`library-page library-${section}${detail ? " notes-detail-page" : ""}`}>
       <Arrival className="library-heading"><PageIntro {...heading} aside={<div className="page-stamp">{section === "quiz" ? <Flag size={28} /> : <BookOpen size={28} />}<span>{comingSoon ? "次の旅へ" : `${level} 航线`}</span></div>} /></Arrival>
@@ -61,18 +60,14 @@ export function Library({ section, level, catalog, reader, selectedNoteId, detai
       ) : (
         <div className={section === "notes" ? `notes-workspace${reader ? " has-preview" : ""}` : undefined}>
           <section className={section === "notes" ? "notes-library-pane" : undefined} aria-label={section === "notes" ? "笔记列表" : undefined}>
-          <Arrival className="library-summary">
-            <div><span className="summary-level">{level}</span><div><h2>{levelLabels[level]}</h2><p>{entries.length} {section === "quiz" ? "份语法测验" : "篇学习笔记"}，每一份都是一个小小的进步机会。</p></div></div>
-            <div className="library-progress"><span>{loading ? "正在读取足迹…" : `已探索 ${completeCount} / ${entries.length}`}</span><div className="mini-track"><motion.div animate={{ width: `${entries.length ? completeCount / entries.length * 100 : 0}%` }} /></div></div>
-          </Arrival>
           <div className="library-toolbar">
             <div className="filter-pills" aria-label="按完成状态筛选">
-              {[["all", "全部"], ["new", "未探索"], ["done", "已探索"]].map(([value, label]) =>
+              {[["all", "全部"], ["new", section === "notes" ? "未读" : "未探索"], ["done", section === "notes" ? "已读" : "已探索"]].map(([value, label]) =>
                 <button key={value} onClick={() => setFilter(value)} className={filter === value ? "selected" : ""}
                   disabled={loading && value !== "all"} aria-pressed={filter === value}>{label}{value === "all" && <span>{entries.length}</span>}</button>)}
             </div>
             <label className="search-field"><Search size={18} /><input value={query} onChange={(event) => setQuery(event.target.value)}
-              placeholder={section === "quiz" ? "搜索想挑战的语法…" : "找找想读的笔记…"} aria-label="搜索课程" />
+              placeholder={section === "quiz" ? "搜索想挑战的语法…" : "搜索笔记"} aria-label="搜索课程" />
               {query && <button aria-label="清空搜索" onClick={() => setQuery("")}><X size={15} /></button>}</label>
           </div>
           {!entries.length ? <EmptyState title={`${level} 的航线，还在绘制中`}
@@ -87,10 +82,14 @@ export function Library({ section, level, catalog, reader, selectedNoteId, detai
                   const stats = entry.type === "quiz" ? quizStats(progress.attempts, entry.id) : null;
                   const read = progress.reads.find((item) => item.noteId === entry.id);
                   const visited = !!(stats?.count || read);
-                  const identity = <>
+                  const identity = entry.type === "notes" ? <>
+                    <span className="lesson-number">{entry.no.padStart(2, "0")}</span>
+                    <div className="lesson-identity"><h3>{entry.title}</h3></div>
+                    {read && <Check size={16} className="note-read-status" aria-label="已读" />}
+                  </> : <>
                     <div className="lesson-number">{visited ? <Check size={23} /> : <span>{entry.no.padStart(2, "0")}</span>}</div>
                     <div className="lesson-identity"><span className="lesson-label">第 {entry.no} 课 {visited && <span>· 已探索</span>}</span><h3>{entry.title}</h3>
-                      <p>{entry.type === "quiz" ? <><Flag size={13} /> {entry.count} 道题 <span>·</span> 即时解析</> : <><Clock3 size={13} /> 约 {entry.minutes} 分钟 <span>·</span> 语法笔记</>}</p></div>
+                      <p><Flag size={13} /> {entry.count} 道题 <span>·</span> 即时解析</p></div>
                   </>;
                   const enterLabel = `${visited ? "再次" : "开始"}${entry.type === "quiz" ? "挑战" : "阅读"}：${entry.title}`;
                   return (
@@ -100,13 +99,11 @@ export function Library({ section, level, catalog, reader, selectedNoteId, detai
                       {entry.type === "notes" ? <NoteLink noteId={entry.id} level={level} selected={entry.id === selectedNoteId}
                         className="lesson-main-link">{identity}</NoteLink> :
                         <Link href={`/quiz/${entry.id}`} className="lesson-main-link">{identity}</Link>}
-                      <div className="lesson-record">
-                        {entry.type === "quiz" ? <><span className="record-last"><Clock3 size={14} /> {loading ? "读取中…" : stats?.latest ? `上次 ${formatDate(stats.latest.completedAt)}` : "还没来过，等你探索"}</span>
-                          <span className={`record-best ${stats?.best ? "has-score" : ""}`}><Trophy size={15} /> 最佳 <strong>{stats?.best ? `${stats.best.percent}%` : "—"}</strong></span></> :
-                          <span className="record-last">{read ? <><Check size={14} /> 已读于 {formatDate(read.readAt, false)}</> : entry.excerpt.slice(0, 40)}</span>}
-                      </div>
-                      {entry.type === "notes" ? <NoteLink noteId={entry.id} level={level} className="lesson-enter" aria-label={enterLabel}>
-                        <span>打开笔记</span><ArrowRight size={18} /></NoteLink> :
+                      {entry.type === "quiz" && <div className="lesson-record">
+                        <span className="record-last"><Clock3 size={14} /> {loading ? "读取中…" : stats?.latest ? `上次 ${formatDate(stats.latest.completedAt)}` : "还没来过，等你探索"}</span>
+                        <span className={`record-best ${stats?.best ? "has-score" : ""}`}><Trophy size={15} /> 最佳 <strong>{stats?.best ? `${stats.best.percent}%` : "—"}</strong></span>
+                      </div>}
+                      {entry.type === "quiz" &&
                         <Link href={`/quiz/${entry.id}`} className="lesson-enter" aria-label={enterLabel}>
                           <span>{visited ? "再挑战" : "开始挑战"}</span><ArrowRight size={18} /></Link>}
                     </motion.article>
@@ -115,7 +112,7 @@ export function Library({ section, level, catalog, reader, selectedNoteId, detai
               </AnimatePresence>
             </div>
           )}
-          <p className="library-end">— 不用一次走完，一步也值得庆祝。 —</p>
+          {section !== "notes" && <p className="library-end">— 不用一次走完，一步也值得庆祝。 —</p>}
           </section>
           {reader && <section className="notes-preview" aria-label="笔记内容">{reader}</section>}
         </div>

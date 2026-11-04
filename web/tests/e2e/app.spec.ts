@@ -66,6 +66,8 @@ test("four islands, level selection, honest unavailable levels and coming soon",
     /island-notes/, /island-quiz/, /island-vocabulary/, /island-exams/,
   ]);
   await expect(page.locator(".sidebar .tako-logo")).toBeVisible();
+  await expect(page.locator(".home-cloud .cloud-note")).toHaveText("いっしょに、行こう！");
+  await expect(page.locator(".home-cloud .cloud-friend")).toBeVisible();
   await page.locator(".level-stop").filter({ hasText: "N4" }).click();
   await expect(page.getByRole("link", { name: "语法试炼，N4" })).toHaveAttribute("href", "/quiz?level=N4");
   await page.getByRole("link", { name: "语法试炼，N4" }).click();
@@ -78,6 +80,75 @@ test("four islands, level selection, honest unavailable levels and coming soon",
     await expect(page.locator(".level-tab.selected")).toContainText("N2");
   }
   expect(errors).toEqual([]);
+});
+
+test("feature pages share compact headers and descriptive level tabs without summaries", async ({ page }) => {
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ width, height: 1000 });
+    const sizes = [];
+    for (const [section, title] of [["notes", "笔记森林"], ["quiz", "语法试炼"], ["exams", "真题远征"], ["vocabulary", "单词花园"]]) {
+      await page.goto(`/${section}?level=N5`);
+      const heading = page.locator(".library-heading");
+      await expect(heading).toHaveCount(1);
+      await expect(heading.getByRole("heading", { name: title, exact: true })).toBeVisible();
+      await expect(page.locator(".level-tab")).toHaveText(["N5入门", "N4基础", "N3进阶", "N2熟练", "N1精通"]);
+      await expect(page.locator(".library-summary")).toHaveCount(0);
+      sizes.push(await heading.locator("h1").evaluate((el) => parseFloat(getComputedStyle(el).fontSize)));
+      expect(await heading.locator(".page-stamp").evaluate((el) => parseFloat(getComputedStyle(el).height))).toBe(64);
+      if (section === "notes") {
+        await expect(heading).toContainText("読むたびに、景色が変わる。");
+        await expect(heading).toContainText("让语法不再是需要记住的规则，而是慢慢读懂的风景。");
+      }
+    }
+    expect(new Set(sizes).size).toBe(1);
+    expect(sizes[0]).toBeLessThanOrEqual(28);
+  }
+});
+
+test("notes rows grow with three-line N4 titles instead of shrinking or overlapping", async ({ page }) => {
+  const title = "N4 推量四件套总结：ようだ・みたいだ・そうだ・らしい";
+  await page.goto("/notes?level=N4");
+  await page.evaluate(() => document.fonts.ready);
+  const list = page.getByRole("region", { name: "笔记列表" });
+  const row = list.locator(".lesson-card").filter({ hasText: title });
+  for (const width of [1200, 1440, 1920, 768, 390]) {
+    await page.setViewportSize({ width, height: 1000 });
+    await row.scrollIntoViewIfNeeded();
+    const metrics = await row.evaluate((el) => {
+      const link = Array.from(el.querySelectorAll<HTMLElement>(".lesson-main-link")).find((item) => item.offsetHeight > 0)!;
+      const heading = link.querySelector("h3")!;
+      const text = document.createRange();
+      text.selectNodeContents(heading);
+      const rowBox = el.getBoundingClientRect();
+      const linkBox = link.getBoundingClientRect();
+      const textBox = text.getBoundingClientRect();
+      return {
+        rowHeight: rowBox.height,
+        lines: heading.getBoundingClientRect().height / parseFloat(getComputedStyle(heading).lineHeight),
+        rowTop: rowBox.top, rowBottom: rowBox.bottom,
+        linkTop: linkBox.top, linkBottom: linkBox.bottom,
+        textTop: textBox.top, textBottom: textBox.bottom,
+        textLeft: textBox.left, textRight: textBox.right,
+        linkLeft: linkBox.left, linkRight: linkBox.right,
+        nextTop: el.nextElementSibling!.getBoundingClientRect().top,
+      };
+    });
+    if (width >= 1200) {
+      expect(metrics.lines).toBeGreaterThanOrEqual(2.9);
+      expect(metrics.rowHeight).toBeGreaterThan(70);
+      const panes = await Promise.all([list.boundingBox(), page.locator(".notes-preview").boundingBox()]);
+      expect(panes[0]!.y).toBeLessThan(280);
+      expect(panes[0]!.y + panes[0]!.height).toBeLessThanOrEqual(1000);
+      expect(panes[1]!.height).toBeCloseTo(panes[0]!.height, 0);
+    }
+    expect(metrics.textTop).toBeGreaterThanOrEqual(metrics.rowTop);
+    expect(metrics.textBottom).toBeLessThanOrEqual(metrics.rowBottom);
+    expect(metrics.textTop).toBeGreaterThanOrEqual(metrics.linkTop);
+    expect(metrics.textBottom).toBeLessThanOrEqual(metrics.linkBottom);
+    expect(metrics.textLeft).toBeGreaterThanOrEqual(metrics.linkLeft);
+    expect(metrics.textRight).toBeLessThanOrEqual(metrics.linkRight);
+    expect(metrics.nextTop).toBeGreaterThanOrEqual(metrics.rowBottom);
+  }
 });
 
 test("guest can skip, go back, select any question, resume, submit and see saved best", async ({ page }) => {
@@ -149,12 +220,23 @@ test("notes use an inline desktop reader and mobile-only detail navigation", asy
   await page.goto("/notes?level=N5");
   const preview = page.getByRole("region", { name: "笔记内容" });
   const list = page.getByRole("region", { name: "笔记列表" });
+  await expect(page.locator(".library-heading")).toHaveCount(1);
+  await expect(page.locator(".library-heading")).toBeVisible();
+  await expect(page.locator(".library-summary, .library-end, .note-header > p, .reader-tip")).toHaveCount(0);
+  await expect(page.locator(".sidebar-postcard")).not.toContainText("一点点");
+  await expect(page.locator(".sidebar-postcard .cloud-friend")).toBeVisible();
+  await expect(page.locator(".weather, .app-footer")).toHaveCount(0);
+  await expect(list.locator(".lesson-label, .lesson-record, .lesson-enter")).toHaveCount(0);
   await expect(preview.getByRole("heading", { level: 1, name: notes[0].title, exact: true })).toBeVisible();
   const boxes = await Promise.all([list.boundingBox(), preview.boundingBox()]);
   expect(boxes[0]!.x + boxes[0]!.width).toBeLessThan(boxes[1]!.x);
-  expect(boxes[0]!.width).toBeLessThanOrEqual(260);
+  expect(boxes[0]!.width).toBeLessThanOrEqual(240);
+  expect(boxes[0]!.y).toBeLessThan(280);
+  expect(boxes[0]!.height).toBeGreaterThanOrEqual(700);
+  expect(boxes[0]!.y + boxes[0]!.height).toBeLessThanOrEqual(1000);
   expect(boxes[1]!.x - boxes[0]!.x - boxes[0]!.width).toBeLessThanOrEqual(18);
   expect(await list.locator(".lesson-card").first().evaluate((el) => parseFloat(getComputedStyle(el).paddingLeft))).toBeLessThanOrEqual(10);
+  expect((await list.locator(".lesson-card").first().boundingBox())!.height).toBeLessThanOrEqual(48);
   await list.getByRole("textbox", { name: "搜索课程" }).fill(selected.title);
   await list.locator(`.lesson-main-link.note-inline-link[href$="note=${selected.id}"]`).click();
   await expect(page).toHaveURL(`${origin}/notes?level=N5&note=${selected.id}`);
@@ -163,7 +245,12 @@ test("notes use an inline desktop reader and mobile-only detail navigation", asy
   await expect(list.locator(".selected-note .lesson-main-link.note-inline-link")).toHaveAttribute("aria-current", "page");
   await preview.getByRole("button", { name: "读懂了，标记已读" }).click();
   await expect(preview.getByRole("button", { name: "已收入学习足迹" })).toBeDisabled();
-  await expect(list.locator(".selected-note")).toContainText("已探索");
+  await expect(list.locator(".selected-note .note-inline-link").getByLabel("已读")).toBeVisible();
+  await list.getByRole("button", { name: "已读", exact: true }).click();
+  await expect(list.locator(".lesson-card")).toHaveCount(1);
+  await list.getByRole("button", { name: "未读", exact: true }).click();
+  await expect(list.locator(".lesson-card")).toHaveCount(0);
+  await list.getByRole("button", { name: /全部/ }).click();
   await expect.poll(() => preview.locator(".reading-meter-panel").evaluate((el) =>
     new DOMMatrix(getComputedStyle(el).transform).a)).toBeGreaterThan(.5);
   await list.getByRole("textbox", { name: "搜索课程" }).fill("");
@@ -178,6 +265,7 @@ test("notes use an inline desktop reader and mobile-only detail navigation", asy
   await expect(preview.getByRole("button", { name: "已收入学习足迹" })).toBeVisible();
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(preview).toBeHidden();
+  expect((await list.locator(".lesson-card").first().boundingBox())!.height).toBeLessThanOrEqual(48);
   await list.locator(`.lesson-main-link.note-detail-link[href="/notes/${selected.id}"]`).click();
   await expect(page).toHaveURL(`${origin}/notes/${selected.id}`);
   await expect(page.getByRole("heading", { level: 1, name: selected.title, exact: true })).toBeVisible();
@@ -186,6 +274,7 @@ test("notes use an inline desktop reader and mobile-only detail navigation", asy
   await expect(page).toHaveURL(`${origin}/notes?level=N5`);
   await expect(list).toBeVisible();
   await expect(preview).toBeHidden();
+  expect((await list.locator(".lesson-card").first().boundingBox())!.y).toBeLessThan(400);
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto(`/notes/${selected.id}`);
   await expect(list).toBeVisible();
