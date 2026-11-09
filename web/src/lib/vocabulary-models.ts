@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const vocabularyLevels = ["N5", "N4"] as const;
+export const vocabularyLevels = ["N5", "N4", "N3", "N2", "N1"] as const;
 export type VocabularyLevel = (typeof vocabularyLevels)[number];
 export const vocabularySchema = z.object({
   id: z.string().min(1),

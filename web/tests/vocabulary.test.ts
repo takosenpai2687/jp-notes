@@ -4,20 +4,26 @@ import { createHash, randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { getVocabulary } from "../src/lib/vocabulary.ts";
-import { initialKana, kanaGroup, kanaGroups, kanaRows, kanaVariants, normalizeKana, sampleWords, summarizeVocabularyAttempt, verbClassLabel, vocabularyAttemptInputSchema } from "../src/lib/vocabulary-models.ts";
+import { initialKana, kanaGroup, kanaGroups, kanaRows, kanaVariants, normalizeKana, sampleWords, summarizeVocabularyAttempt, verbClassLabel, vocabularyAttemptInputSchema, vocabularyLevels } from "../src/lib/vocabulary-models.ts";
+import { resolveSpeechText } from "../src/lib/speech.ts";
 import { emptyProgress, mergeProgress, progressSchema } from "../src/lib/models.ts";
 
-test("N4/N5 vocabulary preserves the complete original English datasets and groups by kana", () => {
+test("N5–N1 vocabulary preserves the complete original English datasets and groups by kana", () => {
   const fingerprints = {
     N5: "7ac633cdd24c437736794826771cb550d881f034bdb9c6c21df196b52373a078",
     N4: "1c9ca416712896080f2c3dcf27a6739b1cadb6f6820f59dad2b28c3970a81be6",
+    N3: "aa1a6bf8c4921d1f46b063026336b4e5e8515d58b6e914353323e7b520f2da6c",
+    N2: "8f0ee6d4cac70ae8febbea8630db289ff9af2a0df4666ac34839ac2807dbd463",
+    N1: "824c4f22b813616fe68d7753a9abf3c8e31a11be154d96ebd49b41c9fdd558e8",
   };
-  for (const [level, count] of [["N5", 674], ["N4", 630]] as const) {
+  for (const [level, count] of [["N5", 674], ["N4", 630], ["N3", 1659], ["N2", 1778], ["N1", 3070]] as const) {
     const raw = JSON.parse(readFileSync(path.join(process.cwd(), "data", "vocabulary", `${level.toLowerCase()}.json`), "utf8"));
     assert.equal(createHash("sha256").update(JSON.stringify(raw)).digest("hex"), fingerprints[level],
       "Upstream fields or ordering changed; update source fingerprint only after intentional data refresh.");
     const words = getVocabulary(level);
     assert.equal(words.length, count);
+    assert.equal(sampleWords(words).length, 10);
+    assert.equal(resolveSpeechText({ level, wordId: words[0].id, kind: "reading" }), words[0].reading);
     let previous = -1;
     for (const word of words) {
       assert.equal(word.level, level);
@@ -65,7 +71,7 @@ test("kana directory uses precise initial sounds and maps every vocabulary entry
   assert.deepEqual(kanaVariants[2].rows[5], ["ぱ", "ぴ", "ぷ", "ぺ", "ぽ"]);
   assert.equal(kanaVariants[1].rows[0][2], "ゔ");
   assert.ok(kanaVariants[2].rows[1].every((kana) => kana === ""));
-  for (const level of ["N5", "N4"] as const) {
+  for (const level of vocabularyLevels) {
     for (const word of getVocabulary(level)) {
       assert.ok(cells.some((kana) => kana === initialKana(word.reading)), word.reading);
     }
@@ -85,7 +91,10 @@ test("vocabulary attempts are validated, recomputed, backwards compatible and me
   };
   const attempt = summarizeVocabularyAttempt(vocabularyAttemptInputSchema.parse({ ...input, known: 10 }));
   assert.equal(attempt.known, 4);
-  assert.equal(vocabularyAttemptInputSchema.safeParse({ ...input, level: "N3" }).success, false);
+  for (const level of vocabularyLevels) {
+    assert.equal(vocabularyAttemptInputSchema.safeParse({ ...input, level }).success, true);
+  }
+  assert.equal(vocabularyAttemptInputSchema.safeParse({ ...input, level: "N6" }).success, false);
   assert.equal(vocabularyAttemptInputSchema.safeParse({ ...input, answers: input.answers.slice(1) }).success, false);
   assert.equal(vocabularyAttemptInputSchema.safeParse({ ...input, answers: Array(10).fill(input.answers[0]) }).success, false);
   const legacy = progressSchema.parse({ attempts: [], reads: [] });

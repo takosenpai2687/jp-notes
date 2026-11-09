@@ -68,13 +68,12 @@ test("vocabulary browses five-sound groups, searches and shows English definitio
   await expect(list).toBeVisible();
   await page.goto("/vocabulary?level=N4");
   await expect(list.getByRole("status")).toContainText("630");
-  for (const level of ["N3", "N2", "N1"]) {
+  for (const level of ["N3", "N2", "N1"] as const) {
     await page.goto(`/vocabulary?level=${level}`);
-    await expect(page.getByRole("heading", { name: `${level} 单词尚未解锁` })).toBeVisible();
-    await expect(page.locator(".vocab-workspace")).toHaveCount(0);
+    await expect(page.locator(".vocab-workspace")).toHaveCount(1);
+    await expect(list.getByRole("status")).toContainText(String(getVocabulary(level).length));
     await page.goto(`/vocabulary/practice?level=${level}`);
-    await expect(page.getByRole("heading", { name: "这座小岛，还没出现在地图上" })).toBeVisible();
-    await expect(page.locator(".vocab-flashcard")).toHaveCount(0);
+    await expect(page.locator(".vocab-flashcard")).toHaveCount(1);
   }
   for (const path of ["/vocabulary?level=nope", "/vocabulary?level=N5&word=missing", "/vocabulary?level=N5&word=", "/vocabulary?level=N5&level=N4"]) {
     await page.goto(path);

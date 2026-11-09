@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import { ArrowLeft, ArrowRight, LockKeyhole, Search, Shuffle, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Search, Shuffle, X } from "lucide-react";
 import { useApp } from "./app-provider";
 import { Arrival, EmptyState, PageIntro } from "./ui";
 import { KanaDirectory } from "./kana-directory";
@@ -43,10 +43,9 @@ export function Vocabulary({ level, words, selectedId, detail, explicitSelection
     <nav className="level-tabs" aria-label="选择 JLPT 难度">{levels.map((item, index) =>
       <Link key={item} href={`/vocabulary?level=${item}`} className={`level-tab ${level === item ? "selected" : ""}`} aria-current={level === item ? "page" : undefined}>
         <strong>{item}</strong><span>{["入门", "基础", "进阶", "熟练", "精通"][index]}</span>
-        {index > 1 && <LockKeyhole size={12} aria-label="未解锁" />}
       </Link>)}</nav>
     {!unlocked ? <EmptyState title={`${level} 单词尚未解锁`} action={<Link className="button primary" href="/vocabulary?level=N5">先看 N5 单词 <ArrowRight size={16} /></Link>}>
-      目前开放 N5 和 N4，其余等级准备好后再见。
+      当前等级暂无单词，请选择其他等级。
     </EmptyState> : <div className="vocab-workspace">
       <section className="vocab-list-pane" aria-label="单词列表">
         <label className="search-field"><Search size={17} /><input aria-label="搜索单词" placeholder="单词、读音或英文" value={query} onChange={(event) => { setQuery(event.target.value); setGroup("all"); setPage(1); }} />

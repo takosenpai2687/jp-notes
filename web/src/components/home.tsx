@@ -50,7 +50,7 @@ export function Home({ catalog }: { catalog: Catalog }) {
       <div className="section-line"><h2><span className="section-spark"><Sparkle size={16} strokeWidth={1.3} /></span> 四座小岛，无限可能</h2><span>选一个，开始今天的小冒险 <ArrowRight size={14} /></span></div>
       <div className="island-grid">
         {islands.map((island, index) => {
-          const live = island.kind === "quiz" || island.kind === "notes" || (island.kind === "vocabulary" && (level === "N5" || level === "N4"));
+          const live = island.kind === "quiz" || island.kind === "notes" || island.kind === "vocabulary";
           const count = island.kind === "quiz" ? quizzes.length : notes.length;
           return (
             <motion.div key={island.kind} initial={{ y: 18 }} animate={{ y: 0 }}

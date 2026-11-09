@@ -31,7 +31,7 @@
 { "level": "N4", "wordId": "词库原始ID", "kind": "example", "exampleId": 123456 }
 ```
 
-`exampleId` 是该单词例句的 `tatoeba_id`，不是数组下标。只开放 N5/N4。不要接受任意文本、任意 URL 或调用方指定的供应商参数。
+`exampleId` 是该单词例句的 `tatoeba_id`，不是数组下标。开放 N5–N1。不要接受任意文本、任意 URL 或调用方指定的供应商参数。
 
 从服务端词库解析实际文本：
 

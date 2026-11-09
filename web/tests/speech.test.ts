@@ -5,8 +5,11 @@ import { claimSpeech, invalidateSpeech, requestSpeech, speechRequestSchema, spee
 test("speech requests allow only catalog identifiers, not arbitrary text or provider options", () => {
   assert.ok(speechRequestSchema.safeParse({ level: "N5", wordId: "word", kind: "reading" }).success);
   assert.ok(speechRequestSchema.safeParse({ level: "N4", wordId: "word", kind: "example", exampleId: 123 }).success);
+  for (const level of ["N3", "N2", "N1"]) {
+    assert.ok(speechRequestSchema.safeParse({ level, wordId: "word", kind: "reading" }).success);
+  }
   for (const body of [
-    { level: "N3", wordId: "word", kind: "reading" },
+    { level: "N6", wordId: "word", kind: "reading" },
     { level: "N5", wordId: "word", kind: "reading", text: "arbitrary text" },
     { level: "N5", wordId: "word", kind: "example", exampleId: -1 },
   ]) assert.equal(speechRequestSchema.safeParse(body).success, false);

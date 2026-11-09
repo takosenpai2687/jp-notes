@@ -80,7 +80,7 @@ test("four islands, level selection, honest unavailable levels and coming soon",
     await expect(page.locator(".level-tab.selected")).toContainText("N2");
   }
   await page.goto("/vocabulary?level=N2");
-  await expect(page.getByRole("heading", { name: "N2 单词尚未解锁" })).toBeVisible();
+  await expect(page.locator(".vocab-workspace")).toBeVisible();
   expect(errors).toEqual([]);
 });
 

@@ -7,7 +7,7 @@ import { getVocabulary } from "@/lib/vocabulary";
 export default async function Page({ searchParams }: { searchParams: Promise<{ level?: string | string[]; word?: string | string[] }> }) {
   const { level = "N5", word: wordId } = await searchParams;
   if (typeof level !== "string" || !isLevel(level) || (wordId !== undefined && typeof wordId !== "string")) notFound();
-  const words = level === "N5" || level === "N4" ? getVocabulary(level) : [];
+  const words = getVocabulary(level);
   const selected = wordId !== undefined ? words.find((word) => word.id === wordId) : words[0];
   if (wordId !== undefined && !selected) notFound();
   return <Vocabulary key={level} level={level} selectedId={selected?.id} explicitSelection={wordId !== undefined}
