@@ -7,7 +7,7 @@ import { getVocabulary } from "../src/lib/vocabulary.ts";
 import {
   SpeechError, resolveSpeechText, speechInput, synthesizeSpeech, youdaoError, youdaoSign,
 } from "../src/lib/speech.ts";
-import { consumeSpeechLimit, database, loadSpeechCache, saveSpeechCache } from "../src/lib/database.ts";
+import { consumeSpeechLimit, database } from "../src/lib/database.ts";
 
 test("Youdao v3 signature follows the documented sha256(appKey+input+salt+curtime+secret) truncation", () => {
   assert.equal(speechInput("こんにちは"), "こんにちは");
@@ -80,7 +80,7 @@ test("provider error codes map to safe Chinese messages", () => {
   assert.equal(youdaoError(undefined).status, 502);
 });
 
-describe("database-backed speech cache and limits", () => {
+describe("database-backed speech rate limits", () => {
   const local = new NetlifyDB();
   before(async () => {
     setDefaultResultOrder("ipv4first");
@@ -93,17 +93,11 @@ describe("database-backed speech cache and limits", () => {
     await local.stop();
   });
 
-  test("rate limit and audio cache persist across requests and evict expired entries", async () => {
+  test("rate limits persist across requests and expire", async () => {
     for (let i = 0; i < 60; i++) assert.equal(await consumeSpeechLimit("speech:test-ip"), true);
     assert.equal(await consumeSpeechLimit("speech:test-ip"), false);
     await database().pool.query("UPDATE speech_limits SET reset_at = $1 WHERE key = $2", [Date.now() - 1, "speech:test-ip"]);
     assert.equal(await consumeSpeechLimit("speech:test-ip"), true);
 
-    const audio = Buffer.from([1, 2, 3, 4]);
-    await saveSpeechCache("speech:key1", audio);
-    assert.deepEqual(await loadSpeechCache("speech:key1"), audio);
-    assert.equal(await loadSpeechCache("speech:missing"), null);
-    await database().pool.query("UPDATE speech_cache SET created_at = $1 WHERE key = $2", [Date.now() - 8 * 24 * 60 * 60 * 1000, "speech:key1"]);
-    assert.equal(await loadSpeechCache("speech:key1"), null);
   });
 });

@@ -24,8 +24,12 @@ function silentWav(seconds = 5) {
 test("reading and example speakers send catalog identifiers, play exclusively, stop and reuse audio", async ({ page }) => {
   const word = getVocabulary("N5").find((item) => item.word === "会う")!;
   const requests: unknown[] = [];
-  await page.route("**/api/speech", async (route) => {
-    requests.push(route.request().postDataJSON());
+  await page.route("**/api/speech?*", async (route) => {
+    const query = new URL(route.request().url()).searchParams;
+    requests.push({
+      level: query.get("level"), wordId: query.get("wordId"), kind: query.get("kind"),
+      ...(query.has("exampleId") ? { exampleId: Number(query.get("exampleId")) } : {}),
+    });
     await route.fulfill({ contentType: "audio/wav", body: silentWav() });
   });
   await page.goto(`/vocabulary?level=N5&word=${word.id}`);
@@ -56,7 +60,7 @@ test("reading and example speakers send catalog identifiers, play exclusively, s
 
 test("speaker exposes retryable backend and invalid-audio errors without fake playback", async ({ page }) => {
   let mode = "missing";
-  await page.route("**/api/speech", async (route) => {
+  await page.route("**/api/speech?*", async (route) => {
     if (mode === "missing") return route.fulfill({ status: 404, json: { error: "这个词已不在词库中。" } });
     if (mode === "quota") return route.fulfill({ status: 429, json: { error: "发音额度不足，请稍后再试。" } });
     if (mode === "json") return route.fulfill({ json: { audio: "not binary" } });
@@ -83,7 +87,7 @@ test("practice speaker stays hidden until reveal, cancels loading and stops when
   await page.emulateMedia({ reducedMotion: "reduce" });
   let delay = false;
   let requested = 0;
-  await page.route("**/api/speech", async (route) => {
+  await page.route("**/api/speech?*", async (route) => {
     requested++;
     if (delay) await new Promise((resolve) => setTimeout(resolve, 600));
     await route.fulfill({ contentType: "audio/wav", body: silentWav() });

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useIsPresent, useReducedMotion } from "motion/react";
 import { AlertCircle, LoaderCircle, Square } from "lucide-react";
-import { claimSpeech, requestSpeech } from "@/lib/speech-client";
+import { claimSpeech, invalidateSpeech, requestSpeech } from "@/lib/speech-client";
 import type { SpeechRequest, SpeechState, SpeechTransport } from "@/lib/speech-client";
 import { useApp } from "./app-provider";
 
@@ -53,7 +53,10 @@ export function SpeechButton({ target, label, transport = requestSpeech }: {
         objectUrl = URL.createObjectURL(blob);
         audio = new Audio(objectUrl);
         audio.onended = stop;
-        audio.onerror = () => fail("音频无法播放，请重试或检查浏览器的声音权限。");
+        audio.onerror = () => {
+          void invalidateSpeech(target);
+          fail("音频无法播放，请重试或检查浏览器的声音权限。");
+        };
         await audio.play();
         if (!controller.signal.aborted) {
           clearTimeout(timeout);
@@ -61,6 +64,7 @@ export function SpeechButton({ target, label, transport = requestSpeech }: {
         }
       } catch (error) {
         if (controller.signal.aborted) return;
+        if (error instanceof DOMException && error.name === "NotSupportedError") void invalidateSpeech(target);
         fail(error instanceof DOMException && error.name === "TimeoutError" ? "发音请求超时，请重试。" :
           error instanceof DOMException && error.name === "NotAllowedError" ? "浏览器阻止了声音播放，请允许本站播放音频后重试。" :
           error instanceof Error ? error.message : "暂时无法播放发音，请重试。");

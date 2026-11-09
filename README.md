@@ -40,24 +40,6 @@
 
 词库位于 [web/data/vocabulary](./web/data/vocabulary/)，使用 [OpenJLPT](https://github.com/evanclan/OpenJLPT) 的 N5、N4 原版英文 JSON，基于 Jonathan Waller 的非官方 JLPT 词表、JMdict（EDRDG）和 Tatoeba。词库按 **[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)** 共享，原例句为 CC BY 2.0 FR，详见词库内的 [NOTICE](./web/data/vocabulary/NOTICE.md) 和 [LICENSE](./web/data/vocabulary/LICENSE)。抽背结果为自评，不代表客观测试分数。
 
-读音与例句通过有道智云语音合成播放，喇叭和 API 仅向已登录用户开放；游客仍可浏览和抽背。需配置服务端密钥并启用语音合成服务，见下方部署说明。接口按账号限制每 15 分钟最多 60 次未缓存合成，音频缓存由数据库共享（最长 7 天，最多 2,000 条 / 32 MiB）；缓存不代表免除供应商费用或使用许可要求。
-
-## 本次更新的 Netlify 配置
-
-1. 保持现有应用配置：Base directory 为 `web`、构建命令 `npm run build`、发布目录 `.next`，Node.js 24。保留现有 Netlify Database，不要重建数据库或手动替换其连接串。
-2. 在有道智云中为应用开通并绑定**语音合成**服务，确认日语音色权限、余额 / 赠送额度及网站播放和缓存许可；仅开通文本翻译不足以使用发音。
-3. 进入 Netlify 项目的 **Project configuration → Environment variables**，新增以下服务端变量，作用域选择 **Functions**（若当前界面支持多选，也可包含 Builds），部署上下文至少选择 **Production**：
-
-   | 变量 | 值 |
-   | --- | --- |
-   | `YOUDAO_APP_KEY` | 有道应用 ID |
-   | `YOUDAO_APP_SECRET` | 有道应用密钥，标记为 Secret |
-   | `YOUDAO_JA_VOICE` | 可选，默认 `youkejiang`；须为应用有权限使用的日语音色 |
-
-   不要加 `NEXT_PUBLIC_` 前缀，也不要把密钥写入仓库。若预览部署也需要发音，再单独配置 Deploy Previews；否则不开放预览环境的供应商额度。
-4. 推送更新后，在 **Deploys** 确认新部署成功；如果先部署后添加环境变量，需要再次触发部署。本次新增两份数据库迁移：单词抽背记录、发音限流与缓存。已启用的 Netlify Database 会在部署流程中应用 `web/netlify/database/migrations` 的增量迁移；如迁移报错，先排查部署日志，不要删除旧表或旧迁移。
-5. 上线后退出登录确认没有喇叭；登录后播放一个单词读音和一个例句，并完成一轮抽背确认记录保存。未配置密钥会明确报错，游客直接请求发音接口会返回 401。有道额度和超额计费以控制台为准，应用限流不是总费用封顶。
-
 ## 本地运行
 
 需要 **Node.js 24+**。请保留完整仓库结构，不要只下载 `web` 目录。

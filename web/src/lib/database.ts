@@ -110,16 +110,8 @@ export async function saveRead(userId: string, read: NoteRead, client: DatabaseC
   if (!rows[0]) throw new Error("Saved reading record could not be read back.");
   return { noteId: rows[0].note_id, readAt: rows[0].read_at };
 }
-// Speech synthesis cost protection: a DB-backed rate limit and bounded audio
-// cache so multiple serverless instances share one quota guard. The cache is
-// intentionally bounded and time-limited (never a permanent redistribution
-// store); Youdao's terms restrict caching service data, so keep these caps
-// modest and re-synthesize after the TTL rather than serving audio forever.
 const speechRateWindowMs = 15 * 60 * 1000;
 const speechRateLimit = 60;
-const speechCacheMaxEntries = 2000;
-const speechCacheMaxBytes = 32 * 1024 * 1024;
-const speechCacheTtlMs = 7 * 24 * 60 * 60 * 1000;
 
 export async function consumeSpeechLimit(key: string) {
   const pool = database().pool;
@@ -134,32 +126,6 @@ export async function consumeSpeechLimit(key: string) {
   `, [key, now + speechRateWindowMs, now]);
   if (!rows[0]) throw new Error("Speech rate limit was not recorded.");
   return rows[0].count <= speechRateLimit;
-}
-
-export async function loadSpeechCache(key: string): Promise<Buffer | null> {
-  const { rows } = await database().pool.query<{ audio: Buffer }>(
-    "SELECT audio FROM speech_cache WHERE key = $1 AND created_at > $2",
-    [key, Date.now() - speechCacheTtlMs],
-  );
-  return rows[0]?.audio ?? null;
-}
-
-export async function saveSpeechCache(key: string, audio: Buffer) {
-  const pool = database().pool;
-  await pool.query(`
-    INSERT INTO speech_cache(key, audio, bytes, created_at) VALUES ($1, $2, $3, $4)
-    ON CONFLICT(key) DO UPDATE SET audio = EXCLUDED.audio, bytes = EXCLUDED.bytes, created_at = EXCLUDED.created_at
-  `, [key, audio, audio.byteLength, Date.now()]);
-  await pool.query(`
-    WITH ranked AS (
-      SELECT key, ROW_NUMBER() OVER (ORDER BY created_at DESC) AS rn,
-             SUM(bytes) OVER (ORDER BY created_at DESC) AS running_bytes
-      FROM speech_cache
-    )
-    DELETE FROM speech_cache WHERE key IN (
-      SELECT key FROM ranked WHERE rn > $1 OR running_bytes > $2
-    )
-  `, [speechCacheMaxEntries, speechCacheMaxBytes]);
 }
 
 export async function saveVocabularyAttempt(userId: string, attempt: VocabularyAttempt, client: DatabaseClient = database().pool) {

@@ -10,6 +10,7 @@ import { Arrival, EmptyState, IslandArt, PageIntro } from "./ui";
 import { formatDate, levels, quizStats } from "@/lib/models";
 import type { Catalog, Level } from "@/lib/models";
 import { NoteLink } from "./note-link";
+import { ContentTransition } from "./content-transition";
 
 export type Section = "quiz" | "notes" | "exams" | "vocabulary";
 const headings = {
@@ -110,7 +111,9 @@ export function Library({ section, level, catalog, reader, selectedNoteId, detai
           )}
           {section !== "notes" && <p className="library-end">— 不用一次走完，一步也值得庆祝。 —</p>}
           </section>
-          {reader && <section className="notes-preview" aria-label="笔记内容">{reader}</section>}
+          {reader && <section className="notes-preview" aria-label="笔记内容">
+            <ContentTransition transitionKey={selectedNoteId ?? level} className="note-transition" book>{reader}</ContentTransition>
+          </section>}
         </div>
       )}
     </div>

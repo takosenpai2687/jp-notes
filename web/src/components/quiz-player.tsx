@@ -13,6 +13,7 @@ import { parseDraft } from "@/lib/draft";
 import type { Draft } from "@/lib/draft";
 import { useApp } from "./app-provider";
 import { CloudFriend, Modal } from "./ui";
+import { ContentTransition } from "./content-transition";
 
 const subscribe = () => () => {};
 const useHydrated = () => useSyncExternalStore(subscribe, () => true, () => false);
@@ -191,9 +192,8 @@ function QuizSession({ quiz, scope }: { quiz: Quiz; scope: string }) {
             <span>已作答 <strong>{answeredCount}</strong> / {quiz.count}</span><button className="map-toggle" onClick={() => setMapOpen(true)}><Grid2X2 size={17} /> 选题目录</button></div>
           <div className="quiz-layout">
             <div className="quiz-main">
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.section className="question-card" key={index} initial={{ opacity: 0, x: 18 }}
-                  animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -18 }} transition={{ duration: .18 }}>
+              <ContentTransition transitionKey={index}>
+                <section className="question-card" key={index}>
                   <div className="question-topline"><span>QUESTION <b>{String(index + 1).padStart(2, "0")}</b><small>/ {String(quiz.count).padStart(2, "0")}</small></span><span className="question-source">{question.source}</span></div>
                   <h2 className="question-stem" lang="ja">{question.stem.split(/(＿+)/g).map((part, position) =>
                     /^＿+$/.test(part) ? <span className={`stem-blank ${selected !== null ? "filled" : ""}`} key={position}>{selected !== null ? question.options[question.answer] : "　　　"}</span> : part)}</h2>
@@ -227,8 +227,8 @@ function QuizSession({ quiz, scope }: { quiz: Quiz; scope: string }) {
                       reviewing ? <button className="button primary" onClick={() => setReviewing(false)}>回到成绩单 <Trophy size={17} /></button> :
                         <button className="button primary" disabled={draftBlocked} onClick={() => setConfirmOpen(true)}>完成挑战 <Flag size={17} /></button>}
                   </div>
-                </motion.section>
-              </AnimatePresence>
+                </section>
+              </ContentTransition>
               <div className="quiz-helper"><span><Check size={14} /> {result ? "本次挑战已结束" : storageError ? "草稿保存遇到问题" : "答题草稿自动保存在本机"}</span><span className="keyboard-hint"><kbd>1</kbd>–<kbd>4</kbd> 选择 <kbd>←</kbd><kbd>→</kbd> 切题</span></div>
               <details className="quiz-summary"><summary><Lightbulb size={17} /> 行前小抄 · 本课知识点<span>点击展开</span></summary><ul>{quiz.summary.map((text, position) => <li key={position}>{text}</li>)}</ul></details>
             </div>

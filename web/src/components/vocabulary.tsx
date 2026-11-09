@@ -7,6 +7,7 @@ import { ArrowLeft, ArrowRight, LockKeyhole, Search, Shuffle, X } from "lucide-r
 import { useApp } from "./app-provider";
 import { Arrival, EmptyState, PageIntro } from "./ui";
 import { KanaDirectory } from "./kana-directory";
+import { ContentTransition } from "./content-transition";
 import { levels } from "@/lib/models";
 import type { Level } from "@/lib/models";
 import { initialKana, kanaRows, normalizeKana } from "@/lib/vocabulary-models";
@@ -67,7 +68,7 @@ export function Vocabulary({ level, words, selectedId, detail, explicitSelection
       </section>
       <section className="vocab-detail-pane" aria-label="单词内容">
         <Link className="back-link vocab-back" href={`/vocabulary?level=${level}`} scroll={false}><ArrowLeft size={17} /> 返回单词列表</Link>
-        {detail}
+        <ContentTransition transitionKey={selectedId ?? level}>{detail}</ContentTransition>
       </section>
     </div>}
   </div>;

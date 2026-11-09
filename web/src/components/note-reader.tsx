@@ -39,8 +39,8 @@ export function NoteReader({ note, embedded = false }: { note: Note; embedded?: 
             {embedded && challenge}
           </article>
           <nav className="note-pagination" aria-label="相邻笔记">
-            {previous ? <NoteLink noteId={previous.id} level={note.level}><ArrowLeft size={18} /><span className="note-previous-label"><small>上一篇</small>{previous.title}</span></NoteLink> : <span />}
-            {next ? <NoteLink noteId={next.id} level={note.level}><span className="note-next-label"><small>下一篇</small>{next.title}</span><ArrowRight size={18} /></NoteLink> : <span />}
+            {previous ? <NoteLink noteId={previous.id} level={note.level} direction={-1}><ArrowLeft size={18} /><span className="note-previous-label"><small>上一篇</small>{previous.title}</span></NoteLink> : <span />}
+            {next ? <NoteLink noteId={next.id} level={note.level} direction={1}><span className="note-next-label"><small>下一篇</small>{next.title}</span><ArrowRight size={18} /></NoteLink> : <span />}
           </nav>
         </div>
         {!embedded && <aside className="note-aside">
@@ -49,6 +49,6 @@ export function NoteReader({ note, embedded = false }: { note: Note; embedded?: 
         </aside>}
       </div>
   </>;
-  return embedded ? <NoteReadingPanel key={note.id}>{content}</NoteReadingPanel> :
+  return embedded ? <NoteReadingPanel>{content}</NoteReadingPanel> :
     <div className="reader-page"><ReadingMeter />{content}</div>;
 }
