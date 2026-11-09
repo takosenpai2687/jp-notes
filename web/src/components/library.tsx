@@ -11,6 +11,7 @@ import { formatDate, levels, quizStats } from "@/lib/models";
 import type { Catalog, Level } from "@/lib/models";
 import { NoteLink } from "./note-link";
 import { ContentTransition } from "./content-transition";
+import { NoteLoading } from "./note-loading";
 
 export type Section = "quiz" | "notes" | "exams" | "vocabulary";
 const headings = {
@@ -113,6 +114,7 @@ export function Library({ section, level, catalog, reader, selectedNoteId, detai
           </section>
           {reader && <section className="notes-preview" aria-label="笔记内容">
             <ContentTransition transitionKey={selectedNoteId ?? level} className="note-transition" book>{reader}</ContentTransition>
+            <div className="note-pending-overlay"><NoteLoading detail embedded /></div>
           </section>}
         </div>
       )}

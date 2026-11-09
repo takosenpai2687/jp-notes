@@ -88,6 +88,13 @@ export function ContentTransition({ transitionKey, children, className = "", boo
     previous.current = transitionKey;
     const snapshot = book && pendingBook?.target === String(transitionKey) ? pendingBook : undefined;
     if (snapshot) { clearTimeout(snapshot.expires); pendingBook = undefined; }
+    function resetBookScroll() {
+      if (!snapshot || !content.current) return;
+      content.current.querySelectorAll<HTMLElement>(".reader-embedded").forEach((node) => {
+        node.scrollTo({ top: 0, behavior: "instant" });
+      });
+      window.scrollTo({ left: window.scrollX, top: 0, behavior: "instant" });
+    }
     if (snapshot && content.current) {
       content.current.querySelectorAll<HTMLElement>(".reader-embedded, .table-scroll, pre").forEach((node, index) => {
         const position = snapshot.scroll[index];
@@ -95,7 +102,7 @@ export function ContentTransition({ transitionKey, children, className = "", boo
       });
       window.scrollTo({ ...snapshot.windowScroll, behavior: "instant" });
     }
-    if (reduced) snapshot?.controller.abort();
+    if (reduced) { snapshot?.controller.abort(); resetBookScroll(); }
     if ((!changed && !snapshot) || reduced || !root.current || !content.current) return;
     stop.current?.();
     const host = root.current, target = content.current;
@@ -106,12 +113,12 @@ export function ContentTransition({ transitionKey, children, className = "", boo
         [node, { left: node.scrollLeft, top: node.scrollTop }] as const),
     );
     const area = visibleArea(target);
-    if (area.width <= 0 || area.height <= 0) { snapshot?.controller.abort(); return; }
+    if (area.width <= 0 || area.height <= 0) { snapshot?.controller.abort(); delete host.dataset.bookTurning; resetBookScroll(); return; }
     let frameId = 0, cancelled = false;
     const controller = snapshot?.controller ?? new AbortController();
     const captureDeadline = setTimeout(() => {
       console.warn("[tako-jp] Content capture exceeded its time budget; normal navigation retained.");
-      finish();
+      complete();
     }, 1200);
     let renderer: ReturnType<typeof createRippleRenderer>;
     const canvas = document.createElement("canvas");
@@ -134,6 +141,10 @@ export function ContentTransition({ transitionKey, children, className = "", boo
       host.removeEventListener("keydown", finish, true);
       if (stop.current === finish) stop.current = undefined;
     }
+    function complete() {
+      finish();
+      resetBookScroll();
+    }
     function onScroll(event: Event) {
       if (event.target instanceof Element && event.target.closest("[data-content-capture]")) return;
       if (event.target instanceof HTMLElement) {
@@ -153,27 +164,29 @@ export function ContentTransition({ transitionKey, children, className = "", boo
     const texturePromise = snapshot?.texture ?? captureContent(target, area, controller.signal, true);
     void texturePromise.then((texture) => {
       if (cancelled) return;
-      if (!texture) { finish(); return; }
+      if (!texture) { complete(); return; }
       clearTimeout(captureDeadline);
       // Never replay stale content after slow font/image capture.
-      if (performance.now() - captureStarted > 1200) { finish(); return; }
+      if (performance.now() - captureStarted > 1200) { complete(); return; }
       const dark = host.closest('[data-theme="dark"]') !== null || getComputedStyle(host).colorScheme === "dark";
       renderer = createRippleRenderer(canvas, texture, area.width, area.height, dark, snapshot?.direction ?? 0);
-      if (!renderer) { console.warn("[tako-jp] WebGL unavailable; ripple skipped."); finish(); return; }
+      if (!renderer) { console.warn("[tako-jp] WebGL unavailable; ripple skipped."); complete(); return; }
       renderer.draw(0, backdropColor(host));
       host.append(canvas);
       const started = performance.now();
       function draw(now: number) {
         if (cancelled) return;
-        const progress = Math.min(1, (now - started) / (snapshot ? 1000 : rippleDuration));
-        if (progress === 1) { finish(); return; }
+        const progress = Math.min(1, (now - started) / (snapshot ? 400 : rippleDuration));
+        if (progress === 1) { complete(); return; }
         renderer?.draw(progress, backdropColor(host));
         frameId = requestAnimationFrame(draw);
       }
       frameId = requestAnimationFrame(draw);
     }).catch((error: unknown) => {
-      if (!cancelled) console.warn("[tako-jp] Content capture/ripple unavailable; normal navigation retained.", error);
-      finish();
+      if (!cancelled) {
+        console.warn("[tako-jp] Content capture/ripple unavailable; normal navigation retained.", error);
+        complete();
+      }
     });
     return finish;
   }, [transitionKey, reduced, book]);
