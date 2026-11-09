@@ -72,7 +72,8 @@ export function ContentTransition({ transitionKey, children, className = "", boo
       const area = visibleArea(source);
       if (area.width <= 0 || area.height <= 0) return;
       const controller = new AbortController();
-      const texture = reduced ? Promise.resolve(undefined) : captureContent(source, area, controller.signal, true).catch((error: unknown) => {
+      const skipAnimation = reduced || !window.matchMedia("(min-width: 1200px)").matches;
+      const texture = skipAnimation ? Promise.resolve(undefined) : captureContent(source, area, controller.signal, true).catch((error: unknown) => {
         if (!controller.signal.aborted) console.warn("[tako-jp] Page snapshot unavailable; normal navigation retained.", error);
         return undefined;
       });
@@ -108,8 +109,9 @@ export function ContentTransition({ transitionKey, children, className = "", boo
       });
       window.scrollTo({ ...snapshot.windowScroll, behavior: "instant" });
     }
-    if (reduced) { snapshot?.controller.abort(); resetBookScroll(); }
-    if ((!changed && !snapshot) || reduced || !root.current || !content.current) return;
+    const skipAnimation = reduced || (book && !window.matchMedia("(min-width: 1200px)").matches);
+    if (skipAnimation) { snapshot?.controller.abort(); resetBookScroll(); }
+    if ((!changed && !snapshot) || skipAnimation || !root.current || !content.current) return;
     stop.current?.();
     const host = root.current, target = content.current;
     if (snapshot) host.dataset.bookTurning = "";
