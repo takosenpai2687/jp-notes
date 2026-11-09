@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef } from "react";
-import type { MouseEvent, ReactNode } from "react";
+import type { ReactNode } from "react";
 import { useReducedMotion } from "motion/react";
 import { captureContent, createRippleRenderer } from "@/lib/ripple-webgl";
 
@@ -59,29 +59,35 @@ export function ContentTransition({ transitionKey, children, className = "", boo
   const reduced = useReducedMotion();
   const stop = useRef<(() => void) | undefined>(undefined);
 
-  function captureBook(event: MouseEvent<HTMLDivElement>) {
-    stop.current?.();
-    if (!book || event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    const link = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>("a[data-book-direction]") : null;
-    if (!link || link.target === "_blank" || !content.current) return;
-    clearBook();
-    const source = content.current;
-    const area = visibleArea(source);
-    if (area.width <= 0 || area.height <= 0) return;
-    const controller = new AbortController();
-    const texture = reduced ? Promise.resolve(undefined) : captureContent(source, area, controller.signal, true).catch((error: unknown) => {
-      if (!controller.signal.aborted) console.warn("[tako-jp] Page snapshot unavailable; normal navigation retained.", error);
-      return undefined;
-    });
-    pendingBook = {
-      target: link.dataset.bookTarget ?? "", direction: link.dataset.bookDirection === "-1" ? -1 : 1,
-      texture, controller,
-      windowScroll: { left: window.scrollX, top: window.scrollY },
-      scroll: [...source.querySelectorAll<HTMLElement>(".reader-embedded, .table-scroll, pre")]
-        .map((node) => ({ left: node.scrollLeft, top: node.scrollTop })),
-      expires: setTimeout(clearBook, 8000),
-    };
-  }
+  useEffect(() => {
+    if (!book || !root.current) return;
+    const scope = root.current.closest(".notes-workspace") ?? root.current;
+    function captureBook(event: Event) {
+      if (!(event instanceof MouseEvent) || event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const link = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>("a[data-book-direction]") : null;
+      if (!link || link.target === "_blank" || link.dataset.bookTarget === String(transitionKey) || !content.current) return;
+      stop.current?.();
+      clearBook();
+      const source = content.current;
+      const area = visibleArea(source);
+      if (area.width <= 0 || area.height <= 0) return;
+      const controller = new AbortController();
+      const texture = reduced ? Promise.resolve(undefined) : captureContent(source, area, controller.signal, true).catch((error: unknown) => {
+        if (!controller.signal.aborted) console.warn("[tako-jp] Page snapshot unavailable; normal navigation retained.", error);
+        return undefined;
+      });
+      pendingBook = {
+        target: link.dataset.bookTarget ?? "", direction: link.dataset.bookDirection === "-1" ? -1 : 1,
+        texture, controller,
+        windowScroll: { left: window.scrollX, top: window.scrollY },
+        scroll: [...source.querySelectorAll<HTMLElement>(".reader-embedded, .table-scroll, pre")]
+          .map((node) => ({ left: node.scrollLeft, top: node.scrollTop })),
+        expires: setTimeout(clearBook, 8000),
+      };
+    }
+    scope.addEventListener("click", captureBook, true);
+    return () => scope.removeEventListener("click", captureBook, true);
+  }, [book, reduced, transitionKey]);
 
   useLayoutEffect(() => {
     const changed = previous.current !== transitionKey;
@@ -193,7 +199,7 @@ export function ContentTransition({ transitionKey, children, className = "", boo
 
   useEffect(() => () => stop.current?.(), []);
 
-  return <div ref={root} className={`content-transition ${className}`} onClickCapture={captureBook}
+  return <div ref={root} className={`content-transition ${className}`}
     style={backgroundHue === undefined ? undefined : {
       backgroundColor: `hsl(${200 + backgroundHue} 65% 77%)`,
       transition: reduced ? "none" : `background-color ${rippleDuration * .75}ms ease-out`,

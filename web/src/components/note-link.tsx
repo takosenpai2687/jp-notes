@@ -9,7 +9,7 @@ export function NoteLink({ noteId, level, children, className = "", selected, di
   return (
     <>
       <Link {...props} href={`/notes?level=${level}&note=${noteId}`} scroll={false}
-        data-book-direction={direction} data-book-target={noteId}
+        data-book-direction={direction ?? 1} data-book-target={noteId}
         className={`${className} note-inline-link`} aria-current={selected ? "page" : undefined}>{children}{!direction && <NoteLinkStatus />}</Link>
       <Link {...props} href={`/notes/${noteId}`} scroll={direction ? false : undefined} data-book-direction={direction} data-book-target={noteId}
         className={`${className} note-detail-link`}>{children}</Link>
