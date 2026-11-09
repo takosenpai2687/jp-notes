@@ -25,4 +25,5 @@ for (const [source, extension] of [
     filter: (filename) => statSync(filename).isDirectory() || extension.test(filename),
   });
 }
+cpSync(path.join(root, "data", "vocabulary"), path.join(output, "vocabulary"), { recursive: true });
 console.log("[tako-jp] Read-only JSON, Markdown and note images packaged for serverless deployment.");

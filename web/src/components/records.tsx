@@ -8,11 +8,12 @@ import { Arrival, EmptyState, PageIntro } from "./ui";
 import { formatDate, formatDuration, levels } from "@/lib/models";
 import type { Catalog } from "@/lib/models";
 
-export function Records({ catalog }: { catalog: Catalog }) {
+export function Records({ catalog, vocabularyLabels }: { catalog: Catalog; vocabularyLabels: Record<string, string> }) {
   const { user, progress, loading, error, openAuth } = useApp();
   const [tab, setTab] = useState<"attempts" | "reads">("attempts");
   const [level, setLevel] = useState("all");
   const [visible, setVisible] = useState(20);
+  const [visibleVocabulary, setVisibleVocabulary] = useState(20);
   const totalQuestions = progress.attempts.reduce((sum, attempt) => sum + attempt.total, 0);
   const totalCorrect = progress.attempts.reduce((sum, attempt) => sum + attempt.correct, 0);
   const average = totalQuestions ? Math.round(totalCorrect / totalQuestions * 100) : null;
@@ -46,7 +47,7 @@ export function Records({ catalog }: { catalog: Catalog }) {
         <section className="record-numbers">
           <div><span><Flag size={16} /> 完成挑战</span><strong>{loading ? "—" : progress.attempts.length}<small>次</small></strong></div>
           <div><span><Trophy size={16} /> 累计正确率</span><strong>{loading || average === null ? "—" : average}<small>{average === null ? "" : "%"}</small></strong></div>
-          <div><span><BookCheck size={16} /> 读懂笔记</span><strong>{loading ? "—" : progress.reads.length}<small>篇</small></strong></div>
+          <div><span><BookCheck size={16} /> 历史已读笔记</span><strong>{loading ? "—" : progress.reads.length}<small>篇</small></strong></div>
         </section>
         <section className="activity-card"><div className="card-title-row"><h2>最近 7 天的小脚步</h2><span>{loading ? "—" : dates.reduce((sum, day) => sum + day.count, 0)} 次挑战</span></div>
           <div className="activity-chart" aria-label="最近七天每天的测验次数">
@@ -54,14 +55,26 @@ export function Records({ catalog }: { catalog: Catalog }) {
           </div>
         </section>
       </Arrival>
+      <section className="vocab-history" aria-label="单词抽背记录">
+        <div className="card-title-row"><h2>单词抽背 <span>自评</span></h2><Link href="/vocabulary">去抽背 <ArrowRight size={16} /></Link></div>
+        {progress.vocabularyAttempts.length ? <ul>{progress.vocabularyAttempts.slice(0, visibleVocabulary).map((attempt) =>
+          <li key={attempt.id}><strong>{attempt.level} · 认识 {attempt.known} / {attempt.total}</strong>
+            <span>{formatDate(attempt.completedAt)} · {formatDuration(attempt.durationSeconds)}</span>
+            <div>{attempt.answers.filter((answer) => !answer.known).length ? <>
+              <span>待复习</span>{attempt.answers.filter((answer) => !answer.known).map((answer) =>
+                <Link key={answer.wordId} href={`/vocabulary?level=${attempt.level}&word=${answer.wordId}`}>{vocabularyLabels[`${attempt.level}-${answer.wordId}`] ?? "已归档单词"}</Link>)}
+            </> : <span>本轮全部认识</span>}</div>
+          </li>)}</ul> : <p>{loading ? "正在整理抽背记录…" : error ? "抽背记录尚未同步，请先重试上方的同步操作。" : "完成一轮 10 词抽背，记录会保存在这里。"}</p>}
+        {progress.vocabularyAttempts.length > visibleVocabulary && <button className="button secondary" onClick={() => setVisibleVocabulary((count) => count + 20)}>更多抽背记录</button>}
+      </section>
       <div className="records-toolbar">
         <div className="filter-pills"><button className={tab === "attempts" ? "selected" : ""} onClick={() => { setTab("attempts"); setVisible(20); }}>挑战记录 <span>{attempts.length}</span></button>
-          <button className={tab === "reads" ? "selected" : ""} onClick={() => { setTab("reads"); setVisible(20); }}>阅读足迹 <span>{reads.length}</span></button></div>
+          <button className={tab === "reads" ? "selected" : ""} onClick={() => { setTab("reads"); setVisible(20); }}>历史阅读足迹 <span>{reads.length}</span></button></div>
         <label className="record-level">航线 <select value={level} onChange={(event) => { setLevel(event.target.value); setVisible(20); }}><option value="all">全部等级</option>{levels.map((item) => <option key={item}>{item}</option>)}</select></label>
       </div>
       {loading ? <div className="loading-panel"><span className="loading-cloud" /> 正在整理你的学习足迹…</div> :
         (tab === "attempts" ? attempts : reads).length === 0 ? <EmptyState title={tab === "attempts" ? "小小的第一步，还在等你" : "还没有收藏这片风景"} action={<Link className="button primary" href={tab === "attempts" ? "/quiz" : "/notes"}>现在去探索 <ArrowRight size={16} /></Link>}>
-          {error ? "记录服务尚未同步成功，请先重试上方的同步操作。" : tab === "attempts" ? "完成一份测验后，成绩、用时和日期会出现在这里。" : "在笔记页点击「读懂了，标记已读」，就能在这里找到它。"}
+          {error ? "记录服务尚未同步成功，请先重试上方的同步操作。" : tab === "attempts" ? "完成一份测验后，成绩、用时和日期会出现在这里。" : "暂无历史笔记阅读记录。"}
         </EmptyState> : <div className="records-list">
           {tab === "attempts" ? attempts.slice(0, visible).map((attempt) => <article className="record-row" key={attempt.id}>
             <span className={`score-medallion ${attempt.percent >= 80 ? "high-score" : ""}`}>{attempt.percent}<small>%</small></span>

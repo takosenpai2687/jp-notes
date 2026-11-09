@@ -7,7 +7,7 @@ import rehypeSlug from "rehype-slug";
 import { ArrowLeft, ArrowRight, Clock3, List } from "lucide-react";
 import { getCatalog, noteOutline, noteUrl } from "@/lib/content";
 import type { Note } from "@/lib/models";
-import { NoteActions, NoteReadingPanel, ReadingMeter } from "./note-actions";
+import { NoteReadingPanel, ReadingMeter } from "./note-actions";
 import { NoteLink } from "./note-link";
 
 export function NoteReader({ note, embedded = false }: { note: Note; embedded?: boolean }) {
@@ -18,7 +18,7 @@ export function NoteReader({ note, embedded = false }: { note: Note; embedded?: 
   const next = siblings[index + 1];
   const toc = outline.length > 0 && <nav className="note-toc" aria-label="笔记目录"><h2><List size={17} /> 目录</h2>
     {outline.map((heading) => <a key={heading.id} href={`#${heading.id}`} className={heading.depth === 3 ? "toc-nested" : ""}>{heading.text}</a>)}</nav>;
-  const challenge = note.quizId && <div className="note-challenge"><Link href={`/quiz/${note.quizId}`} className="button secondary full">同课测验 <ArrowRight size={16} /></Link></div>;
+  const challenge = note.quizId && <div className="note-challenge"><Link href={`/quiz/${note.quizId}`} className="button primary full">同课测验 <ArrowRight size={16} /></Link></div>;
   const content = <>
       <Link href={`/notes?level=${note.level}`} className="back-link"><ArrowLeft size={17} /> 返回笔记森林 <span>/ {note.level}</span></Link>
       <div className="reader-layout">
@@ -36,12 +36,11 @@ export function NoteReader({ note, embedded = false }: { note: Note; embedded?: 
                 {note.markdown.replace(/^#\s+[^\n]+\r?\n/, "")}
               </ReactMarkdown>
             </div>
-            <div className="note-paper-footer"><NoteActions noteId={note.id} /></div>
             {embedded && challenge}
           </article>
           <nav className="note-pagination" aria-label="相邻笔记">
-            {previous ? <NoteLink noteId={previous.id} level={note.level}><ArrowLeft size={18} /><span><small>上一篇</small>{previous.title}</span></NoteLink> : <span />}
-            {next ? <NoteLink noteId={next.id} level={note.level}><span><small>下一篇</small>{next.title}</span><ArrowRight size={18} /></NoteLink> : <span />}
+            {previous ? <NoteLink noteId={previous.id} level={note.level}><ArrowLeft size={18} /><span className="note-previous-label"><small>上一篇</small>{previous.title}</span></NoteLink> : <span />}
+            {next ? <NoteLink noteId={next.id} level={note.level}><span className="note-next-label"><small>下一篇</small>{next.title}</span><ArrowRight size={18} /></NoteLink> : <span />}
           </nav>
         </div>
         {!embedded && <aside className="note-aside">

@@ -6,9 +6,11 @@ import { AnimatePresence, motion, MotionConfig } from "motion/react";
 import { AlertCircle, Check, Eye, EyeOff, LoaderCircle, LogOut, ShieldCheck, X } from "lucide-react";
 import { z } from "zod";
 import {
-  attemptSchema, credentialsSchema, emptyProgress, mergeProgress, progressSchema, readSchema,
+  attemptSchema, credentialsSchema, emptyProgress, mergeProgress, progressSchema,
 } from "@/lib/models";
-import type { Attempt, Level, NoteRead, Progress, User } from "@/lib/models";
+import type { Attempt, Level, Progress, User } from "@/lib/models";
+import { vocabularyAttemptSchema } from "@/lib/vocabulary-models";
+import type { VocabularyAttempt } from "@/lib/vocabulary-models";
 import { CloudFriend, Modal } from "./ui";
 
 const storageKey = "tako-jp:guest:v1";
@@ -70,7 +72,7 @@ interface AppContextValue {
   notify: (message: string, error?: boolean) => void;
   retrySync: () => Promise<void>;
   recordAttempt: (attempt: Attempt) => Promise<void>;
-  markRead: (noteId: string) => Promise<void>;
+  recordVocabularyAttempt: (attempt: VocabularyAttempt) => Promise<void>;
   authenticate: (action: "login" | "register", username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -113,18 +115,19 @@ export function AppProvider({ initialUser, initialProgress, children }: {
       if (account) {
         let imported = 0;
         let rejected = 0;
-        const batches = Math.ceil(Math.max(guest.attempts.length, guest.reads.length) / 200);
+        const batches = Math.ceil(Math.max(guest.attempts.length, guest.reads.length, guest.vocabularyAttempts.length) / 200);
         for (let batch = 0; batch < batches; batch++) {
           const result = await api("/api/progress", z.object({ imported: z.number(), rejected: z.array(z.string()) }), {
             type: "import", attempts: guest.attempts.slice(batch * 200, (batch + 1) * 200),
             reads: guest.reads.slice(batch * 200, (batch + 1) * 200),
+            vocabularyAttempts: guest.vocabularyAttempts.slice(batch * 200, (batch + 1) * 200),
           });
           imported += result.imported;
           rejected += result.rejected.length;
         }
         const remote = await api("/api/progress", progressSchema);
         if (userRef.current?.id === account.id) setProgress(remote);
-        if (imported) notify(`已合并 ${imported} 次游客测验记录，本机副本依然保留。`);
+        if (imported) notify(`已合并 ${imported} 次游客练习记录，本机副本依然保留。`);
         if (rejected) warning = `${rejected} 条游客记录因题库更新或时间异常未能合并，仍保留在本机。`;
       }
       if (userRef.current?.id === account.id) setError(warning);
@@ -143,15 +146,14 @@ export function AppProvider({ initialUser, initialProgress, children }: {
       writeGuest(next);
     }
   }
-  async function markRead(noteId: string) {
-    const read: NoteRead = { noteId, readAt: new Date().toISOString() };
+  async function recordVocabularyAttempt(attempt: VocabularyAttempt) {
     const scope = userRef.current?.id;
     if (scope) {
-      const saved = await api("/api/progress", z.object({ read: readSchema }), { type: "read", read });
-      if (userRef.current?.id === scope) setProgress((previous) => mergeProgress(previous, { attempts: [], reads: [saved.read] }));
+      const saved = await api("/api/progress", z.object({ attempt: vocabularyAttemptSchema }), { type: "vocabulary", attempt });
+      if (userRef.current?.id === scope) setProgress((previous) =>
+        mergeProgress(previous, { attempts: [], reads: [], vocabularyAttempts: [saved.attempt] }));
     } else {
-      const next = mergeProgress(readGuest(), { attempts: [], reads: [read] });
-      writeGuest(next);
+      writeGuest(mergeProgress(readGuest(), { attempts: [], reads: [], vocabularyAttempts: [attempt] }));
     }
   }
   async function authenticate(action: "login" | "register", username: string, password: string) {
@@ -182,7 +184,7 @@ export function AppProvider({ initialUser, initialProgress, children }: {
           if (userRef.current) { setLoading(true); await refresh(userRef.current); }
           else window.dispatchEvent(new Event("tako-progress"));
         },
-        recordAttempt, markRead, authenticate, logout,
+        recordAttempt, recordVocabularyAttempt, authenticate, logout,
       }}>
         {children}
         <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />

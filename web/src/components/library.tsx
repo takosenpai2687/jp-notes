@@ -31,11 +31,9 @@ export function Library({ section, level, catalog, reader, selectedNoteId, detai
   const entries = section === "quiz"
     ? catalog.quizzes.filter((quiz) => quiz.level === level).map((quiz) => ({ ...quiz, type: "quiz" as const }))
     : catalog.notes.filter((note) => note.level === level).map((note) => ({ ...note, type: "notes" as const }));
-  const done = (id: string) => section === "quiz"
-    ? progress.attempts.some((attempt) => attempt.quizId === id)
-    : progress.reads.some((read) => read.noteId === id);
+  const done = (id: string) => progress.attempts.some((attempt) => attempt.quizId === id);
   const filtered = entries.filter((entry) => entry.title.normalize("NFC").toLowerCase().includes(query.normalize("NFC").toLowerCase())
-    && (filter === "all" || (filter === "done" ? done(entry.id) : !done(entry.id))));
+    && (section !== "quiz" || filter === "all" || (filter === "done" ? done(entry.id) : !done(entry.id))));
   return (
     <div className={`library-page library-${section}${detail ? " notes-detail-page" : ""}`}>
       <Arrival className="library-heading"><PageIntro {...heading} aside={<div className="page-stamp">{section === "quiz" ? <Flag size={28} /> : <BookOpen size={28} />}<span>{comingSoon ? "次の旅へ" : `${level} 航线`}</span></div>} /></Arrival>
@@ -61,11 +59,11 @@ export function Library({ section, level, catalog, reader, selectedNoteId, detai
         <div className={section === "notes" ? `notes-workspace${reader ? " has-preview" : ""}` : undefined}>
           <section className={section === "notes" ? "notes-library-pane" : undefined} aria-label={section === "notes" ? "笔记列表" : undefined}>
           <div className="library-toolbar">
-            <div className="filter-pills" aria-label="按完成状态筛选">
-              {[["all", "全部"], ["new", section === "notes" ? "未读" : "未探索"], ["done", section === "notes" ? "已读" : "已探索"]].map(([value, label]) =>
+            {section === "quiz" && <div className="filter-pills" aria-label="按完成状态筛选">
+              {[["all", "全部"], ["new", "未探索"], ["done", "已探索"]].map(([value, label]) =>
                 <button key={value} onClick={() => setFilter(value)} className={filter === value ? "selected" : ""}
                   disabled={loading && value !== "all"} aria-pressed={filter === value}>{label}{value === "all" && <span>{entries.length}</span>}</button>)}
-            </div>
+            </div>}
             <label className="search-field"><Search size={18} /><input value={query} onChange={(event) => setQuery(event.target.value)}
               placeholder={section === "quiz" ? "搜索想挑战的语法…" : "搜索笔记"} aria-label="搜索课程" />
               {query && <button aria-label="清空搜索" onClick={() => setQuery("")}><X size={15} /></button>}</label>
@@ -80,12 +78,10 @@ export function Library({ section, level, catalog, reader, selectedNoteId, detai
               <AnimatePresence mode="popLayout">
                 {filtered.map((entry, index) => {
                   const stats = entry.type === "quiz" ? quizStats(progress.attempts, entry.id) : null;
-                  const read = progress.reads.find((item) => item.noteId === entry.id);
-                  const visited = !!(stats?.count || read);
+                  const visited = !!stats?.count;
                   const identity = entry.type === "notes" ? <>
                     <span className="lesson-number">{entry.no.padStart(2, "0")}</span>
                     <div className="lesson-identity"><h3>{entry.title}</h3></div>
-                    {read && <Check size={16} className="note-read-status" aria-label="已读" />}
                   </> : <>
                     <div className="lesson-number">{visited ? <Check size={23} /> : <span>{entry.no.padStart(2, "0")}</span>}</div>
                     <div className="lesson-identity"><span className="lesson-label">第 {entry.no} 课 {visited && <span>· 已探索</span>}</span><h3>{entry.title}</h3>

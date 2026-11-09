@@ -10,7 +10,7 @@
     "start": "node scripts/serve.mjs start",
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
-    "test": "node --experimental-strip-types --test tests/core.test.ts tests/database.test.ts tests/deployment.test.ts",
+    "test": "node --experimental-strip-types --test tests/core.test.ts tests/database.test.ts tests/deployment.test.ts tests/vocabulary.test.ts tests/speech.test.ts tests/speech-server.test.ts",
     "test:e2e": "playwright test",
     "db:import:sqlite": "node --experimental-strip-types scripts/import-sqlite.ts"
   },

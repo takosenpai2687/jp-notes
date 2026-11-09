@@ -1,5 +1,9 @@
 import { Records } from "@/components/records";
 import { getCatalog } from "@/lib/content";
+import { getVocabulary } from "@/lib/vocabulary";
+import { vocabularyLevels } from "@/lib/vocabulary-models";
 export default function Page() {
-  return <Records catalog={getCatalog()} />;
+  const vocabularyLabels = Object.fromEntries(vocabularyLevels.flatMap((level) =>
+    getVocabulary(level).map((word) => [`${level}-${word.id}`, word.word])));
+  return <Records catalog={getCatalog()} vocabularyLabels={vocabularyLabels} />;
 }

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { vocabularyAttemptInputSchema, vocabularyAttemptSchema } from "./vocabulary-models.ts";
 
 export const levels = ["N5", "N4", "N3", "N2", "N1"] as const;
 export type Level = (typeof levels)[number];
@@ -92,9 +93,10 @@ export type NoteRead = z.infer<typeof readSchema>;
 export const progressSchema = z.object({
   attempts: z.array(attemptSchema),
   reads: z.array(readSchema),
+  vocabularyAttempts: z.array(vocabularyAttemptSchema).default([]),
 });
 export type Progress = z.infer<typeof progressSchema>;
-export const emptyProgress = (): Progress => ({ attempts: [], reads: [] });
+export const emptyProgress = (): Progress => ({ attempts: [], reads: [], vocabularyAttempts: [] });
 
 export const credentialsSchema = z.object({
   username: z.string().trim().normalize().min(3, "用户名至少 3 个字符")
@@ -105,10 +107,12 @@ export const credentialsSchema = z.object({
 export const progressCommandSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("attempt"), attempt: attemptInputSchema }),
   z.object({ type: z.literal("read"), read: readSchema }),
+  z.object({ type: z.literal("vocabulary"), attempt: vocabularyAttemptInputSchema }),
   z.object({
     type: z.literal("import"),
     attempts: z.array(attemptInputSchema).max(200),
     reads: z.array(readSchema).max(200),
+    vocabularyAttempts: z.array(vocabularyAttemptInputSchema).max(200).default([]),
   }),
 ]);
 
@@ -135,7 +139,8 @@ export function gradeQuiz(quiz: Quiz, input: AttemptInput): Attempt {
   };
 }
 
-export function mergeProgress(a: Progress, b: Progress): Progress {
+export function mergeProgress(a: Omit<Progress, "vocabularyAttempts"> & Partial<Pick<Progress, "vocabularyAttempts">>,
+  b: Omit<Progress, "vocabularyAttempts"> & Partial<Pick<Progress, "vocabularyAttempts">>): Progress {
   const attempts = new Map(a.attempts.map((attempt) => [attempt.id, attempt]));
   for (const attempt of b.attempts) {
     if (!attempts.has(attempt.id)) attempts.set(attempt.id, attempt);
@@ -145,9 +150,14 @@ export function mergeProgress(a: Progress, b: Progress): Progress {
     const previous = reads.get(read.noteId);
     if (!previous || read.readAt > previous.readAt) reads.set(read.noteId, read);
   }
+  const vocabulary = new Map((a.vocabularyAttempts ?? []).map((attempt) => [attempt.id, attempt]));
+  for (const attempt of b.vocabularyAttempts ?? []) {
+    if (!vocabulary.has(attempt.id)) vocabulary.set(attempt.id, attempt);
+  }
   return {
     attempts: [...attempts.values()].sort((x, y) => y.completedAt.localeCompare(x.completedAt)),
     reads: [...reads.values()].sort((x, y) => y.readAt.localeCompare(x.readAt)),
+    vocabularyAttempts: [...vocabulary.values()].sort((x, y) => y.completedAt.localeCompare(x.completedAt)),
   };
 }
 

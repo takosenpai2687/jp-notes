@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { loadContent } from "@/lib/content";
-import { loadProgress, saveAttempt, saveRead, transaction } from "@/lib/database";
+import { loadProgress, saveAttempt, saveRead, saveVocabularyAttempt, transaction } from "@/lib/database";
+import { getVocabulary } from "@/lib/vocabulary";
+import { summarizeVocabularyAttempt } from "@/lib/vocabulary-models";
+import type { VocabularyAttemptInput } from "@/lib/vocabulary-models";
 import { gradeQuiz, progressCommandSchema } from "@/lib/models";
 import type { AttemptInput, NoteRead, Quiz } from "@/lib/models";
 import { apiError, HttpError, readJson, requireUser } from "@/lib/server";
@@ -18,6 +21,12 @@ function checkedRead(read: NoteRead, exists: boolean) {
   if (Date.parse(read.readAt) > Date.now() + 300_000) throw new HttpError(400, "阅读时间不正确。");
   return read;
 }
+function checkedVocabularyAttempt(input: VocabularyAttemptInput) {
+  if (Date.parse(input.completedAt) > Date.now() + 300_000) throw new HttpError(400, "抽背时间不正确。");
+  const ids = new Set(getVocabulary(input.level).map((word) => word.id));
+  if (input.answers.some((answer) => !ids.has(answer.wordId))) throw new HttpError(400, "抽背记录包含不属于该等级的单词。");
+  return summarizeVocabularyAttempt(input);
+}
 export async function GET() {
   try { return NextResponse.json(await loadProgress((await requireUser()).id), { headers: { "Cache-Control": "no-store" } }); }
   catch (error) { return apiError(error); }
@@ -26,6 +35,9 @@ export async function POST(request: Request) {
   try {
     const command = progressCommandSchema.parse(await readJson(request));
     const user = await requireUser();
+    if (command.type === "vocabulary") {
+      return NextResponse.json({ attempt: await saveVocabularyAttempt(user.id, checkedVocabularyAttempt(command.attempt)) });
+    }
     const content = loadContent();
     const quizzes = new Map(content.quizzes.map((quiz) => [quiz.id, quiz]));
     const notes = new Set(content.notes.map((note) => note.id));
@@ -42,7 +54,8 @@ export async function POST(request: Request) {
     let imported = 0;
     await transaction(async (client) => {
       await client.query("SELECT id FROM users WHERE id = $1 FOR UPDATE", [user.id]);
-      const existing = new Set((await loadProgress(user.id, client)).attempts.map((attempt) => attempt.id));
+      const progress = await loadProgress(user.id, client);
+      const existing = new Set(progress.attempts.map((attempt) => attempt.id));
       for (const input of command.attempts) {
         if (existing.has(input.id)) continue;
         try {
@@ -59,6 +72,18 @@ export async function POST(request: Request) {
         catch (error) {
           if (!(error instanceof HttpError)) throw error;
           rejected.push(`${read.noteId}：${error.message}`);
+        }
+      }
+      const vocabularyIds = new Set(progress.vocabularyAttempts.map((attempt) => attempt.id));
+      for (const input of command.vocabularyAttempts) {
+        if (vocabularyIds.has(input.id)) continue;
+        try {
+          await saveVocabularyAttempt(user.id, checkedVocabularyAttempt(input), client);
+          vocabularyIds.add(input.id);
+          imported++;
+        } catch (error) {
+          if (!(error instanceof HttpError)) throw error;
+          rejected.push(`单词抽背：${error.message}`);
         }
       }
     });

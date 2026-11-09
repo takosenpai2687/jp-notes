@@ -9,10 +9,11 @@ import { randomUUID } from "node:crypto";
 import {
   clearAuthLimit, consumeAuthLimit, createSession, database, deleteSession,
   findUser, hashPassword, insertUser, loadProgress, saveAttempt, saveRead, sessionUser,
-  transaction, verifyPassword,
+  transaction, verifyPassword, saveVocabularyAttempt,
 } from "../src/lib/database.ts";
 import { getCatalog, getQuiz } from "../src/lib/content.ts";
 import { gradeQuiz } from "../src/lib/models.ts";
+import { summarizeVocabularyAttempt } from "../src/lib/vocabulary-models.ts";
 import { importSqlite } from "../scripts/import-sqlite.ts";
 
 const local = new NetlifyDB();
@@ -54,15 +55,26 @@ test("Postgres accounts, sessions, record isolation, idempotency and rollback", 
   assert.equal(repeated.completedAt, attempt.completedAt);
   assert.equal((await loadProgress(user.id)).attempts.length, 1);
   assert.equal((await loadProgress(other.id)).attempts.length, 0);
+  const vocabularyAttempt = summarizeVocabularyAttempt({
+    id: randomUUID(), level: "N5", durationSeconds: 30, completedAt: new Date().toISOString(),
+    answers: Array.from({ length: 10 }, (_, index) => ({ wordId: `word-${index}`, known: index < 6 })),
+  });
+  await saveVocabularyAttempt(user.id, vocabularyAttempt);
+  const repeatedVocabulary = await saveVocabularyAttempt(user.id, { ...vocabularyAttempt, known: 0 });
+  assert.equal(repeatedVocabulary.known, 6);
+  assert.equal((await loadProgress(user.id)).vocabularyAttempts.length, 1);
+  assert.equal((await loadProgress(other.id)).vocabularyAttempts.length, 0);
   await saveRead(user.id, { noteId: "note", readAt: "2026-01-02T10:00:00.000Z" });
   const older = await saveRead(user.id, { noteId: "note", readAt: "2026-01-01T10:00:00.000Z" });
   assert.equal(older.readAt, "2026-01-02T10:00:00.000Z");
   assert.equal((await loadProgress(user.id)).reads[0].readAt, "2026-01-02T10:00:00.000Z");
   await assert.rejects(transaction(async (client) => {
     await saveRead(user.id, { noteId: "rollback", readAt: new Date().toISOString() }, client);
+    await saveVocabularyAttempt(user.id, { ...vocabularyAttempt, id: randomUUID() }, client);
     throw new Error("rollback");
   }), /rollback/);
   assert.equal((await loadProgress(user.id)).reads.length, 1);
+  assert.equal((await loadProgress(user.id)).vocabularyAttempts.length, 1);
   for (let i = 0; i < 10; i++) assert.equal(await consumeAuthLimit("test-limit"), true);
   assert.equal(await consumeAuthLimit("test-limit"), false);
   await clearAuthLimit("test-limit");

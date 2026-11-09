@@ -74,11 +74,13 @@ test("four islands, level selection, honest unavailable levels and coming soon",
   await expect(page.locator(".lesson-card")).toHaveCount(catalog.quizzes.filter((item) => item.level === "N4").length);
   await page.locator(".level-tab").filter({ hasText: "N1" }).click();
   await expect(page.getByRole("heading", { name: "N1 的航线，还在绘制中" })).toBeVisible();
-  for (const section of ["exams", "vocabulary"]) {
+  for (const section of ["exams"]) {
     await page.goto(`/${section}?level=N2`);
     await expect(page.getByText("COMING SOON", { exact: true })).toBeVisible();
     await expect(page.locator(".level-tab.selected")).toContainText("N2");
   }
+  await page.goto("/vocabulary?level=N2");
+  await expect(page.getByRole("heading", { name: "N2 单词尚未解锁" })).toBeVisible();
   expect(errors).toEqual([]);
 });
 
@@ -94,7 +96,7 @@ test("feature pages share compact headers and descriptive level tabs without sum
       await expect(page.locator(".level-tab")).toHaveText(["N5入门", "N4基础", "N3进阶", "N2熟练", "N1精通"]);
       await expect(page.locator(".library-summary")).toHaveCount(0);
       sizes.push(await heading.locator("h1").evaluate((el) => parseFloat(getComputedStyle(el).fontSize)));
-      expect(await heading.locator(".page-stamp").evaluate((el) => parseFloat(getComputedStyle(el).height))).toBe(64);
+      if (section !== "vocabulary") expect(await heading.locator(".page-stamp").evaluate((el) => parseFloat(getComputedStyle(el).height))).toBe(64);
       if (section === "notes") {
         await expect(heading).toContainText("読むたびに、景色が変わる。");
         await expect(heading).toContainText("让语法不再是需要记住的规则，而是慢慢读懂的风景。");
@@ -243,14 +245,9 @@ test("notes use an inline desktop reader and mobile-only detail navigation", asy
   await expect(preview.getByRole("heading", { level: 1, name: selected.title, exact: true })).toBeVisible();
   await expect(list.getByRole("textbox", { name: "搜索课程" })).toHaveValue(selected.title);
   await expect(list.locator(".selected-note .lesson-main-link.note-inline-link")).toHaveAttribute("aria-current", "page");
-  await preview.getByRole("button", { name: "读懂了，标记已读" }).click();
-  await expect(preview.getByRole("button", { name: "已收入学习足迹" })).toBeDisabled();
-  await expect(list.locator(".selected-note .note-inline-link").getByLabel("已读")).toBeVisible();
-  await list.getByRole("button", { name: "已读", exact: true }).click();
+  await expect(preview.getByRole("button", { name: "读懂了，标记已读" })).toHaveCount(0);
   await expect(list.locator(".lesson-card")).toHaveCount(1);
-  await list.getByRole("button", { name: "未读", exact: true }).click();
-  await expect(list.locator(".lesson-card")).toHaveCount(0);
-  await list.getByRole("button", { name: /全部/ }).click();
+  await preview.locator(".reader-embedded").evaluate((el) => { el.scrollTop = el.scrollHeight; });
   await expect.poll(() => preview.locator(".reading-meter-panel").evaluate((el) =>
     new DOMMatrix(getComputedStyle(el).transform).a)).toBeGreaterThan(.5);
   await list.getByRole("textbox", { name: "搜索课程" }).fill("");
@@ -262,7 +259,7 @@ test("notes use an inline desktop reader and mobile-only detail navigation", asy
   await page.goBack();
   await expect(preview.getByRole("heading", { level: 1, name: selected.title, exact: true })).toBeVisible();
   await page.reload();
-  await expect(preview.getByRole("button", { name: "已收入学习足迹" })).toBeVisible();
+  await expect(preview.getByRole("button", { name: "读懂了，标记已读" })).toHaveCount(0);
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(preview).toBeHidden();
   expect((await list.locator(".lesson-card").first().boundingBox())!.height).toBeLessThanOrEqual(48);
@@ -290,7 +287,7 @@ test("notes use an inline desktop reader and mobile-only detail navigation", asy
   expect(errors).toEqual([]);
 });
 
-test("safe Markdown tables and br tags render, and read marks persist", async ({ page }) => {
+test("safe Markdown tables and br tags render without manual read marks", async ({ page }) => {
   const note = loadContent().notes.find((item) => item.title.includes("ば形"))!;
   await page.goto(`/notes/${note.id}`);
   await expect(page.getByRole("heading", { level: 1, name: note.title })).toBeVisible();
@@ -300,16 +297,13 @@ test("safe Markdown tables and br tags render, and read marks persist", async ({
   expect(image.headers()["content-type"]).toBe("image/png");
   expect([...(await image.body()).subarray(0, 8)]).toEqual([137, 80, 78, 71, 13, 10, 26, 10]);
   await expect(page.locator(".note-toc a")).not.toHaveCount(0);
-  await page.getByRole("button", { name: "读懂了，标记已读" }).click();
-  await expect(page.getByRole("button", { name: "已收入学习足迹" })).toBeDisabled();
-  await page.reload();
-  await expect(page.getByRole("button", { name: "已收入学习足迹" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "读懂了，标记已读" })).toHaveCount(0);
   const brNote = loadContent().notes.find((item) => item.markdown.includes("<br>") && !item.markdown.includes("|"))!;
   await page.goto(`/notes/${brNote.id}`);
   expect(await page.locator(".note-prose br").count()).toBeGreaterThan(0);
   await page.goto("/records");
   await page.getByRole("button", { name: /阅读足迹/ }).click();
-  await expect(page.locator(".record-row")).toHaveCount(1);
+  await expect(page.locator(".record-row")).toHaveCount(0);
 });
 
 test("registration requires matching password confirmation and clears it when switching modes", async ({ page }) => {

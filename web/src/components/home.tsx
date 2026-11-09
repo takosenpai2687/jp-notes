@@ -22,7 +22,6 @@ export function Home({ catalog }: { catalog: Catalog }) {
   const completed = new Set(progress.attempts.filter((attempt) => attempt.level === level).map((attempt) => attempt.quizId)).size;
   const latest = progress.attempts[0];
   const nextQuiz = quizzes.find((quiz) => !progress.attempts.some((attempt) => attempt.quizId === quiz.id)) ?? quizzes[0];
-  const completedReads = notes.filter((note) => progress.reads.some((read) => read.noteId === note.id)).length;
   return (
     <div className="home-page">
       <Arrival className="home-heading">
@@ -51,7 +50,7 @@ export function Home({ catalog }: { catalog: Catalog }) {
       <div className="section-line"><h2><span className="section-spark"><Sparkle size={16} strokeWidth={1.3} /></span> 四座小岛，无限可能</h2><span>选一个，开始今天的小冒险 <ArrowRight size={14} /></span></div>
       <div className="island-grid">
         {islands.map((island, index) => {
-          const live = island.kind === "quiz" || island.kind === "notes";
+          const live = island.kind === "quiz" || island.kind === "notes" || (island.kind === "vocabulary" && (level === "N5" || level === "N4"));
           const count = island.kind === "quiz" ? quizzes.length : notes.length;
           return (
             <motion.div key={island.kind} initial={{ y: 18 }} animate={{ y: 0 }}
@@ -63,7 +62,7 @@ export function Home({ catalog }: { catalog: Catalog }) {
                   <h3>{island.title}</h3><p className="island-japanese">{island.subtitle}</p>
                   <p className="island-description">{island.description}</p>
                   <div className="island-action"><strong>{island.action} <ArrowRight size={16} /></strong>
-                    <span>{live ? `${level} · ${count} ${island.kind === "quiz" ? "份测验" : "篇笔记"}` : "Coming soon"}</span></div>
+                    <span>{island.kind === "vocabulary" && live ? `${level} · 五十音浏览 / 随机抽背` : live ? `${level} · ${count} ${island.kind === "quiz" ? "份测验" : "篇笔记"}` : "Coming soon"}</span></div>
                 </div>
                 <IslandArt kind={island.kind} /><ArrowCircle />
               </Link>
@@ -76,7 +75,7 @@ export function Home({ catalog }: { catalog: Catalog }) {
           <div className="card-title-row"><h2><Footprints size={18} /> 留下的小小足迹</h2><Link href="/records">全部足迹 <ChevronRight size={15} /></Link></div>
           <div className="journey-stats">
             <div><strong>{loading ? "—" : completed}<small> / {quizzes.length}</small></strong><span>{level} 测验已探索</span></div>
-            <div><strong>{loading ? "—" : completedReads}<small> / {notes.length}</small></strong><span>{level} 笔记已读</span></div>
+            <div><strong>{notes.length}<small> 篇</small></strong><span>{level} 可读笔记</span></div>
             <div><strong>{loading ? "—" : progress.attempts.length}<small> 次</small></strong><span>累计小小挑战</span></div>
           </div>
           <div className="journey-footnote"><span className="tiny-status" /> {loading ? "正在寻找你的足迹…" : latest ? `最近探索：${latest.title} · ${formatDate(latest.completedAt)}` : "第一步还没留下？今天就是很好的开始。"}</div>

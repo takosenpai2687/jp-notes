@@ -14,20 +14,30 @@ test("production content works without parent quiz/notes directories and exclude
   assert.ok(files.some((file) => file.endsWith(".json") && file.startsWith("quiz")));
   assert.ok(files.some((file) => file.endsWith(".md")));
   assert.equal(files.some((file) => file.endsWith(".html")), false);
+  for (const level of ["n5", "n4"]) {
+    assert.equal(readFileSync(path.join(bundled, "vocabulary", `${level}.json`), "utf8"),
+      readFileSync(path.join(process.cwd(), "data", "vocabulary", `${level}.json`), "utf8"));
+  }
+  assert.equal(files.some((file) => /vocabulary[\\/]+n[123]\.json/.test(file)), false);
+  assert.ok(existsSync(path.join(bundled, "vocabulary", "LICENSE")));
+  assert.ok(existsSync(path.join(bundled, "vocabulary", "NOTICE.md")));
   const parent = path.join(process.cwd(), "test-results");
   mkdirSync(parent, { recursive: true });
   const temporary = mkdtempSync(path.join(parent, "packaged-"));
   try {
     cpSync(bundled, path.join(temporary, ".netlify-content"), { recursive: true });
     const moduleUrl = pathToFileURL(path.join(process.cwd(), "src", "lib", "content.ts")).href;
+    const vocabularyModule = pathToFileURL(path.join(process.cwd(), "src", "lib", "vocabulary.ts")).href;
     const program = `import {getCatalog, notesRoot} from ${JSON.stringify(moduleUrl)};
-      console.log(JSON.stringify({catalog:getCatalog(), notesRoot}));`;
+      import {getVocabulary} from ${JSON.stringify(vocabularyModule)};
+      console.log(JSON.stringify({catalog:getCatalog(), notesRoot, vocabulary: [getVocabulary("N5").length, getVocabulary("N4").length]}));`;
     const check = spawnSync(process.execPath, ["--experimental-strip-types", "--input-type=module", "-e", program], {
       cwd: temporary, encoding: "utf8", env: { ...process.env, NODE_ENV: "production" },
     });
     assert.equal(check.status, 0, check.stderr);
     const result = JSON.parse(check.stdout);
     assert.deepEqual(result.catalog, JSON.parse(JSON.stringify(getCatalog())));
+    assert.deepEqual(result.vocabulary, [674, 630]);
     assert.equal(result.notesRoot, path.join(temporary, ".netlify-content", "notes", "raw"));
     assert.equal(existsSync(path.join(temporary, "quiz")), false);
     assert.equal(existsSync(path.join(temporary, "notes")), false);

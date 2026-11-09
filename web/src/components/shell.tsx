@@ -23,7 +23,7 @@ const destinations = [
 
 export function Shell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const readingNotes = pathname.startsWith("/notes");
+  const readingNotes = pathname.startsWith("/notes") || pathname.startsWith("/vocabulary");
   const { user, preferredLevel, openAuth, error, retrySync, loading } = useApp();
   const [menuOpen, setMenuOpen] = useState(false);
   const current = destinations.find((item) => item.href === "/" ? pathname === "/" : pathname.startsWith(item.href));
@@ -42,7 +42,7 @@ export function Shell({ children }: { children: ReactNode }) {
                 aria-current={active ? "page" : undefined}>
                 {active && <motion.span layoutId="nav-indicator" className="nav-indicator" transition={{ type: "spring", stiffness: 350, damping: 32 }} />}
                 <item.icon size={20} strokeWidth={1.8} /><span>{item.label}</span>
-                {item.href === "/exams" || item.href === "/vocabulary" ? <span className="nav-soon">SOON</span> : null}
+                {item.href === "/exams" ? <span className="nav-soon">SOON</span> : null}
               </Link>
             );
           })}
