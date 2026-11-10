@@ -129,7 +129,7 @@ export function ContentTransition({ transitionKey, children, className = "", boo
       complete();
     }, 1200);
     let renderer: ReturnType<typeof createRippleRenderer>;
-    const canvas = document.createElement("canvas");
+    let canvas = document.createElement("canvas");
     canvas.className = snapshot ? "ripple-canvas page-curl-canvas" : "ripple-canvas";
     canvas.setAttribute("aria-hidden", "true");
     canvas.style.left = `${area.x}px`; canvas.style.top = `${area.y}px`;
@@ -167,7 +167,6 @@ export function ContentTransition({ transitionKey, children, className = "", boo
     document.addEventListener("visibilitychange", finish, { once: true });
     host.addEventListener("pointerdown", finish, true);
     host.addEventListener("keydown", finish, true);
-    canvas.addEventListener("webglcontextlost", finish, { once: true });
     const captureStarted = performance.now();
     const texturePromise = snapshot?.texture ?? captureContent(target, area, controller.signal, true);
     void texturePromise.then((texture) => {
@@ -179,6 +178,12 @@ export function ContentTransition({ transitionKey, children, className = "", boo
       const dark = host.closest('[data-theme="dark"]') !== null || getComputedStyle(host).colorScheme === "dark";
       renderer = createRippleRenderer(canvas, texture, area.width, area.height, dark, snapshot?.direction ?? 0);
       if (!renderer) { console.warn("[tako-jp] WebGL unavailable; ripple skipped."); complete(); return; }
+      canvas = renderer.canvas;
+      canvas.className = snapshot ? "ripple-canvas page-curl-canvas" : "ripple-canvas";
+      canvas.setAttribute("aria-hidden", "true");
+      canvas.style.left = `${area.x}px`; canvas.style.top = `${area.y}px`;
+      canvas.style.width = `${area.width}px`; canvas.style.height = `${area.height}px`;
+      canvas.addEventListener("webglcontextlost", finish, { once: true });
       renderer.draw(0, backdropColor(host));
       host.append(canvas);
       const started = performance.now();

@@ -39,8 +39,13 @@ test("vocabulary browses five-sound groups, searches and shows English definitio
   await list.getByRole("textbox", { name: "搜索单词" }).fill("会う");
   await expect(list.locator(".vocab-row-index").first()).toHaveText("1");
   await expect(list.getByRole("button", { name: "下一页单词" })).toBeDisabled();
+  const wordNavigationRequests: string[] = [];
+  page.on("request", (request) => {
+    if (new URL(request.url()).searchParams.has("_rsc")) wordNavigationRequests.push(request.url());
+  });
   await list.getByRole("link").filter({ hasText: "会う" }).click();
   await expect(page).toHaveURL(new RegExp(`word=${selected.id}`));
+  expect(wordNavigationRequests).toEqual([]);
   await expect(detail.getByRole("heading", { name: "会う", exact: true })).toBeVisible();
   await expect(detail.locator(".vocab-reading")).toHaveText("あう");
   await expect(detail.locator(".vocab-romaji")).toHaveText("au");

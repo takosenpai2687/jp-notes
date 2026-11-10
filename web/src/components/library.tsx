@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import type { ReactNode } from "react";
+import { useEffect, useMemo, useState } from "react";
+import type { MouseEvent } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { ArrowRight, BookOpen, Check, Clock3, Flag, Search, Sparkles, Trophy, X } from "lucide-react";
 import { useApp } from "./app-provider";
@@ -12,6 +12,10 @@ import type { Catalog, Level } from "@/lib/models";
 import { NoteLink } from "./note-link";
 import { ContentTransition } from "./content-transition";
 import { NoteLoading } from "./note-loading";
+import { NoteReader } from "./note-reader";
+import { fetchNotes, getCachedNotes } from "@/lib/notes-client";
+import type { Note } from "@/lib/models";
+import type { NoteContent } from "@/lib/note-content";
 
 export type Section = "quiz" | "notes" | "exams" | "vocabulary";
 const headings = {
@@ -21,18 +25,66 @@ const headings = {
   vocabulary: { eyebrow: "ことばの種を、まこう。", title: "单词花园", description: "每认识一个词，就多了一种描述世界的方式。" },
 };
 
-export function Library({ section, level, catalog, reader, selectedNoteId, detail = false }: {
-  section: Section; level: Level; catalog: Catalog; reader?: ReactNode; selectedNoteId?: string; detail?: boolean;
+export function Library({ section, level, catalog, initialNote, selectedNoteId, detail = false }: {
+  section: Section; level: Level; catalog: Catalog; initialNote?: Note; selectedNoteId?: string; detail?: boolean;
 }) {
   const { progress, loading, setPreferredLevel } = useApp();
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("all");
+  const [localNoteId, setLocalNoteId] = useState<string | undefined>();
+  const activeNoteId = localNoteId ?? selectedNoteId;
+  const [noteContents, setNoteContents] = useState<NoteContent[] | undefined>(() => getCachedNotes()?.notes);
+  const [notesLoadError, setNotesLoadError] = useState(false);
+  const [notesReload, setNotesReload] = useState(0);
+  const noteSummaries = useMemo(() => noteContents?.map(({ id, title, level, no, filename, minutes, excerpt, quizId }) =>
+    ({ id, title, level, no, filename, minutes, excerpt, quizId })) ?? catalog.notes, [catalog.notes, noteContents]);
   useEffect(() => { setPreferredLevel(level); }, [level, setPreferredLevel]);
+  useEffect(() => {
+    if (section !== "notes") return;
+    function syncNoteFromUrl() {
+      const url = new URL(window.location.href);
+      const id = url.searchParams.get("note") ?? url.pathname.match(/^\/notes\/([^/]+)$/)?.[1];
+      setLocalNoteId(id && noteSummaries.some((note) => note.id === id) ? id : undefined);
+    }
+    window.addEventListener("popstate", syncNoteFromUrl);
+    return () => window.removeEventListener("popstate", syncNoteFromUrl);
+  }, [section, noteSummaries]);
+  useEffect(() => {
+    if (section !== "notes") return;
+    let active = true;
+    void fetchNotes().then((payload) => {
+      if (active) {
+        setNoteContents(payload.notes);
+        setNotesLoadError(false);
+      }
+    }).catch((error: unknown) => {
+      if (!active) return;
+      console.warn("[tako-jp] Notes could not be refreshed; individual note navigation remains available.", error);
+      setNotesLoadError(true);
+    });
+    return () => { active = false; };
+  }, [section, notesReload]);
   const heading = headings[section];
+  const activeNote = noteContents
+    ? noteContents.find((note) => note.id === activeNoteId)
+    : initialNote?.id === activeNoteId ? initialNote : undefined;
+  function navigateNote(event: MouseEvent<HTMLDivElement>) {
+    if (section !== "notes" || !noteContents || event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const anchor = event.target instanceof Element
+      ? event.target.closest<HTMLAnchorElement>("a[data-book-target], a[href^='/notes/']")
+      : null;
+    if (!anchor) return;
+    const targetId = anchor.dataset.bookTarget ?? anchor.pathname.match(/^\/notes\/([^/]+)$/)?.[1];
+    if (!targetId || !noteSummaries.some((note) => note.id === targetId)) return;
+    if (targetId === activeNoteId) return;
+    event.preventDefault();
+    window.history.pushState(null, "", anchor.href);
+    setLocalNoteId(targetId);
+  }
   const comingSoon = section === "exams" || section === "vocabulary";
   const entries = section === "quiz"
     ? catalog.quizzes.filter((quiz) => quiz.level === level).map((quiz) => ({ ...quiz, type: "quiz" as const }))
-    : catalog.notes.filter((note) => note.level === level).map((note) => ({ ...note, type: "notes" as const }));
+    : noteSummaries.filter((note) => note.level === level).map((note) => ({ ...note, type: "notes" as const }));
   const done = (id: string) => progress.attempts.some((attempt) => attempt.quizId === id);
   const filtered = entries.filter((entry) => entry.title.normalize("NFC").toLowerCase().includes(query.normalize("NFC").toLowerCase())
     && (section !== "quiz" || filter === "all" || (filter === "done" ? done(entry.id) : !done(entry.id))));
@@ -58,7 +110,9 @@ export function Library({ section, level, catalog, reader, selectedNoteId, detai
           <span className="coming-bottom">不急，好风景值得等待。<span>楽しみは、これから。</span></span>
         </Arrival>
       ) : (
-        <div className={section === "notes" ? `notes-workspace${reader ? " has-preview" : ""}` : undefined}>
+        <div className={section === "notes" ? `notes-workspace${activeNote ? " has-preview" : ""}` : undefined}
+          data-notes-ready={section === "notes" ? noteContents ? "true" : "false" : undefined}
+          onClickCapture={section === "notes" ? navigateNote : undefined}>
           <section className={section === "notes" ? "notes-library-pane" : undefined} aria-label={section === "notes" ? "笔记列表" : undefined}>
           <div className="library-toolbar">
             {section === "quiz" && <div className="filter-pills" aria-label="按完成状态筛选">
@@ -70,6 +124,10 @@ export function Library({ section, level, catalog, reader, selectedNoteId, detai
               placeholder={section === "quiz" ? "搜索想挑战的语法…" : "搜索笔记"} aria-label="搜索课程" />
               {query && <button aria-label="清空搜索" onClick={() => setQuery("")}><X size={15} /></button>}</label>
           </div>
+          {section === "notes" && notesLoadError && <p className="notes-load-error" role="alert">
+            笔记更新暂时无法检查。{noteContents ? "先使用已缓存的内容。" : "选择笔记仍可在线打开。"}
+            <button type="button" onClick={() => setNotesReload((value) => value + 1)}>重试同步</button>
+          </p>}
           {!entries.length ? <EmptyState title={`${level} 的航线，还在绘制中`}
             action={<Link href={`/${section}?level=N5`} className="button primary">先从 N5 出发 <ArrowRight size={16} /></Link>}>
             目前已有 N5 和 N4 的真实学习内容，其他等级会在资料准备好后开放。
@@ -93,8 +151,8 @@ export function Library({ section, level, catalog, reader, selectedNoteId, detai
                   return (
                     <motion.article key={entry.id} layout initial={{ y: 12 }} animate={{ y: 0 }}
                       exit={{ opacity: 0, scale: .98 }} transition={{ duration: .25, delay: Math.min(index, 6) * .035 }}
-                      className={`lesson-card ${visited ? "visited" : ""}${entry.type === "notes" && entry.id === selectedNoteId ? " selected-note" : ""}`}>
-                      {entry.type === "notes" ? <NoteLink noteId={entry.id} level={level} selected={entry.id === selectedNoteId}
+                      className={`lesson-card ${visited ? "visited" : ""}${entry.type === "notes" && entry.id === activeNoteId ? " selected-note" : ""}`}>
+                      {entry.type === "notes" ? <NoteLink noteId={entry.id} level={level} selected={entry.id === activeNoteId}
                         className="lesson-main-link">{identity}</NoteLink> :
                         <Link href={`/quiz/${entry.id}`} className="lesson-main-link">{identity}</Link>}
                       {entry.type === "quiz" && <div className="lesson-record">
@@ -112,8 +170,10 @@ export function Library({ section, level, catalog, reader, selectedNoteId, detai
           )}
           {section !== "notes" && <p className="library-end">— 不用一次走完，一步也值得庆祝。 —</p>}
           </section>
-          {reader && <section className="notes-preview" aria-label="笔记内容">
-            <ContentTransition transitionKey={selectedNoteId ?? level} className="note-transition" book>{reader}</ContentTransition>
+          {activeNote && <section className="notes-preview" aria-label="笔记内容">
+            <ContentTransition transitionKey={activeNote.id} className="note-transition" book>
+              <NoteReader note={activeNote} notes={noteSummaries} embedded />
+            </ContentTransition>
             <div className="note-pending-overlay"><NoteLoading detail embedded /></div>
           </section>}
         </div>

@@ -2,6 +2,14 @@ import { z } from "zod";
 
 export const vocabularyLevels = ["N5", "N4", "N3", "N2", "N1"] as const;
 export type VocabularyLevel = (typeof vocabularyLevels)[number];
+// Keep these in sync with the upstream JSON; they also version the immutable browser/CDN cache.
+export const vocabularyFingerprints: Record<VocabularyLevel, string> = {
+  N5: "7ac633cdd24c437736794826771cb550d881f034bdb9c6c21df196b52373a078",
+  N4: "1c9ca416712896080f2c3dcf27a6739b1cadb6f6820f59dad2b28c3970a81be6",
+  N3: "aa1a6bf8c4921d1f46b063026336b4e5e8515d58b6e914353323e7b520f2da6c",
+  N2: "8f0ee6d4cac70ae8febbea8630db289ff9af2a0df4666ac34839ac2807dbd463",
+  N1: "824c4f22b813616fe68d7753a9abf3c8e31a11be154d96ebd49b41c9fdd558e8",
+};
 export const vocabularySchema = z.object({
   id: z.string().min(1),
   word: z.string().min(1),

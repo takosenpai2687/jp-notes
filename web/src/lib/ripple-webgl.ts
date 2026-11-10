@@ -5,6 +5,20 @@ import { shockwaveFragment } from "./shockwave-shader";
 export type VisibleArea = { x: number; y: number; width: number; height: number };
 let fontCSS: Promise<string> | undefined;
 
+type RipplePool = {
+  canvas: HTMLCanvasElement;
+  gl: WebGLRenderingContext;
+  program: WebGLProgram;
+  buffer: WebGLBuffer;
+  texture: WebGLTexture;
+  edgeTexture: WebGLTexture;
+  progress: WebGLUniformLocation | null;
+  background: WebGLUniformLocation | null;
+  generation: number;
+};
+let shockwavePool: RipplePool | undefined;
+let pageCurlPool: RipplePool | undefined;
+
 const vertexSource = `
 attribute vec2 a_position;
 varying vec2 v_uv;
@@ -92,7 +106,16 @@ export async function captureContent(source: HTMLElement, area: VisibleArea, sig
       fontCSS = undefined;
       throw error;
     });
-    const css = await fontCSS;
+    let fontTimer: ReturnType<typeof setTimeout> | undefined;
+    let css: string;
+    try {
+      css = await Promise.race([
+        fontCSS,
+        new Promise<string>((resolve) => { fontTimer = setTimeout(() => resolve(""), 240); }),
+      ]);
+    } finally {
+      if (fontTimer) clearTimeout(fontTimer);
+    }
     signal.throwIfAborted();
     const pixelRatio = nativeResolution ? devicePixelRatio || 1 :
       Math.min(devicePixelRatio || 1, 2, 1600 / Math.max(area.width, area.height));
@@ -138,66 +161,103 @@ export async function captureContent(source: HTMLElement, area: VisibleArea, sig
   }
 }
 
-export function createRippleRenderer(canvas: HTMLCanvasElement, snapshot: { page: HTMLCanvasElement; edges: HTMLCanvasElement }, width: number, height: number, dark: boolean, curlDirection: -1 | 0 | 1 = 0) {
-  const gl = canvas.getContext("webgl", { alpha: !!curlDirection, premultipliedAlpha: false, antialias: false, depth: false, stencil: false, preserveDrawingBuffer: false });
-  if (!gl) return undefined;
-  const program = gl.createProgram();
-  const buffer = gl.createBuffer();
-  const texture = gl.createTexture();
-  const edgeTexture = gl.createTexture();
-  let vertex: WebGLShader | undefined, fragment: WebGLShader | undefined;
-  const dispose = () => {
-    if (vertex) gl.deleteShader(vertex);
-    if (fragment) gl.deleteShader(fragment);
-    gl.deleteProgram(program); gl.deleteBuffer(buffer); gl.deleteTexture(texture); gl.deleteTexture(edgeTexture);
-    gl.getExtension("WEBGL_lose_context")?.loseContext();
-  };
-  try {
-    if (!program || !buffer || !texture || !edgeTexture) throw new Error("Unable to allocate ripple renderer.");
-    const maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE) as number;
-    if (snapshot.page.width > maxTextureSize || snapshot.page.height > maxTextureSize) {
-      throw new Error("Native-resolution snapshot exceeds GPU texture limits; transition skipped rather than blurred.");
+export function createRippleRenderer(requestedCanvas: HTMLCanvasElement, snapshot: { page: HTMLCanvasElement; edges: HTMLCanvasElement }, width: number, height: number, dark: boolean, curlDirection: -1 | 0 | 1 = 0) {
+  const curl = curlDirection !== 0;
+  let pool = curl ? pageCurlPool : shockwavePool;
+  const canvas = pool?.canvas ?? requestedCanvas;
+  if (!pool) {
+    const gl = canvas.getContext("webgl", { alpha: curl, premultipliedAlpha: false, antialias: false, depth: false, stencil: false, preserveDrawingBuffer: false });
+    if (!gl) return undefined;
+    const program = gl.createProgram();
+    const buffer = gl.createBuffer();
+    const texture = gl.createTexture();
+    const edgeTexture = gl.createTexture();
+    let vertex: WebGLShader | undefined, fragment: WebGLShader | undefined;
+    try {
+      if (!program || !buffer || !texture || !edgeTexture) throw new Error("Unable to allocate ripple renderer.");
+      vertex = shader(gl, gl.VERTEX_SHADER, vertexSource);
+      fragment = shader(gl, gl.FRAGMENT_SHADER, curl ? pageCurlFragment : shockwaveFragment);
+      gl.attachShader(program, vertex); gl.attachShader(program, fragment);
+      gl.linkProgram(program);
+      if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error(`Ripple shader linking failed: ${gl.getProgramInfoLog(program)}`);
+      gl.deleteShader(vertex); vertex = undefined;
+      gl.deleteShader(fragment); fragment = undefined;
+      gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]), gl.STATIC_DRAW);
+      for (const [index, item] of [texture, edgeTexture].entries()) {
+        gl.activeTexture(gl.TEXTURE0 + index); gl.bindTexture(gl.TEXTURE_2D, item);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      }
+      pool = {
+        canvas, gl, program, buffer, texture, edgeTexture,
+        progress: gl.getUniformLocation(program, "u_progress"),
+        background: gl.getUniformLocation(program, "u_background"),
+        generation: 0,
+      };
+      if (curl) pageCurlPool = pool;
+      else shockwavePool = pool;
+      const onContextLost = () => {
+        if (curl && pageCurlPool === pool) pageCurlPool = undefined;
+        if (!curl && shockwavePool === pool) shockwavePool = undefined;
+      };
+      canvas.addEventListener("webglcontextlost", onContextLost, { once: true });
+    } catch (error) {
+      if (vertex) gl.deleteShader(vertex);
+      if (fragment) gl.deleteShader(fragment);
+      if (program) gl.deleteProgram(program);
+      if (buffer) gl.deleteBuffer(buffer);
+      if (texture) gl.deleteTexture(texture);
+      if (edgeTexture) gl.deleteTexture(edgeTexture);
+      throw error;
     }
-    vertex = shader(gl, gl.VERTEX_SHADER, vertexSource);
-    fragment = shader(gl, gl.FRAGMENT_SHADER, curlDirection ? pageCurlFragment : shockwaveFragment);
-    gl.attachShader(program, vertex); gl.attachShader(program, fragment);
-    gl.linkProgram(program);
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error(`Ripple shader linking failed: ${gl.getProgramInfoLog(program)}`);
-    canvas.width = snapshot.page.width; canvas.height = snapshot.page.height;
-    if (gl.drawingBufferWidth !== canvas.width || gl.drawingBufferHeight !== canvas.height) {
-      throw new Error("GPU cannot allocate the full-resolution transition surface.");
-    }
-    gl.viewport(0, 0, canvas.width, canvas.height);
-    gl.useProgram(program);
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]), gl.STATIC_DRAW);
-    const position = gl.getAttribLocation(program, "a_position");
-    gl.enableVertexAttribArray(position); gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
-    for (const [index, item] of [texture, edgeTexture].entries()) {
-      gl.activeTexture(gl.TEXTURE0 + index); gl.bindTexture(gl.TEXTURE_2D, item);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, index === 0 ? snapshot.page : snapshot.edges);
-    }
-    gl.uniform1i(gl.getUniformLocation(program, "u_page"), 0);
-    gl.uniform1i(gl.getUniformLocation(program, "u_edges"), 1);
-    gl.uniform2f(gl.getUniformLocation(program, "u_size"), width, height);
-    gl.uniform1f(gl.getUniformLocation(program, "u_dark"), dark ? 1 : 0);
-    gl.uniform1f(gl.getUniformLocation(program, "u_direction"), curlDirection);
-    const progress = gl.getUniformLocation(program, "u_progress");
-    const backgroundUniform = gl.getUniformLocation(program, "u_background");
-    return {
-      draw(value: number, background: readonly number[] = [1, 1, 1]) {
-        gl.uniform1f(progress, value);
-        gl.uniform3f(backgroundUniform, background[0], background[1], background[2]);
-        gl.drawArrays(gl.TRIANGLES, 0, 6);
-      },
-      dispose,
-    };
-  } catch (error) {
-    dispose();
-    throw error;
   }
+  const { gl, program, buffer, texture, edgeTexture } = pool;
+  const maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE) as number;
+  if (snapshot.page.width > maxTextureSize || snapshot.page.height > maxTextureSize) {
+    throw new Error("Native-resolution snapshot exceeds GPU texture limits; transition skipped rather than blurred.");
+  }
+  canvas.width = snapshot.page.width;
+  canvas.height = snapshot.page.height;
+  if (gl.drawingBufferWidth !== canvas.width || gl.drawingBufferHeight !== canvas.height) {
+    throw new Error("GPU cannot allocate the full-resolution transition surface.");
+  }
+  gl.viewport(0, 0, canvas.width, canvas.height);
+  gl.useProgram(program);
+  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+  const position = gl.getAttribLocation(program, "a_position");
+  gl.enableVertexAttribArray(position);
+  gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
+  for (const [index, item] of [texture, edgeTexture].entries()) {
+    gl.activeTexture(gl.TEXTURE0 + index);
+    gl.bindTexture(gl.TEXTURE_2D, item);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, index === 0 ? snapshot.page : snapshot.edges);
+  }
+  gl.uniform1i(gl.getUniformLocation(program, "u_page"), 0);
+  gl.uniform1i(gl.getUniformLocation(program, "u_edges"), 1);
+  gl.uniform2f(gl.getUniformLocation(program, "u_size"), width, height);
+  gl.uniform1f(gl.getUniformLocation(program, "u_dark"), dark ? 1 : 0);
+  gl.uniform1f(gl.getUniformLocation(program, "u_direction"), curlDirection);
+  const generation = ++pool.generation;
+  return {
+    canvas,
+    draw(value: number, background: readonly number[] = [1, 1, 1]) {
+      if (pool?.generation !== generation) return;
+      gl.uniform1f(pool.progress, value);
+      gl.uniform3f(pool.background, background[0], background[1], background[2]);
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
+    },
+    dispose() {
+      if (pool?.generation !== generation) return;
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(4));
+      gl.activeTexture(gl.TEXTURE1);
+      gl.bindTexture(gl.TEXTURE_2D, edgeTexture);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(4));
+      canvas.remove();
+    },
+  };
 }

@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import ReactMarkdown, { defaultUrlTransform } from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -5,14 +7,14 @@ import rehypeRaw from "rehype-raw";
 import rehypeSanitize from "rehype-sanitize";
 import rehypeSlug from "rehype-slug";
 import { ArrowLeft, ArrowRight, Clock3, List } from "lucide-react";
-import { getCatalog, noteOutline, noteUrl } from "@/lib/content";
-import type { Note } from "@/lib/models";
+import { noteOutline, resolveNoteUrl } from "@/lib/note-markdown";
+import type { Note, NoteSummary } from "@/lib/models";
 import { NoteReadingPanel, ReadingMeter } from "./note-actions";
 import { NoteLink } from "./note-link";
 
-export function NoteReader({ note, embedded = false }: { note: Note; embedded?: boolean }) {
+export function NoteReader({ note, notes, embedded = false }: { note: Note; notes: NoteSummary[]; embedded?: boolean }) {
   const outline = noteOutline(note.markdown);
-  const siblings = getCatalog().notes.filter((item) => item.level === note.level);
+  const siblings = notes.filter((item) => item.level === note.level);
   const index = siblings.findIndex((item) => item.id === note.id);
   const previous = siblings[index - 1];
   const next = siblings[index + 1];
@@ -28,7 +30,7 @@ export function NoteReader({ note, embedded = false }: { note: Note; embedded?: 
             {embedded && toc && <details className="note-inline-toc"><summary><List size={17} /> 目录</summary>{toc}</details>}
             <div className="note-prose">
               <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw, rehypeSanitize, rehypeSlug]}
-                urlTransform={(url) => defaultUrlTransform(noteUrl(note, url))}
+                urlTransform={(url) => defaultUrlTransform(resolveNoteUrl(note, url, notes))}
                 components={{
                   table: ({ children }) => <div className="table-scroll" tabIndex={0} role="region" aria-label="语法表格"><table>{children}</table></div>,
                   a: ({ children, href }) => href ? <a href={href} {...(/^https?:/.test(href) ? { target: "_blank", rel: "noopener noreferrer" } : {})}>{children}</a> : <span>{children}</span>,

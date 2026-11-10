@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { ArrowLeft, ArrowRight, Eye, EyeOff, RotateCcw } from "lucide-react";
+import { ArrowLeft, ArrowRight, Eye, EyeOff, RotateCcw, Sparkles } from "lucide-react";
 import { useApp } from "./app-provider";
 import { SpeechButton } from "./speech-button";
 import { ContentTransition } from "./content-transition";
@@ -30,10 +30,34 @@ function PracticeRound({ level, words }: { level: VocabularyLevel; words: Vocabu
   }
   return <ContentTransition transitionKey={word.id} className="practice-transition" backgroundHue={index * 360 / words.length}>
   <div className="vocab-practice">
-    <Link className="back-link" href={`/vocabulary?level=${level}`}><ArrowLeft size={17} /> 返回单词花园</Link>
-    <header className="vocab-practice-header"><h1>{level} 随机抽背</h1><p>慢慢回忆，自由翻看。</p></header>
-      <div className="vocab-round-progress"><span aria-live="polite">第 {index + 1} / {words.length} 词</span><a href={`/vocabulary/practice?level=${level}`}><RotateCcw size={14} /> 换一组</a></div>
-      <div className="vocab-round-track"><div style={{ width: `${(index + 1) / words.length * 100}%` }} /></div>
+    <Link className="back-link" href={`/vocabulary?level=${level}`}>
+      <span className="practice-back-glyph"><ArrowLeft size={17} /></span><span>返回单词花园</span>
+    </Link>
+    <header className="vocab-practice-header">
+      <div className="practice-level-label"><Sparkles size={14} /><span>JLPT {level}</span><span>轻松复习</span></div>
+      <h1>随机抽背</h1><p>慢慢回忆，自由翻看。</p>
+    </header>
+      <div className="vocab-round-progress">
+        <div className="practice-progress-counter">
+          <div className="practice-progress-caption"><span>本轮进度</span><span>还剩 {words.length - index - 1} 词</span></div>
+          <div className="practice-progress-number" aria-live="polite">
+            <span className="sr-only">第 {index + 1} / {words.length} 词</span>
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.span key={index} initial={reducedMotion ? false : { opacity: 0, y: 8, scale: .86 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -8, scale: .86 }}
+                transition={{ duration: reducedMotion ? 0 : .18 }}>{String(index + 1).padStart(2, "0")}</motion.span>
+            </AnimatePresence>
+            <span>/ {String(words.length).padStart(2, "0")} 词</span>
+          </div>
+        </div>
+        <a className="practice-restart" href={`/vocabulary/practice?level=${level}`}><RotateCcw size={15} /> 重抽本轮</a>
+      </div>
+      <div className="vocab-round-track" role="progressbar" aria-label="抽背进度"
+        aria-valuemin={1} aria-valuemax={words.length} aria-valuenow={index + 1}
+        aria-valuetext={`第 ${index + 1} / ${words.length} 词`}>
+        {words.map((_, step) => <span key={step} aria-hidden="true"
+          className={step < index ? "is-complete" : step === index ? "is-current" : undefined} />)}
+      </div>
       <section key={word.id} className="vocab-flashcard" aria-label="抽背单词">
         <div className="vocab-prompt">
           <h2 lang="ja">{word.word}</h2>

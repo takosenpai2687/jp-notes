@@ -50,13 +50,13 @@ export interface NoteSummary {
   title: string;
   level: Level;
   no: string;
+  filename: string;
   minutes: number;
   excerpt: string;
   quizId?: string;
 }
 export interface Note extends NoteSummary {
   markdown: string;
-  filename: string;
 }
 export interface Catalog {
   quizzes: QuizSummary[];

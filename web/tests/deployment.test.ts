@@ -28,8 +28,9 @@ test("production content works without parent quiz/notes directories and exclude
     const moduleUrl = pathToFileURL(path.join(process.cwd(), "src", "lib", "content.ts")).href;
     const vocabularyModule = pathToFileURL(path.join(process.cwd(), "src", "lib", "vocabulary.ts")).href;
     const program = `import {getCatalog, notesRoot} from ${JSON.stringify(moduleUrl)};
-      import {getVocabulary} from ${JSON.stringify(vocabularyModule)};
-      console.log(JSON.stringify({catalog:getCatalog(), notesRoot, vocabulary: ["N5","N4","N3","N2","N1"].map(level => getVocabulary(level).length)}));`;
+      import {getVocabulary, getVocabularyPayload} from ${JSON.stringify(vocabularyModule)};
+      console.log(JSON.stringify({catalog:getCatalog(), notesRoot, vocabulary: ["N5","N4","N3","N2","N1"].map(level => getVocabulary(level).length),
+        vocabularyPayloadLength:getVocabularyPayload().length}));`;
     const check = spawnSync(process.execPath, ["--experimental-strip-types", "--input-type=module", "-e", program], {
       cwd: temporary, encoding: "utf8", env: { ...process.env, NODE_ENV: "production" },
     });
@@ -37,6 +38,7 @@ test("production content works without parent quiz/notes directories and exclude
     const result = JSON.parse(check.stdout);
     assert.deepEqual(result.catalog, JSON.parse(JSON.stringify(getCatalog())));
     assert.deepEqual(result.vocabulary, [674, 630, 1659, 1778, 3070]);
+    assert.ok(result.vocabularyPayloadLength > 4_000_000);
     assert.equal(result.notesRoot, path.join(temporary, ".netlify-content", "notes", "raw"));
     assert.equal(existsSync(path.join(temporary, "quiz")), false);
     assert.equal(existsSync(path.join(temporary, "notes")), false);

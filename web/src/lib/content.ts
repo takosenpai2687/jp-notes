@@ -2,7 +2,6 @@ import { cache } from "react";
 import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
-import GithubSlugger from "github-slugger";
 import { levels, quizSchema } from "./models.ts";
 import type { Catalog, Level, Note, Quiz } from "./models.ts";
 
@@ -70,7 +69,7 @@ export function getCatalog(): Catalog {
       count: item.count, version: item.version, noteId: item.noteId,
     })),
     notes: notes.map((item) => ({
-      id: item.id, title: item.title, level: item.level, no: item.no,
+      id: item.id, title: item.title, level: item.level, no: item.no, filename: item.filename,
       minutes: item.minutes, excerpt: item.excerpt, quizId: item.quizId,
     })),
   };
@@ -82,21 +81,34 @@ export function getNote(id: string) {
   return loadContent().notes.find((note) => note.id === id);
 }
 
-export function noteOutline(markdown: string) {
-  const slugger = new GithubSlugger();
-  let inFence = false;
-  const headings: { id: string; text: string; depth: number }[] = [];
-  for (const line of markdown.split("\n")) {
-    if (/^\s*(```|~~~)/.test(line)) inFence = !inFence;
-    if (inFence) continue;
-    const match = /^(#{1,3})\s+(.+)$/.exec(line);
-    if (!match) continue;
-    const text = match[2].replace(/[*`]/g, "").trim();
-    const id = slugger.slug(text);
-    if (match[1].length > 1) headings.push({ id, text, depth: match[1].length });
+export function getNoteContentRecords() {
+  if (!existsSync(notesRoot)) {
+    throw new Error("Learning notes are missing. Run npm run build to package the quiz and notes sources.");
   }
-  return headings;
+  return levels.flatMap((level) => {
+    const folder = level.toLowerCase();
+    const quizFiles = filesAt(path.join(contentRoot, "quiz", folder), ".json");
+    return filesAt(path.join(notesRoot, folder), ".md").map((filename) => {
+      const markdown = readFileSync(path.join(notesRoot, folder, filename), "utf8").replace(/^\uFEFF/, "");
+      const pairedQuiz = quizFiles.find((file) =>
+        file.slice(0, -5).normalize("NFC") === filename.slice(0, -3).normalize("NFC"));
+      return {
+        id: contentId(level, filename),
+        title: markdown.match(/^#\s+(.+)$/m)?.[1]?.trim() ?? filename.replace(/\.md$/, ""),
+        level,
+        no: filename.match(/^\d+(?:\.\d+(?=\.))?/)?.[0] ?? "—",
+        filename,
+        minutes: Math.max(1, Math.ceil(markdown.length / 450)),
+        excerpt: markdown.replace(/^#.+$/gm, "").replace(/<[^>]+>|[*|>#`[\]]/g, " ")
+          .replace(/\s+/g, " ").trim().slice(0, 85),
+        ...(pairedQuiz ? { quizId: contentId(level, pairedQuiz) } : {}),
+        markdown,
+      };
+    });
+  });
 }
+
+export { noteOutline } from "./note-markdown.ts";
 
 export function noteUrl(note: Note, href: string): string {
   if (/^(https?:|mailto:|#)/i.test(href)) return href;

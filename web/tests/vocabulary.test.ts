@@ -2,23 +2,17 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createHash, randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
+import { gzipSync } from "node:zlib";
 import path from "node:path";
-import { getVocabulary } from "../src/lib/vocabulary.ts";
-import { initialKana, kanaGroup, kanaGroups, kanaRows, kanaVariants, normalizeKana, sampleWords, summarizeVocabularyAttempt, verbClassLabel, vocabularyAttemptInputSchema, vocabularyLevels } from "../src/lib/vocabulary-models.ts";
+import { getVocabulary, getVocabularyDataResponse, getVocabularyDataVersion } from "../src/lib/vocabulary.ts";
+import { initialKana, kanaGroup, kanaGroups, kanaRows, kanaVariants, normalizeKana, sampleWords, summarizeVocabularyAttempt, verbClassLabel, vocabularyAttemptInputSchema, vocabularyFingerprints, vocabularyLevels } from "../src/lib/vocabulary-models.ts";
 import { resolveSpeechText } from "../src/lib/speech.ts";
 import { emptyProgress, mergeProgress, progressSchema } from "../src/lib/models.ts";
 
 test("N5–N1 vocabulary preserves the complete original English datasets and groups by kana", () => {
-  const fingerprints = {
-    N5: "7ac633cdd24c437736794826771cb550d881f034bdb9c6c21df196b52373a078",
-    N4: "1c9ca416712896080f2c3dcf27a6739b1cadb6f6820f59dad2b28c3970a81be6",
-    N3: "aa1a6bf8c4921d1f46b063026336b4e5e8515d58b6e914353323e7b520f2da6c",
-    N2: "8f0ee6d4cac70ae8febbea8630db289ff9af2a0df4666ac34839ac2807dbd463",
-    N1: "824c4f22b813616fe68d7753a9abf3c8e31a11be154d96ebd49b41c9fdd558e8",
-  };
   for (const [level, count] of [["N5", 674], ["N4", 630], ["N3", 1659], ["N2", 1778], ["N1", 3070]] as const) {
     const raw = JSON.parse(readFileSync(path.join(process.cwd(), "data", "vocabulary", `${level.toLowerCase()}.json`), "utf8"));
-    assert.equal(createHash("sha256").update(JSON.stringify(raw)).digest("hex"), fingerprints[level],
+    assert.equal(createHash("sha256").update(JSON.stringify(raw)).digest("hex"), vocabularyFingerprints[level],
       "Upstream fields or ordering changed; update source fingerprint only after intentional data refresh.");
     const words = getVocabulary(level);
     assert.equal(words.length, count);
@@ -36,6 +30,23 @@ test("N5–N1 vocabulary preserves the complete original English datasets and gr
       previous = current;
     }
   }
+});
+test("vocabulary endpoint serves all levels as one immutable, content-versioned JSON response", async () => {
+  const version = getVocabularyDataVersion();
+  const stale = getVocabularyDataResponse(new Request("https://tako-jp.test/api/vocabulary?v=stale"));
+  assert.equal(stale.status, 404);
+  assert.equal(stale.headers.get("cache-control"), "no-store");
+  const response = getVocabularyDataResponse(new Request(`https://tako-jp.test/api/vocabulary?v=${version}`));
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("content-type") ?? "", /application\/json/);
+  assert.equal(response.headers.get("cache-control"), "public, max-age=31536000, immutable");
+  assert.equal(response.headers.get("netlify-cdn-cache-control"), "public, durable, s-maxage=31536000");
+  const body = await response.text();
+  assert.ok(gzipSync(body).byteLength < 1_500_000);
+  const dataset = JSON.parse(body) as Record<string, Array<{ level: string }>>;
+  assert.deepEqual(Object.keys(dataset), [...vocabularyLevels]);
+  assert.deepEqual(vocabularyLevels.map((level) => dataset[level].length), [674, 630, 1659, 1778, 3070]);
+  for (const level of vocabularyLevels) assert.ok(dataset[level].every((word) => word.level === level));
 });
 test("kana grouping handles katakana, voiced, semi-voiced, small and half-width kana", () => {
   for (const [input, expected] of [["がくせい", "か"], ["パーティー", "は"], ["ｷｬﾝﾌﾟ", "か"], ["ジョギング", "さ"],
