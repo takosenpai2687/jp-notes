@@ -112,7 +112,7 @@ export function Library({ section, level, catalog, initialNote, selectedNoteId, 
       ) : (
         <div className={section === "notes" ? `notes-workspace${activeNote ? " has-preview" : ""}` : undefined}
           data-notes-ready={section === "notes" ? noteContents ? "true" : "false" : undefined}
-          onClickCapture={section === "notes" ? navigateNote : undefined}>
+          onClick={section === "notes" ? navigateNote : undefined}>
           <section className={section === "notes" ? "notes-library-pane" : undefined} aria-label={section === "notes" ? "笔记列表" : undefined}>
           <div className="library-toolbar">
             {section === "quiz" && <div className="filter-pills" aria-label="按完成状态筛选">
