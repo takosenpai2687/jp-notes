@@ -28,7 +28,6 @@ export function Home({ catalog }: { catalog: Catalog }) {
         <div>
           <p className="eyebrow"><span className="sun-dot" /> きょうも、少しずつ。</p>
           <h1>今天，想去哪座<span className="heading-sky">岛</span>？<span className="heading-spark" aria-hidden="true"><Sparkle size={30} strokeWidth={1.2} /></span></h1>
-          <p className="intro-description">不用一口气学会所有。选一座喜欢的小岛，轻轻出发。</p>
         </div>
         <div className="home-cloud"><span className="cloud-note">いっしょに、行こう！</span><CloudFriend /></div>
       </Arrival>

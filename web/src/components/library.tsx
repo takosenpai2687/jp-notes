@@ -4,9 +4,9 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import type { MouseEvent } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowRight, BookOpen, Check, Clock3, Flag, Search, Sparkles, Trophy, X } from "lucide-react";
+import { ArrowRight, Check, Clock3, Flag, Search, Sparkles, Trophy, X } from "lucide-react";
 import { useApp } from "./app-provider";
-import { Arrival, EmptyState, IslandArt, PageIntro } from "./ui";
+import { Arrival, EmptyState, IslandArt } from "./ui";
 import { formatDate, levels, quizStats } from "@/lib/models";
 import type { Catalog, Level } from "@/lib/models";
 import { NoteLink } from "./note-link";
@@ -91,7 +91,6 @@ export function Library({ section, level, catalog, initialNote, selectedNoteId, 
   return (
     <div className={`library-page library-${section}${detail ? " notes-detail-page" : ""}`}>
       <title>{`${activeNote ? `${activeNote.title} · ${activeNote.level} 笔记` : `${level} ${heading.title}`} · tako-jp`}</title>
-      <Arrival className="library-heading"><PageIntro {...heading} aside={<div className="page-stamp">{section === "quiz" ? <Flag size={28} /> : <BookOpen size={28} />}<span>{comingSoon ? "次の旅へ" : `${level} 航线`}</span></div>} /></Arrival>
       <div className="level-tabs" aria-label="选择 JLPT 难度">
         {levels.map((item, index) => <Link key={item} href={`/${section}?level=${item}`}
           className={`level-tab ${level === item ? "selected" : ""}`} aria-current={level === item ? "page" : undefined}>

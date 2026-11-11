@@ -70,17 +70,6 @@ export function EmptyState({ title, children, action }: { title: string; childre
   );
 }
 
-export function PageIntro({ eyebrow, title, description, aside }: {
-  eyebrow: string; title: string; description: string; aside?: ReactNode;
-}) {
-  return (
-    <div className="page-intro">
-      <div><p className="eyebrow">{eyebrow}</p><h1>{title}</h1><p className="intro-description">{description}</p></div>
-      {aside}
-    </div>
-  );
-}
-
 export function Arrival({ children, className = "", delay = 0 }: { children: ReactNode; className?: string; delay?: number }) {
   return <motion.div className={className} initial={{ y: 12 }} animate={{ y: 0 }}
     transition={{ duration: .45, delay, ease: [.22, 1, .36, 1] }}>{children}</motion.div>;

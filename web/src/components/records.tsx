@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { ArrowRight, BookCheck, Check, Clock3, Download, Flag, Footprints, Trophy } from "lucide-react";
 import { useApp } from "./app-provider";
-import { Arrival, EmptyState, PageIntro } from "./ui";
+import { Arrival, EmptyState } from "./ui";
 import { formatDate, formatDuration, levels } from "@/lib/models";
 import type { Catalog } from "@/lib/models";
 
@@ -40,8 +40,6 @@ export function Records({ catalog, vocabularyLabels }: { catalog: Catalog; vocab
   }
   return (
     <div className="records-page">
-      <Arrival><PageIntro eyebrow="歩いた道は、ちゃんと残る。" title="每一步，都有回响" description={user ? `${user.username}，这些是你认真走过的小小旅程。记录保存在你的账号中。` : "这是你留在此浏览器的学习足迹。清除浏览器数据会移除游客记录，记得备份。"}
-        aside={<button className="button secondary" onClick={download} disabled={loading || !!error}><Download size={17} /> 导出记录</button>} /></Arrival>
       {!user && <div className="record-guest-banner"><Footprints size={22} /><span><strong>给这些小小的努力，一个自己的家。</strong><small>注册或登录后，游客记录会自动合并到账号，本机副本继续保留。</small></span><button className="button primary" onClick={openAuth}>领取学习护照 <ArrowRight size={16} /></button></div>}
       <Arrival className="record-overview">
         <section className="record-numbers">
@@ -71,6 +69,7 @@ export function Records({ catalog, vocabularyLabels }: { catalog: Catalog; vocab
         <div className="filter-pills"><button className={tab === "attempts" ? "selected" : ""} onClick={() => { setTab("attempts"); setVisible(20); }}>挑战记录 <span>{attempts.length}</span></button>
           <button className={tab === "reads" ? "selected" : ""} onClick={() => { setTab("reads"); setVisible(20); }}>历史阅读足迹 <span>{reads.length}</span></button></div>
         <label className="record-level">航线 <select value={level} onChange={(event) => { setLevel(event.target.value); setVisible(20); }}><option value="all">全部等级</option>{levels.map((item) => <option key={item}>{item}</option>)}</select></label>
+        <button className="button secondary" onClick={download} disabled={loading || !!error}><Download size={17} /> 导出记录</button>
       </div>
       {loading ? <div className="loading-panel"><span className="loading-cloud" /> 正在整理你的学习足迹…</div> :
         (tab === "attempts" ? attempts : reads).length === 0 ? <EmptyState title={tab === "attempts" ? "小小的第一步，还在等你" : "还没有收藏这片风景"} action={<Link className="button primary" href={tab === "attempts" ? "/quiz" : "/notes"}>现在去探索 <ArrowRight size={16} /></Link>}>

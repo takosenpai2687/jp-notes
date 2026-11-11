@@ -6,7 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { MouseEvent } from "react";
 import { ArrowLeft, ArrowRight, Search, Shuffle, X } from "lucide-react";
 import { useApp } from "./app-provider";
-import { Arrival, EmptyState, PageIntro } from "./ui";
+import { EmptyState } from "./ui";
 import { KanaDirectory } from "./kana-directory";
 import { ContentTransition } from "./content-transition";
 import { VocabularyDetail } from "./vocabulary-detail";
@@ -126,8 +126,6 @@ export function Vocabulary({ level: initialLevel, dataVersion, initialWordId, ex
 
   return <div className={`library-page library-vocabulary vocabulary-page${explicitSelection ? " vocab-selected" : ""}`}>
     <title>{`${selected ? `${selected.word} · ` : ""}${level} 单词花园 · tako-jp`}</title>
-    <Arrival className="library-heading"><PageIntro eyebrow="ことばの種を、まこう。" title="单词花园"
-      description="读一个词，再认识一点世界。" aside={datasets ? <Link className="button primary" href={`/vocabulary/practice?level=${level}`}><Shuffle size={17} /> 随机抽背 · 10 词</Link> : undefined} /></Arrival>
     <nav className="level-tabs" aria-label="选择 JLPT 难度">{levels.map((item, index) =>
       <Link key={item} prefetch={false} href={`/vocabulary?level=${item}`} onClick={(event) => handleNavigation(event, `/vocabulary?level=${item}`, () => {
         setLevel(item);
@@ -138,7 +136,9 @@ export function Vocabulary({ level: initialLevel, dataVersion, initialWordId, ex
         setPage(1);
       })} className={`level-tab ${level === item ? "selected" : ""}`} aria-current={level === item ? "page" : undefined}>
         <strong>{item}</strong><span>{["入门", "基础", "进阶", "熟练", "精通"][index]}</span>
-      </Link>)}</nav>
+      </Link>)}
+      {datasets && <Link className="button primary vocabulary-practice-link" href={`/vocabulary/practice?level=${level}`}><Shuffle size={17} /> 随机抽背 · 10 词</Link>}
+    </nav>
     {loadError ? <EmptyState title="词库暂时没有载入" action={<button className="button primary" onClick={() => { setLoadError(undefined); setLoadAttempt((attempt) => attempt + 1); }}>重新加载</button>}>{loadError}</EmptyState>
       : !datasets ? <div className="vocab-loading" role="status" aria-busy="true"><span />正在一次载入 N5–N1 单词…</div>
       : <div className="vocab-workspace">

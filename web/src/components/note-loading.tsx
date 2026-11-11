@@ -10,7 +10,6 @@ export function NoteLoading({ detail = false, embedded = false }: { detail?: boo
   return <div className={`note-loading${detail ? " note-loading-detail" : ""}${embedded ? " note-loading-embedded" : ""}`} role="status" aria-busy="true">
     <span className="sr-only">正在加载笔记，请稍候。</span>
     {!embedded && <div className="note-loading-heading" aria-hidden="true">
-      <span className="note-skeleton-title" />
       <div className="note-skeleton-levels">{Array.from({ length: 5 }, (_, index) => <span key={index} />)}</div>
     </div>}
     <div className="note-loading-workspace" aria-hidden="true">
