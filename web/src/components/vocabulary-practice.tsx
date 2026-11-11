@@ -30,6 +30,7 @@ function PracticeRound({ level, words }: { level: VocabularyLevel; words: Vocabu
   }
   return <ContentTransition transitionKey={word.id} className="practice-transition" backgroundHue={index * 360 / words.length}>
   <div className="vocab-practice">
+    <title>{`${level} 单词随机抽背 · tako-jp`}</title>
     <Link className="back-link" href={`/vocabulary?level=${level}`}>
       <span className="practice-back-glyph"><ArrowLeft size={17} /></span><span>返回单词花园</span>
     </Link>

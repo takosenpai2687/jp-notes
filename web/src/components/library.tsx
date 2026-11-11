@@ -90,6 +90,7 @@ export function Library({ section, level, catalog, initialNote, selectedNoteId, 
     && (section !== "quiz" || filter === "all" || (filter === "done" ? done(entry.id) : !done(entry.id))));
   return (
     <div className={`library-page library-${section}${detail ? " notes-detail-page" : ""}`}>
+      <title>{`${activeNote ? `${activeNote.title} · ${activeNote.level} 笔记` : `${level} ${heading.title}`} · tako-jp`}</title>
       <Arrival className="library-heading"><PageIntro {...heading} aside={<div className="page-stamp">{section === "quiz" ? <Flag size={28} /> : <BookOpen size={28} />}<span>{comingSoon ? "次の旅へ" : `${level} 航线`}</span></div>} /></Arrival>
       <div className="level-tabs" aria-label="选择 JLPT 难度">
         {levels.map((item, index) => <Link key={item} href={`/${section}?level=${item}`}

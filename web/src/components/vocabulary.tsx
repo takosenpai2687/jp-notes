@@ -125,6 +125,7 @@ export function Vocabulary({ level: initialLevel, dataVersion, initialWordId, ex
   if (datasets && explicitSelection && !selected) notFound();
 
   return <div className={`library-page library-vocabulary vocabulary-page${explicitSelection ? " vocab-selected" : ""}`}>
+    <title>{`${selected ? `${selected.word} · ` : ""}${level} 单词花园 · tako-jp`}</title>
     <Arrival className="library-heading"><PageIntro eyebrow="ことばの種を、まこう。" title="单词花园"
       description="读一个词，再认识一点世界。" aside={datasets ? <Link className="button primary" href={`/vocabulary/practice?level=${level}`}><Shuffle size={17} /> 随机抽背 · 10 词</Link> : undefined} /></Arrival>
     <nav className="level-tabs" aria-label="选择 JLPT 难度">{levels.map((item, index) =>
