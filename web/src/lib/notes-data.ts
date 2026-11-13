@@ -1,8 +1,17 @@
 import { createHash } from "node:crypto";
+import { isLevel } from "./models";
 import { getNoteContentRecords } from "./content.ts";
 
 export function getNotesDataResponse(request: Request) {
-  const payload = JSON.stringify({ notes: getNoteContentRecords() });
+  const params = new URL(request.url).searchParams;
+  const level = params.get("level");
+  if ([...params].length !== 1 || !level || !isLevel(level)) {
+    return new Response(JSON.stringify({ error: "笔记等级不正确。" }), {
+      status: 404,
+      headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
+    });
+  }
+  const payload = JSON.stringify({ notes: getNoteContentRecords(level) });
   const etag = `"${createHash("sha256").update(payload).digest("hex")}"`;
   const headers = {
     "Cache-Control": "public, max-age=0, must-revalidate",

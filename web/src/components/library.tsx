@@ -33,7 +33,7 @@ export function Library({ section, level, catalog, initialNote, selectedNoteId, 
   const [filter, setFilter] = useState("all");
   const [localNoteId, setLocalNoteId] = useState<string | undefined>();
   const activeNoteId = localNoteId ?? selectedNoteId;
-  const [noteContents, setNoteContents] = useState<NoteContent[] | undefined>(() => getCachedNotes()?.notes);
+  const [noteContents, setNoteContents] = useState<NoteContent[] | undefined>(() => getCachedNotes(level)?.notes);
   const [notesLoadError, setNotesLoadError] = useState(false);
   const [notesReload, setNotesReload] = useState(0);
   const noteSummaries = useMemo(() => noteContents?.map(({ id, title, level, no, filename, minutes, excerpt, quizId }) =>
@@ -52,7 +52,7 @@ export function Library({ section, level, catalog, initialNote, selectedNoteId, 
   useEffect(() => {
     if (section !== "notes") return;
     let active = true;
-    void fetchNotes().then((payload) => {
+    void fetchNotes(level).then((payload) => {
       if (active) {
         setNoteContents(payload.notes);
         setNotesLoadError(false);
@@ -63,7 +63,7 @@ export function Library({ section, level, catalog, initialNote, selectedNoteId, 
       setNotesLoadError(true);
     });
     return () => { active = false; };
-  }, [section, notesReload]);
+  }, [section, level, notesReload]);
   const heading = headings[section];
   const activeNote = noteContents
     ? noteContents.find((note) => note.id === activeNoteId)

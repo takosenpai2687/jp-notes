@@ -5,14 +5,14 @@ import { getNotesDataResponse } from "../src/lib/notes-data.ts";
 import { resolveNoteUrl } from "../src/lib/note-markdown.ts";
 
 test("notes payload is content-addressed and revalidates cached responses", async () => {
-  const request = new Request("http://localhost/api/notes");
+  const request = new Request("http://localhost/api/notes?level=N5");
   const response = getNotesDataResponse(request);
   assert.equal(response.status, 200);
   assert.equal(response.headers.get("cache-control"), "public, max-age=0, must-revalidate");
   const etag = response.headers.get("etag");
   assert.ok(etag);
   const payload = await response.json();
-  assert.deepEqual(payload.notes, JSON.parse(JSON.stringify(loadContent().notes)));
+  assert.deepEqual(payload.notes, JSON.parse(JSON.stringify(loadContent().notes.filter((note) => note.level === "N5"))));
 
   const cachedResponse = getNotesDataResponse(new Request(request, { headers: { "If-None-Match": etag } }));
   assert.equal(cachedResponse.status, 304);

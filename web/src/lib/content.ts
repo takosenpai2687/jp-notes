@@ -81,30 +81,28 @@ export function getNote(id: string) {
   return loadContent().notes.find((note) => note.id === id);
 }
 
-export function getNoteContentRecords() {
+export function getNoteContentRecords(level: Level) {
   if (!existsSync(notesRoot)) {
     throw new Error("Learning notes are missing. Run npm run build to package the quiz and notes sources.");
   }
-  return levels.flatMap((level) => {
-    const folder = level.toLowerCase();
-    const quizFiles = filesAt(path.join(contentRoot, "quiz", folder), ".json");
-    return filesAt(path.join(notesRoot, folder), ".md").map((filename) => {
-      const markdown = readFileSync(path.join(notesRoot, folder, filename), "utf8").replace(/^\uFEFF/, "");
-      const pairedQuiz = quizFiles.find((file) =>
-        file.slice(0, -5).normalize("NFC") === filename.slice(0, -3).normalize("NFC"));
-      return {
-        id: contentId(level, filename),
-        title: markdown.match(/^#\s+(.+)$/m)?.[1]?.trim() ?? filename.replace(/\.md$/, ""),
-        level,
-        no: filename.match(/^\d+(?:\.\d+(?=\.))?/)?.[0] ?? "—",
-        filename,
-        minutes: Math.max(1, Math.ceil(markdown.length / 450)),
-        excerpt: markdown.replace(/^#.+$/gm, "").replace(/<[^>]+>|[*|>#`[\]]/g, " ")
-          .replace(/\s+/g, " ").trim().slice(0, 85),
-        ...(pairedQuiz ? { quizId: contentId(level, pairedQuiz) } : {}),
-        markdown,
-      };
-    });
+  const folder = level.toLowerCase();
+  const quizFiles = filesAt(path.join(contentRoot, "quiz", folder), ".json");
+  return filesAt(path.join(notesRoot, folder), ".md").map((filename) => {
+    const markdown = readFileSync(path.join(notesRoot, folder, filename), "utf8").replace(/^\uFEFF/, "");
+    const pairedQuiz = quizFiles.find((file) =>
+      file.slice(0, -5).normalize("NFC") === filename.slice(0, -3).normalize("NFC"));
+    return {
+      id: contentId(level, filename),
+      title: markdown.match(/^#\s+(.+)$/m)?.[1]?.trim() ?? filename.replace(/\.md$/, ""),
+      level,
+      no: filename.match(/^\d+(?:\.\d+(?=\.))?/)?.[0] ?? "—",
+      filename,
+      minutes: Math.max(1, Math.ceil(markdown.length / 450)),
+      excerpt: markdown.replace(/^#.+$/gm, "").replace(/<[^>]+>|[*|>#`[\]]/g, " ")
+        .replace(/\s+/g, " ").trim().slice(0, 85),
+      ...(pairedQuiz ? { quizId: contentId(level, pairedQuiz) } : {}),
+      markdown,
+    };
   });
 }
 

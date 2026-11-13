@@ -30,7 +30,7 @@ test("production content works without parent quiz/notes directories and exclude
     const program = `import {getCatalog, notesRoot} from ${JSON.stringify(moduleUrl)};
       import {getVocabulary, getVocabularyPayload} from ${JSON.stringify(vocabularyModule)};
       console.log(JSON.stringify({catalog:getCatalog(), notesRoot, vocabulary: ["N5","N4","N3","N2","N1"].map(level => getVocabulary(level).length),
-        vocabularyPayloadLength:getVocabularyPayload().length}));`;
+      vocabularyPayloadLength: ["N5","N4","N3","N2","N1"].reduce((total, level) => total + getVocabularyPayload(level).length, 0)}));`;
     const check = spawnSync(process.execPath, ["--experimental-strip-types", "--input-type=module", "-e", program], {
       cwd: temporary, encoding: "utf8", env: { ...process.env, NODE_ENV: "production" },
     });

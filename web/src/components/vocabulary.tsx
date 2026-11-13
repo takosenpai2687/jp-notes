@@ -12,38 +12,34 @@ import { ContentTransition } from "./content-transition";
 import { VocabularyDetail } from "./vocabulary-detail";
 import { isLevel, levels } from "@/lib/models";
 import { initialKana, kanaGroup, kanaGroups, kanaRows, normalizeKana } from "@/lib/vocabulary-models";
-import { vocabularyLevels, vocabularySchema } from "@/lib/vocabulary-models";
+import { vocabularyFingerprints, vocabularySchema } from "@/lib/vocabulary-models";
 import type { VocabularyLevel, VocabularyWord } from "@/lib/vocabulary-models";
 import { z } from "zod";
 
-type VocabularyDataset = Record<VocabularyLevel, VocabularyWord[]>;
-const datasetRequests = new Map<string, Promise<VocabularyDataset>>();
+type VocabularyDataset = Partial<Record<VocabularyLevel, VocabularyWord[]>>;
+const datasetRequests = new Map<string, Promise<VocabularyWord[]>>();
 
-function getVocabularyDataset(version: string) {
-  const cached = datasetRequests.get(version);
+function getVocabularyDataset(level: VocabularyLevel) {
+  const version = vocabularyFingerprints[level];
+  const key = `${level}:${version}`;
+  const cached = datasetRequests.get(key);
   if (cached) return cached;
-  const request = fetch(`/api/vocabulary?v=${encodeURIComponent(version)}`, { cache: "force-cache" })
+  const request = fetch(`/api/vocabulary?level=${level}&v=${encodeURIComponent(version)}`, { cache: "force-cache" })
     .then(async (response) => {
       if (!response.ok) throw new Error("词库暂时无法加载，请检查网络后重试。");
-      const payload = await response.json() as Record<string, unknown>;
-      if (Object.keys(payload).length !== vocabularyLevels.length) throw new Error("词库数据格式不正确。");
-      const dataset = {} as VocabularyDataset;
-      for (const level of vocabularyLevels) {
-        const words = z.array(vocabularySchema).parse(payload[level]);
-        if (words.some((word) => word.level !== level) || new Set(words.map((word) => word.id)).size !== words.length) {
-          throw new Error(`词库 ${level} 等级或 ID 异常。`);
-        }
-        words.sort((a, b) => kanaGroups.indexOf(kanaGroup(a.reading)) - kanaGroups.indexOf(kanaGroup(b.reading))
-          || a.reading.localeCompare(b.reading, "ja") || a.id.localeCompare(b.id));
-        dataset[level] = words;
+      const words = z.array(vocabularySchema).parse(await response.json());
+      if (words.some((word) => word.level !== level) || new Set(words.map((word) => word.id)).size !== words.length) {
+        throw new Error(`词库 ${level} 等级或 ID 异常。`);
       }
-      return dataset;
+      words.sort((a, b) => kanaGroups.indexOf(kanaGroup(a.reading)) - kanaGroups.indexOf(kanaGroup(b.reading))
+        || a.reading.localeCompare(b.reading, "ja") || a.id.localeCompare(b.id));
+      return words;
     })
     .catch((error: unknown) => {
-      datasetRequests.delete(version);
+      datasetRequests.delete(key);
       throw error;
     });
-  datasetRequests.set(version, request);
+  datasetRequests.set(key, request);
   return request;
 }
 
@@ -54,8 +50,8 @@ function handleNavigation(event: MouseEvent<HTMLAnchorElement>, href: string, up
   update();
 }
 
-export function Vocabulary({ level: initialLevel, dataVersion, initialWordId, explicitSelection: initialExplicitSelection }: {
-  level: VocabularyLevel; dataVersion: string; initialWordId?: string; explicitSelection: boolean;
+export function Vocabulary({ level: initialLevel, initialWordId, explicitSelection: initialExplicitSelection }: {
+  level: VocabularyLevel; initialWordId?: string; explicitSelection: boolean;
 }) {
   const { setPreferredLevel } = useApp();
   const [level, setLevel] = useState(initialLevel);
@@ -69,16 +65,18 @@ export function Vocabulary({ level: initialLevel, dataVersion, initialWordId, ex
   const [page, setPage] = useState(1);
   const initializedSelection = useRef(false);
   const words = useMemo(() => datasets?.[level] ?? [], [datasets, level]);
+  const levelLoaded = datasets?.[level] !== undefined;
   const selected = words.find((word) => word.id === selectedId) ?? (!explicitSelection ? words[0] : undefined);
 
   useEffect(() => { setPreferredLevel(level); }, [level, setPreferredLevel]);
 
   useEffect(() => {
     let active = true;
-    void getVocabularyDataset(dataVersion).then((dataset) => {
+    setLoadError(undefined);
+    void getVocabularyDataset(level).then((loadedWords) => {
       if (active) {
-        setDatasets(dataset);
-        const initial = initialWordId ? dataset[initialLevel].find((word) => word.id === initialWordId) : undefined;
+        setDatasets((current) => ({ ...current, [level]: loadedWords }));
+        const initial = initialWordId && initialLevel === level ? loadedWords.find((word) => word.id === initialWordId) : undefined;
         if (initial && !initializedSelection.current) {
           setGroup(initialKana(initial.reading));
           initializedSelection.current = true;
@@ -88,7 +86,7 @@ export function Vocabulary({ level: initialLevel, dataVersion, initialWordId, ex
       if (active) setLoadError(error instanceof Error ? error.message : "词库加载失败，请稍后重试。");
     });
     return () => { active = false; };
-  }, [dataVersion, initialLevel, initialWordId, loadAttempt]);
+  }, [level, initialLevel, initialWordId, loadAttempt]);
 
   useEffect(() => {
     function restoreLocation() {
@@ -122,7 +120,7 @@ export function Vocabulary({ level: initialLevel, dataVersion, initialWordId, ex
       && (!search || normalizeKana([word.word, word.reading, word.romaji, ...word.meanings].join(" ")).toLowerCase().includes(search)));
   }, [words, group, query]);
   const pageCount = Math.max(1, Math.ceil(filtered.length / 20));
-  if (datasets && explicitSelection && !selected) notFound();
+  if (levelLoaded && explicitSelection && !selected) notFound();
 
   return <div className={`library-page library-vocabulary vocabulary-page${explicitSelection ? " vocab-selected" : ""}`}>
     <title>{`${selected ? `${selected.word} · ` : ""}${level} 单词花园 · tako-jp`}</title>
@@ -134,13 +132,14 @@ export function Vocabulary({ level: initialLevel, dataVersion, initialWordId, ex
         setGroup("あ");
         setQuery("");
         setPage(1);
+        setLoadError(undefined);
       })} className={`level-tab ${level === item ? "selected" : ""}`} aria-current={level === item ? "page" : undefined}>
         <strong>{item}</strong><span>{["入门", "基础", "进阶", "熟练", "精通"][index]}</span>
       </Link>)}
-      {datasets && <Link className="button primary vocabulary-practice-link" href={`/vocabulary/practice?level=${level}`}><Shuffle size={17} /> 随机抽背 · 10 词</Link>}
+      {levelLoaded && <Link className="button primary vocabulary-practice-link" href={`/vocabulary/practice?level=${level}`}><Shuffle size={17} /> 随机抽背 · 10 词</Link>}
     </nav>
     {loadError ? <EmptyState title="词库暂时没有载入" action={<button className="button primary" onClick={() => { setLoadError(undefined); setLoadAttempt((attempt) => attempt + 1); }}>重新加载</button>}>{loadError}</EmptyState>
-      : !datasets ? <div className="vocab-loading" role="status" aria-busy="true"><span />正在一次载入 N5–N1 单词…</div>
+      : !levelLoaded ? <div className="vocab-loading" role="status" aria-busy="true"><span />正在载入 {level} 单词…</div>
       : <div className="vocab-workspace">
         <section className="vocab-list-pane" aria-label="单词列表">
           <label className="search-field"><Search size={17} /><input aria-label="搜索单词" placeholder="单词、读音或英文" value={query} onChange={(event) => { setQuery(event.target.value); setGroup("all"); setPage(1); }} />

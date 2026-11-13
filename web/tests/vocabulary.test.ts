@@ -31,22 +31,23 @@ test("N5–N1 vocabulary preserves the complete original English datasets and gr
     }
   }
 });
-test("vocabulary endpoint serves all levels as one immutable, content-versioned JSON response", async () => {
-  const version = getVocabularyDataVersion();
-  const stale = getVocabularyDataResponse(new Request("https://tako-jp.test/api/vocabulary?v=stale"));
+test("vocabulary endpoint serves one immutable, content-versioned level per response", async () => {
+  const stale = getVocabularyDataResponse(new Request("https://tako-jp.test/api/vocabulary?level=N5&v=stale"));
   assert.equal(stale.status, 404);
   assert.equal(stale.headers.get("cache-control"), "no-store");
-  const response = getVocabularyDataResponse(new Request(`https://tako-jp.test/api/vocabulary?v=${version}`));
-  assert.equal(response.status, 200);
-  assert.match(response.headers.get("content-type") ?? "", /application\/json/);
-  assert.equal(response.headers.get("cache-control"), "public, max-age=31536000, immutable");
-  assert.equal(response.headers.get("netlify-cdn-cache-control"), "public, durable, s-maxage=31536000");
-  const body = await response.text();
-  assert.ok(gzipSync(body).byteLength < 1_500_000);
-  const dataset = JSON.parse(body) as Record<string, Array<{ level: string }>>;
-  assert.deepEqual(Object.keys(dataset), [...vocabularyLevels]);
-  assert.deepEqual(vocabularyLevels.map((level) => dataset[level].length), [674, 630, 1659, 1778, 3070]);
-  for (const level of vocabularyLevels) assert.ok(dataset[level].every((word) => word.level === level));
+  for (const [level, count] of [["N5", 674], ["N4", 630], ["N3", 1659], ["N2", 1778], ["N1", 3070]] as const) {
+    const version = getVocabularyDataVersion(level);
+    const response = getVocabularyDataResponse(new Request(`https://tako-jp.test/api/vocabulary?level=${level}&v=${version}`));
+    assert.equal(response.status, 200);
+    assert.match(response.headers.get("content-type") ?? "", /application\/json/);
+    assert.equal(response.headers.get("cache-control"), "public, max-age=31536000, immutable");
+    assert.equal(response.headers.get("netlify-cdn-cache-control"), "public, durable, s-maxage=31536000");
+    const body = await response.text();
+    assert.ok(gzipSync(body).byteLength < 1_500_000);
+    const words = JSON.parse(body) as Array<{ level: string }>;
+    assert.equal(words.length, count);
+    assert.ok(words.every((word) => word.level === level));
+  }
 });
 test("kana grouping handles katakana, voiced, semi-voiced, small and half-width kana", () => {
   for (const [input, expected] of [["がくせい", "か"], ["パーティー", "は"], ["ｷｬﾝﾌﾟ", "か"], ["ジョギング", "さ"],

@@ -2,40 +2,40 @@ import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import path from "node:path";
 import { z } from "zod";
+import { isLevel } from "./models.ts";
 import { vocabularySchema } from "./vocabulary-models.ts";
 import { kanaGroup, kanaGroups } from "./vocabulary-models.ts";
 import { vocabularyFingerprints, vocabularyLevels } from "./vocabulary-models.ts";
 import type { VocabularyLevel, VocabularyWord } from "./vocabulary-models.ts";
 
 const cache = new Map<VocabularyLevel, VocabularyWord[]>();
-let vocabularyPayload: string | undefined;
+const vocabularyPayloads = new Map<VocabularyLevel, string>();
 
-export function getVocabularyDataVersion() {
-  return createHash("sha256").update(vocabularyLevels.map((level) => vocabularyFingerprints[level]).join("")).digest("hex");
+export function getVocabularyDataVersion(level: VocabularyLevel) {
+  return vocabularyFingerprints[level];
 }
 
-export function getVocabularyPayload() {
-  if (vocabularyPayload) return vocabularyPayload;
+export function getVocabularyPayload(level: VocabularyLevel) {
+  const cached = vocabularyPayloads.get(level);
+  if (cached) return cached;
   const directory = process.env.NODE_ENV === "production" ? ".netlify-content" : "data";
-  const levels = vocabularyLevels.map((level) => {
-    const json = readFileSync(path.join(process.cwd(), directory, "vocabulary", `${level.toLowerCase()}.json`), "utf8");
-    const fingerprint = createHash("sha256").update(JSON.stringify(JSON.parse(json))).digest("hex");
-    if (fingerprint !== vocabularyFingerprints[level]) throw new Error(`词库 ${level} 与缓存版本不匹配。`);
-    return `${JSON.stringify(level)}:${json}`;
-  });
-  vocabularyPayload = `{${levels.join(",")}}`;
-  return vocabularyPayload;
+  const json = readFileSync(path.join(process.cwd(), directory, "vocabulary", `${level.toLowerCase()}.json`), "utf8");
+  const fingerprint = createHash("sha256").update(JSON.stringify(JSON.parse(json))).digest("hex");
+  if (fingerprint !== vocabularyFingerprints[level]) throw new Error(`词库 ${level} 与缓存版本不匹配。`);
+  vocabularyPayloads.set(level, json);
+  return json;
 }
 
 export function getVocabularyDataResponse(request: Request) {
   const query = new URL(request.url).searchParams;
-  if ([...query].length !== 1 || query.get("v") !== getVocabularyDataVersion()) {
-    return new Response(JSON.stringify({ error: "词库版本不正确，请刷新页面。" }), {
+  const level = query.get("level");
+  if ([...query].length !== 2 || !level || !isLevel(level) || query.get("v") !== getVocabularyDataVersion(level)) {
+    return new Response(JSON.stringify({ error: "词库等级或版本不正确，请刷新页面。" }), {
       status: 404,
       headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
     });
   }
-  return new Response(getVocabularyPayload(), {
+  return new Response(getVocabularyPayload(level), {
     headers: {
       "Content-Type": "application/json; charset=utf-8",
       "Cache-Control": "public, max-age=31536000, immutable",
