@@ -1,14 +1,14 @@
 ---
 name: quiz
-description: Generate an interactive, animated JLPT-style grammar quiz (HTML) from a note or grammar point found under notes/, and open it.
+description: Generate a JLPT-style grammar quiz JSON from a note or grammar point found under notes/.
 whenToUse: The user asks for quiz questions, practice, 考题, 出题, 测试, or invokes /quiz.
 ---
 
 # Quiz
 
-Turn a note (or a grammar point) under `notes/` into an interactive, animated
-JLPT-style multiple-choice quiz, delivered as one self-contained HTML file.
-The HTML template is fixed — the only thing that changes is the quiz JSON.
+Turn a note (or a grammar point) under `notes/` into a JLPT-style multiple-choice
+quiz, delivered as one JSON file. **The JSON is the only artefact — do not build
+or write any HTML.**
 
 ## Workflow
 
@@ -23,7 +23,7 @@ The HTML template is fixed — the only thing that changes is the quiz JSON.
      → `no: "22"`). Even when the user does not name the level or lesson, you
      must derive both from the matched note's path and filename.
    - The output file mirrors the note path under `quiz/`: `notes/raw/n4/22.ば形.md`
-     → `quiz/n4/22.ば形.html` (same leading number, same topic name, same level
+     → `quiz/n4/22.ば形.json` (same leading number, same topic name, same level
      folder).
 
 2. **Read and summarize.** Read the matched note. Extract 4–7 knowledge points as
@@ -47,6 +47,10 @@ The HTML template is fixed — the only thing that changes is the quiz JSON.
      变形表 are the focus: add one conjugation question per rule or table row
      (e.g. 言う→言えば), and blank the conjugated form. These are conjugation
      questions, not sentence-pattern questions — match what the note is about.
+   - For concept / overview notes with no example sentences, write a few
+     definition-based questions from the note's own content instead (what a term
+     means, what it does, which item belongs to the list). Label them with the
+     note section, e.g. `什么是形式体言`.
    - There is no fixed count: cover all examples and all conjugation points, so a
      rich note yields more questions. Do not pad with off-topic sentences.
    - `source` (required) names where the question came from — a short label such
@@ -61,12 +65,13 @@ The HTML template is fixed — the only thing that changes is the quiz JSON.
      is the whole sentence rendered in natural Chinese. `tip` is ONE optional
      sentence of test-taking skill. Keep all three short — no deep detail.
 
-4. **Self-review before building (required).** Re-read every question you wrote and
+4. **Self-review before writing (required).** Re-read every question you wrote and
    check, one by one, that:
    - every 真题 / 例题 in the note appears in the quiz verbatim — same stem, same
      options in the same order, same answer — and none was dropped or reworded;
    - every stem is a verbatim example sentence from the note (or a conjugation-
-     table entry), and `source` points to the right place;
+     table entry, or a definition drawn from the note's own content), and
+     `source` points to the right place;
    - the marked answer is actually correct — re-derive the conjugation or usage
      against the note, don't trust your first pass;
    - every other option is genuinely wrong for the blank (no accidental second
@@ -77,37 +82,14 @@ The HTML template is fixed — the only thing that changes is the quiz JSON.
      contradict it, and `translation` faithfully renders the full sentence
      (including the blank, now filled with the correct option);
    - the level matches the note's folder (n4→N4, n5→N5).
-   Fix anything that fails before building; never ship a question you could not
+   Fix anything that fails before writing; never ship a question you could not
    justify.
 
-5. **Persist the JSON, then build.** Write the quiz JSON to its permanent path
-   (do NOT use a temp file): `quiz/<n4|n5>/<N>.<topic>.json`, mirroring the note
-   filename. Then run the bundled script, which deterministically interpolates
-   the JSON into the fixed template and stamps a `version` into both files. Use
-   the bundled Python:
+5. **Write the JSON.** Write the quiz JSON to its permanent path:
+   `quiz/<n4|n5>/<N>.<topic>.json`, mirroring the note filename. That JSON file is
+   the only artefact — do not build or write any HTML.
 
-   ```powershell
-   $py = '<python>'; & $py "<skill-dir>\scripts\build-quiz.py" <quiz.json> <output.html>
-   ```
-
-   `<skill-dir>` is this skill's base directory; `<python>` is the bundled Python
-   from `load_workspace_dependencies`. Both files live side by side, e.g.
-   `notes/raw/n4/22.ば形.md` → `quiz/n4/22.ば形.json` + `quiz/n4/22.ば形.html`.
-
-6. **Verify alignment (optional but recommended).** After building, confirm the
-   HTML matches the JSON:
-
-   ```powershell
-   & $py "<skill-dir>\scripts\build-quiz.py" --check <quiz.json> <output.html>
-   ```
-
-   It prints `IN SYNC` or `OUT OF SYNC` (with the mismatched versions). If you
-   later edit the questions in the JSON, re-run the build — the version changes
-   and `--check` will flag a stale HTML until you rebuild.
-
-7. **Report.** Give both output paths as links (JSON + HTML), the question count,
-   and the version. Do not open a server; the HTML is a single static file the
-   user opens directly.
+6. **Report.** Give the JSON path as a link and the question count.
 
 ## Quiz JSON schema
 
@@ -132,33 +114,14 @@ The HTML template is fixed — the only thing that changes is the quiz JSON.
 }
 ```
 
-- `stem` uses `＿＿＿` (or `＿`) to mark the blank; the template renders it as an
-  underlined gap.
+- `stem` uses `＿＿＿` (or `＿`) to mark the blank.
 - `source` is required — a short label naming the note's section / example the
-  question came from (e.g. `意义①例句`, `变形表·言う`, `例2·情感`). The template
-  shows it as a tag beside the question number.
+  question came from (e.g. `意义①例句`, `变形表·言う`, `例2·情感`).
 - `options` is always exactly four strings.
 - `explain` is required (core knowledge point); `translation` is required (the
-  full sentence translated into Chinese, shown as a highlighted line); `tip` is
+  full sentence translated into Chinese); `tip` is optional.
+- Top-level: `title`, `level`, `no` are required. `subtitle`, `summary` are
   optional.
-- Top-level: `title`, `level`, `no` are required — `no` is the note's leading
-  number and drives the `第 N 课` breadcrumb. `subtitle`, `summary` are optional.
-- `version` is managed by the build script, never by you. It is a content hash
-  stamped into both the JSON and the HTML on every build; `--check` uses it to
-  tell whether the HTML is in sync with the JSON.
-
-## Fixed template
-
-The template lives at `assets/quiz-template.html` in this skill bundle. It is
-self-contained (no network, no build step) and already implements: a level-and-
-lesson breadcrumb (N4 › 第22课), a knowledge summary list, one question per card
-with staggered rise-in animation, option click feedback (green correct / red
-wrong with a shake), the explanation reveal with a highlighted full-sentence
-translation line, a progress bar, a score ring, and a small version marker in
-the footer. **Do not edit the template for a specific quiz** — all variation
-goes through the quiz JSON. Only touch the template to fix the shared
-presentation. The template holds two placeholders the script fills:
-`__QUIZ_DATA__` (the quiz JSON) and `__QUIZ_VERSION__` (the version hash).
 
 ## Rules
 
@@ -169,6 +132,4 @@ presentation. The template holds two placeholders the script fills:
   that makes the quiz longer. Never substitute invented questions for them.
 - Keep the whole quiz in the note's own language register: Chinese explanations,
   Japanese stems/options.
-- The JSON is the source of truth: keep it alongside the HTML, do not delete it.
-  You never write HTML by hand — always rebuild through the script so the
-  version marker stays correct.
+- The JSON is the only output: do not build or write any HTML.
