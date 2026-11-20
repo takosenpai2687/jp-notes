@@ -1,11 +1,11 @@
 import { createHash } from "node:crypto";
-import { isLevel } from "./models";
+import { isLevel } from "./models.ts";
 import { getNoteContentRecords } from "./content.ts";
 
-export function getNotesDataResponse(request: Request) {
+export function getNotesDataResponse(request: Request, requestedLevel?: string) {
   const params = new URL(request.url).searchParams;
-  const level = params.get("level");
-  if ([...params].length !== 1 || !level || !isLevel(level)) {
+  const level = requestedLevel;
+  if ([...params].length !== 0 || !level || !isLevel(level)) {
     return new Response(JSON.stringify({ error: "笔记等级不正确。" }), {
       status: 404,
       headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },

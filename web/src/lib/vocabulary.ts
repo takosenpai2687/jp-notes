@@ -26,10 +26,10 @@ export function getVocabularyPayload(level: VocabularyLevel) {
   return json;
 }
 
-export function getVocabularyDataResponse(request: Request) {
+export function getVocabularyDataResponse(request: Request, requestedLevel?: string, version?: string) {
   const query = new URL(request.url).searchParams;
-  const level = query.get("level");
-  if ([...query].length !== 2 || !level || !isLevel(level) || query.get("v") !== getVocabularyDataVersion(level)) {
+  const level = requestedLevel;
+  if ([...query].length !== 0 || !level || !isLevel(level) || version !== getVocabularyDataVersion(level)) {
     return new Response(JSON.stringify({ error: "词库等级或版本不正确，请刷新页面。" }), {
       status: 404,
       headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },

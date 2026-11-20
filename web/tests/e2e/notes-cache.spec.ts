@@ -5,10 +5,10 @@ test("notes preload once and local navigation avoids per-note RSC requests", asy
   const rscRequests: string[] = [];
   page.on("request", (request) => {
     const url = new URL(request.url());
-    if (url.pathname === "/api/notes") notesRequests.push(request.url());
+    if (url.pathname.startsWith("/api/notes/")) notesRequests.push(request.url());
     if (url.searchParams.has("_rsc")) rscRequests.push(request.url());
   });
-  const responsePromise = page.waitForResponse((response) => new URL(response.url()).pathname === "/api/notes");
+  const responsePromise = page.waitForResponse((response) => new URL(response.url()).pathname === "/api/notes/N5");
   await page.goto("/notes?level=N5");
   const response = await responsePromise;
   expect(response.status()).toBe(200);

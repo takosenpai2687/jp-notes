@@ -32,12 +32,12 @@ test("N5–N1 vocabulary preserves the complete original English datasets and gr
   }
 });
 test("vocabulary endpoint serves one immutable, content-versioned level per response", async () => {
-  const stale = getVocabularyDataResponse(new Request("https://tako-jp.test/api/vocabulary?level=N5&v=stale"));
+  const stale = getVocabularyDataResponse(new Request("https://tako-jp.test/api/vocabulary/N5/stale"), "N5", "stale");
   assert.equal(stale.status, 404);
   assert.equal(stale.headers.get("cache-control"), "no-store");
   for (const [level, count] of [["N5", 674], ["N4", 630], ["N3", 1659], ["N2", 1778], ["N1", 3070]] as const) {
     const version = getVocabularyDataVersion(level);
-    const response = getVocabularyDataResponse(new Request(`https://tako-jp.test/api/vocabulary?level=${level}&v=${version}`));
+    const response = getVocabularyDataResponse(new Request(`https://tako-jp.test/api/vocabulary/${level}/${version}`), level, version);
     assert.equal(response.status, 200);
     assert.match(response.headers.get("content-type") ?? "", /application\/json/);
     assert.equal(response.headers.get("cache-control"), "public, max-age=31536000, immutable");

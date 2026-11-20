@@ -24,7 +24,7 @@ function getVocabularyDataset(level: VocabularyLevel) {
   const key = `${level}:${version}`;
   const cached = datasetRequests.get(key);
   if (cached) return cached;
-  const request = fetch(`/api/vocabulary?level=${level}&v=${encodeURIComponent(version)}`, { cache: "force-cache" })
+  const request = fetch(`/api/vocabulary/${level}/${version}`, { cache: "force-cache" })
     .then(async (response) => {
       if (!response.ok) throw new Error("词库暂时无法加载，请检查网络后重试。");
       const words = z.array(vocabularySchema).parse(await response.json());

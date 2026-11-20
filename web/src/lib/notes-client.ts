@@ -12,7 +12,7 @@ export function getCachedNotes(level: Level) {
 export function fetchNotes(level: Level) {
   const existing = inFlight.get(level);
   if (existing) return existing;
-  const request = fetch(`/api/notes?level=${level}`, { cache: "no-cache", credentials: "same-origin" })
+  const request = fetch(`/api/notes/${level}`, { cache: "no-cache", credentials: "same-origin" })
     .then(async (response) => {
       if (!response.ok) throw new Error(`笔记同步失败（HTTP ${response.status}）。`);
       const result = notesPayloadSchema.safeParse(await response.json());
