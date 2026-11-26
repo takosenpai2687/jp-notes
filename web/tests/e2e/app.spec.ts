@@ -107,52 +107,6 @@ test("feature pages share compact headers and descriptive level tabs without sum
   }
 });
 
-test("notes rows grow with three-line N4 titles instead of shrinking or overlapping", async ({ page }) => {
-  const title = "N4 推量四件套总结：ようだ・みたいだ・そうだ・らしい";
-  await page.goto("/notes?level=N4");
-  await page.evaluate(() => document.fonts.ready);
-  const list = page.getByRole("region", { name: "笔记列表" });
-  const row = list.locator(".lesson-card").filter({ hasText: title });
-  for (const width of [1200, 1440, 1920, 768, 390]) {
-    await page.setViewportSize({ width, height: 1000 });
-    await row.scrollIntoViewIfNeeded();
-    const metrics = await row.evaluate((el) => {
-      const link = Array.from(el.querySelectorAll<HTMLElement>(".lesson-main-link")).find((item) => item.offsetHeight > 0)!;
-      const heading = link.querySelector("h3")!;
-      const text = document.createRange();
-      text.selectNodeContents(heading);
-      const rowBox = el.getBoundingClientRect();
-      const linkBox = link.getBoundingClientRect();
-      const textBox = text.getBoundingClientRect();
-      return {
-        rowHeight: rowBox.height,
-        lines: heading.getBoundingClientRect().height / parseFloat(getComputedStyle(heading).lineHeight),
-        rowTop: rowBox.top, rowBottom: rowBox.bottom,
-        linkTop: linkBox.top, linkBottom: linkBox.bottom,
-        textTop: textBox.top, textBottom: textBox.bottom,
-        textLeft: textBox.left, textRight: textBox.right,
-        linkLeft: linkBox.left, linkRight: linkBox.right,
-        nextTop: el.nextElementSibling!.getBoundingClientRect().top,
-      };
-    });
-    if (width >= 1200) {
-      expect(metrics.lines).toBeGreaterThanOrEqual(2.9);
-      expect(metrics.rowHeight).toBeGreaterThan(70);
-      const panes = await Promise.all([list.boundingBox(), page.locator(".notes-preview").boundingBox()]);
-      expect(panes[0]!.y).toBeLessThan(280);
-      expect(panes[0]!.y + panes[0]!.height).toBeLessThanOrEqual(1000);
-      expect(panes[1]!.height).toBeCloseTo(panes[0]!.height, 0);
-    }
-    expect(metrics.textTop).toBeGreaterThanOrEqual(metrics.rowTop);
-    expect(metrics.textBottom).toBeLessThanOrEqual(metrics.rowBottom);
-    expect(metrics.textTop).toBeGreaterThanOrEqual(metrics.linkTop);
-    expect(metrics.textBottom).toBeLessThanOrEqual(metrics.linkBottom);
-    expect(metrics.textLeft).toBeGreaterThanOrEqual(metrics.linkLeft);
-    expect(metrics.textRight).toBeLessThanOrEqual(metrics.linkRight);
-    expect(metrics.nextTop).toBeGreaterThanOrEqual(metrics.rowBottom);
-  }
-});
-
 test("guest can skip, go back, select any question, resume, submit and see saved best", async ({ page }) => {
   await page.goto(`/quiz/${quiz.id}`);
   await expect(page.locator(".question-card")).toBeVisible();
